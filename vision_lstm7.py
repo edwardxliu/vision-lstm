@@ -1092,6 +1092,42 @@ class FeatureExtractor(nn.Module):
 
         return self.conv_features(z)
 
+class StridedConvDownsample(nn.Module):
+    """
+    (B, H*W, C) -> (B, H/2*W/2, C_out) via Conv2d(k=2, s=2)
+    可选 padding，支持 odd H/W 时做 pad（右/下补 1）
+    """
+    def __init__(self, in_dim, out_dim, in_seqlens, norm_bias=True):
+        super().__init__()
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.in_seqlens = tuple(in_seqlens)
+
+        self.proj = nn.Conv2d(in_dim, out_dim, kernel_size=2, stride=2, padding=0, bias=False)
+        self.norm = LayerNorm(ndim=out_dim, weight=True, bias=norm_bias, eps=1e-6)
+
+        H, W = self.in_seqlens
+        self.out_seqlens = ((H + 1) // 2, (W + 1) // 2)
+
+    def forward(self, x):
+        B, N, C = x.shape
+        H, W = self.in_seqlens
+        assert C == self.in_dim and N == H * W
+
+        x = einops.rearrange(x, "b (h w) c -> b c h w", h=H, w=W)
+
+        # odd 尺寸时补右/下，保证能 stride=2
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x = F.pad(x, (0, pad_w, 0, pad_h), mode="reflect")
+
+        y = self.proj(x)  # (B, out_dim, H2, W2)
+        y = einops.rearrange(y, "b c h w -> b h w c")
+        y = self.norm(y)
+        y = einops.rearrange(y, "b h w c -> b (h w) c")
+        return y
+
 class ConvPatchMerging(nn.Module):
     """
     先 stride conv 做局部混合 + 降采样，再 patch merging 做重组 + 通道投影。
@@ -1121,6 +1157,50 @@ class ConvPatchMerging(nn.Module):
         x2 = einops.rearrange(x2, "b c h w -> b (h w) c")
         return self.merge(x2)
 
+class PatchMerging2D(nn.Module):
+    """
+    Swin-style patch merging:
+    (B, H*W, C) -> gather 2x2 -> (B, H/2*W/2, 4C) -> LN -> Linear(4C -> C_out)
+    """
+    def __init__(self, in_dim, out_dim, in_seqlens, norm_bias=True):
+        super().__init__()
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.in_seqlens = tuple(in_seqlens)
+
+        self.norm = LayerNorm(ndim=4 * in_dim, weight=True, bias=norm_bias, eps=1e-6)
+        self.reduction = nn.Linear(4 * in_dim, out_dim, bias=False)
+
+        H, W = self.in_seqlens
+        self.out_seqlens = ((H + 1) // 2, (W + 1) // 2)
+
+    def forward(self, x):
+        B, N, C = x.shape
+        H, W = self.in_seqlens
+        assert C == self.in_dim and N == H * W
+
+        x = einops.rearrange(x, "b (h w) c -> b h w c", h=H, w=W)
+
+        # odd 尺寸 pad（右/下补 1）
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x = F.pad(x, (0, 0, 0, pad_w, 0, pad_h), mode="reflect")  # pad W/H on spatial dims
+
+        H2 = (H + 1) // 2
+        W2 = (W + 1) // 2
+
+        x0 = x[:, 0::2, 0::2, :]  # (B,H2,W2,C)
+        x1 = x[:, 1::2, 0::2, :]
+        x2 = x[:, 0::2, 1::2, :]
+        x3 = x[:, 1::2, 1::2, :]
+        y = torch.cat([x0, x1, x2, x3], dim=-1)  # (B,H2,W2,4C)
+
+        y = self.norm(y)
+        y = self.reduction(y)  # (B,H2,W2,out_dim)
+        y = einops.rearrange(y, "b h w c -> b (h w) c")
+        return y
+
 class VisionLSTM2(nn.Module):
     def __init__(
         self,
@@ -1139,6 +1219,7 @@ class VisionLSTM2(nn.Module):
         pair_fusion: str = "parallel_gated",   # "serial" | "parallel_add" | "parallel_gated" | "parallel_concat"
         col_every: int = 0,                    # 0=关闭；比如 2 表示每 2 个 block 用一次 ColViLBlockPair
         gamma_init: float = 1e-4,              # 建议扫 1e-6/1e-5/1e-4
+        merge_kind: str = 'patch',             # haar | conv | patch | conv_patch
 
     ):
         super().__init__()
@@ -1162,6 +1243,7 @@ class VisionLSTM2(nn.Module):
         self.pair_fusion = pair_fusion
         self.col_every = int(col_every)
         self.gamma_init = float(gamma_init)
+        self.merge_kind = merge_kind
 
 
         # -------------------------
@@ -1304,18 +1386,17 @@ class VisionLSTM2(nn.Module):
             if si < num_merges:
                 out_dim = stage_dims[si + 1]
                 #merge = HaarTokenMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
-                merge_kind = os.environ.get("MERGE_KIND", "patch").lower()  # haar | conv | patch | conv_patch
 
-                if merge_kind == "haar":
+                if self.merge_kind == "haar":
                     merge = HaarTokenMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
-                elif merge_kind == "conv":
+                elif self.merge_kind == "conv":
                     merge = StridedConvDownsample(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
-                elif merge_kind == "patch":
-                    merge = PatchMerging2D(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
+                elif self.merge_kind == "patch":
+                    self.merge = PatchMerging2D(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
                 elif merge_kind == "conv_patch":
-                    merge = ConvPatchMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
+                    self.merge = ConvPatchMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
                 else:
-                    raise ValueError(f"unknown MERGE_KIND={merge_kind}")
+                    raise ValueError(f"unknown MERGE_KIND={self.merge_kind}")
 
                 self.merges.append(merge)
                 self.stage_seqlens.append(merge.out_seqlens)
