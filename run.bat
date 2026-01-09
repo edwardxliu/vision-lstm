@@ -79,9 +79,29 @@ set USE_DWT=1
 set POOLING=attn
 set OUT_CKPT=lstm5_attn_dwt_best.pth
 python -u lstm5_train_tinyimagenet.py > lstm5_attn_dwt.log 2>&1
-:COMMENT_END
 
 set USE_DWT=1
 set POOLING=global
 set OUT_CKPT=lstm5_global_dwt_best.pth
 python -u lstm5_train_tinyimagenet.py > lstm5_global_dwt.log 2>&1
+:COMMENT_END
+
+
+set IMG_SIZE=64
+set EPOCHS=150
+set WARMUP_EPOCHS=10
+set PER_GPU_BATCH=32
+set AMP_DTYPE=bf16
+
+REM Stage A
+set ABLATION=A0
+python -u lstm5_train_tinyimagenet_ablation.py > lstm5_A0.log 2>&1
+
+set ABLATION=A1
+python -u lstm5_train_tinyimagenet_ablation.py > lstm5_A1.log 2>&1
+
+set ABLATION=A2
+python -u lstm5_train_tinyimagenet_ablation.py > lstm5_A2.log 2>&1
+
+set ABLATION=A3
+python -u lstm5_train_tinyimagenet_ablation.py > lstm5_A3.log 2>&1
