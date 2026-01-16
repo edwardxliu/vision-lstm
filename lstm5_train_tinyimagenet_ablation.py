@@ -69,6 +69,118 @@ def update_ema(model, ema_model, decay: float):
             v.copy_(v * decay + src.detach() * (1.0 - decay))
 
 
+# ----------------- Checkpoint IO (single GPU) -----------------
+
+def _is_full_ckpt(obj) -> bool:
+    return isinstance(obj, dict) and ("model" in obj or "optimizer" in obj or "epoch" in obj)
+
+
+def save_checkpoint(
+    path: str,
+    epoch: int,
+    model: torch.nn.Module,
+    ema_model: torch.nn.Module,
+    optimizer,
+    scheduler,
+    scaler,
+    best_acc: float,
+    extra: dict = None,
+):
+    """Save a full training checkpoint (single GPU)."""
+    ckpt = {
+        "epoch": int(epoch),
+        "best_acc": float(best_acc),
+        "model": model.state_dict(),
+        "ema": (ema_model.state_dict() if ema_model is not None else None),
+        "optimizer": (optimizer.state_dict() if optimizer is not None else None),
+        "scheduler": (scheduler.state_dict() if scheduler is not None else None),
+        "scaler": (scaler.state_dict() if (scaler is not None and getattr(scaler, 'is_enabled', lambda: False)()) else None),
+        "rng_state": torch.get_rng_state(),
+        "cuda_rng_state_all": (torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None),
+        "numpy_rng_state": np.random.get_state(),
+        "py_rng_state": random.getstate(),
+        "extra": (extra or {}),
+    }
+    torch.save(ckpt, path)
+
+
+def load_checkpoint(
+    path: str,
+    model: torch.nn.Module,
+    ema_model: torch.nn.Module = None,
+    optimizer=None,
+    scheduler=None,
+    scaler=None,
+    strict: bool = False,
+    resume_optimizer: bool = True,
+    resume_scheduler: bool = True,
+    resume_scaler: bool = True,
+    resume_ema: bool = True,
+    resume_rng: bool = True,
+):
+    """Load a full checkpoint if available; otherwise fall back to loading model weights only."""
+    obj = torch.load(path, map_location='cpu')
+
+    # Full checkpoint
+    if _is_full_ckpt(obj):
+        model_state = obj.get('model', None)
+        if model_state is None and 'state_dict' in obj:
+            model_state = obj['state_dict']
+
+        missing, unexpected = model.load_state_dict(model_state, strict=strict)
+
+        if resume_ema and ema_model is not None and obj.get('ema') is not None:
+            try:
+                ema_model.load_state_dict(obj['ema'], strict=False)
+            except Exception as e:
+                print(f"[Resume] WARN: failed to load EMA state: {e}", flush=True)
+
+        if resume_optimizer and optimizer is not None and obj.get('optimizer') is not None:
+            try:
+                optimizer.load_state_dict(obj['optimizer'])
+            except Exception as e:
+                print(f"[Resume] WARN: failed to load optimizer state: {e}", flush=True)
+
+        if resume_scheduler and scheduler is not None and obj.get('scheduler') is not None:
+            try:
+                scheduler.load_state_dict(obj['scheduler'])
+            except Exception as e:
+                print(f"[Resume] WARN: failed to load scheduler state: {e}", flush=True)
+
+        if resume_scaler and scaler is not None and obj.get('scaler') is not None:
+            try:
+                scaler.load_state_dict(obj['scaler'])
+            except Exception as e:
+                print(f"[Resume] WARN: failed to load GradScaler state: {e}", flush=True)
+
+        if resume_rng:
+            try:
+                if obj.get('rng_state') is not None:
+                    torch.set_rng_state(obj['rng_state'])
+                if torch.cuda.is_available() and obj.get('cuda_rng_state_all') is not None:
+                    torch.cuda.set_rng_state_all(obj['cuda_rng_state_all'])
+                if obj.get('numpy_rng_state') is not None:
+                    np.random.set_state(obj['numpy_rng_state'])
+                if obj.get('py_rng_state') is not None:
+                    random.setstate(obj['py_rng_state'])
+            except Exception as e:
+                print(f"[Resume] WARN: failed to restore RNG states: {e}", flush=True)
+
+        epoch = int(obj.get('epoch', 0))
+        best_acc = float(obj.get('best_acc', 0.0))
+        return epoch, best_acc, missing, unexpected
+
+    # Fallback: treat obj as raw state_dict
+    missing, unexpected = model.load_state_dict(obj, strict=False)
+    if resume_ema and ema_model is not None:
+        # If user accidentally points RESUME_CKPT to an EMA-only weight file, load it into EMA too.
+        try:
+            ema_model.load_state_dict(obj, strict=False)
+        except Exception:
+            pass
+    return 0, 0.0, missing, unexpected
+
+
 # ----------------- Mixup / CutMix -----------------
 def rand_bbox(W, H, lam):
     cut_rat = (1.0 - lam) ** 0.5
@@ -483,15 +595,20 @@ def main():
         flush=True
     )
     print(f"[Model] dim={dim}, depth={depth}, base_patch={patch_size}, base_stride={stride}, feat_ch={feature_extractor_channels}, dwt_fuse={dwt_fuse}", flush=True)
-
-    # Optional resume
+    # Optional resume (deferred; full training state preferred)
     resume_ckpt = os.environ.get("RESUME_CKPT", "").strip()
-    if resume_ckpt and os.path.isfile(resume_ckpt):
-        state = torch.load(resume_ckpt, map_location="cpu")
-        missing, unexpected = model.load_state_dict(state, strict=False)
-        print(f"[Resume] {resume_ckpt} | missing={len(missing)}, unexpected={len(unexpected)}", flush=True)
-    elif resume_ckpt:
-        print(f"[Resume] RESUME_CKPT {resume_ckpt} not found, train from scratch", flush=True)
+    resume_strict = _env_bool("RESUME_STRICT", False)
+    resume_opt = _env_bool("RESUME_OPT", True)
+    resume_sch = _env_bool("RESUME_SCHED", True)
+    resume_scaler = _env_bool("RESUME_SCALER", True)
+    resume_ema = _env_bool("RESUME_EMA", True)
+    resume_rng = _env_bool("RESUME_RNG", True)
+    if resume_ckpt:
+        if not os.path.isfile(resume_ckpt):
+            print(f"[Resume] RESUME_CKPT {resume_ckpt} not found, will train from scratch", flush=True)
+            resume_ckpt = ""
+        else:
+            print(f"[Resume] Will resume from: {resume_ckpt}", flush=True)
     else:
         print("[Resume] Train from scratch", flush=True)
 
@@ -537,6 +654,32 @@ def main():
 
     ema_model = create_ema_model(model).to(device)
 
+    # ---- Resume apply (after optimizer/scheduler/ema are created) ----
+    start_epoch = 1
+    best_acc = 0.0
+    if resume_ckpt:
+        ep, best_loaded, missing, unexpected = load_checkpoint(
+            resume_ckpt,
+            model,
+            ema_model=ema_model if resume_ema else None,
+            optimizer=optimizer if resume_opt else None,
+            scheduler=scheduler if resume_sch else None,
+            scaler=scaler if resume_scaler else None,
+            strict=resume_strict,
+            resume_optimizer=resume_opt,
+            resume_scheduler=resume_sch,
+            resume_scaler=resume_scaler,
+            resume_ema=resume_ema,
+            resume_rng=resume_rng,
+        )
+        start_epoch = int(ep) + 1
+        best_acc = float(best_loaded)
+        print(f"[Resume] loaded epoch={ep}, best_acc={best_loaded:.4f} | start_epoch={start_epoch}", flush=True)
+        print(f"[Resume] model missing={len(missing)}, unexpected={len(unexpected)}", flush=True)
+    else:
+        print(f"[Resume] start_epoch={start_epoch}", flush=True)
+
+
     # Branch alpha schedule (only meaningful when branch is enabled and head_adapter exposes alpha)
     BRANCH_START = _env_int("BRANCH_ALPHA_START", 10)
     BRANCH_RAMP = _env_int("BRANCH_RAMP", 10)
@@ -547,13 +690,15 @@ def main():
             return 0.0
         t = min(1.0, (epoch - start_epoch) / max(1, ramp_epochs))
         return alpha_max * t
-
-    best_acc = 0.0
     pretrain_ckpt = os.environ.get("OUT_CKPT", f"tiny_{ABL}_ema_best.pth")
+    out_last = os.environ.get("OUT_LAST", f"tiny_{ABL}_last.pth")
+    save_last = _env_bool("SAVE_LAST", True)
+    save_every = _env_int("SAVE_EVERY", 1)
+    out_best_full = os.environ.get("OUT_BEST_FULL", f"tiny_{ABL}_best_full.pth")
     log_every = _env_int("LOG_EVERY", 50)
 
     # ---- Train ----
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(start_epoch, num_epochs + 1):
         # Dynamic branch alpha & branch weight decay: only if branch enabled
         if (not disable_branch) and hasattr(model, "head_adapter") and hasattr(model.head_adapter, "alpha"):
             a = get_branch_alpha(epoch, BRANCH_START, BRANCH_RAMP, BRANCH_MAX)
@@ -682,7 +827,22 @@ def main():
         if val_acc_g > best_acc:
             best_acc = val_acc_g
             torch.save(ema_model.state_dict(), pretrain_ckpt)
+            # Also save full training state for easy RESUME_CKPT
+            try:
+                save_checkpoint(out_best_full, epoch, model, ema_model, optimizer, scheduler, scaler, best_acc, extra={"ablation": ABL})
+                print(f"  💾 Full best saved @ {out_best_full}", flush=True)
+            except Exception as e:
+                print(f"  ⚠️  WARN: failed to save full best ckpt: {e}", flush=True)
             print(f"  🌟 New best saved @ {pretrain_ckpt} (acc={best_acc:.4f})", flush=True)
+
+        # ---- Save last (full) checkpoint ----
+        if save_last and (save_every > 0) and (epoch % save_every == 0):
+            try:
+                save_checkpoint(out_last, epoch, model, ema_model, optimizer, scheduler, scaler, best_acc, extra={"ablation": ABL})
+                print(f"  💾 Last ckpt saved @ {out_last}", flush=True)
+            except Exception as e:
+                print(f"  ⚠️  WARN: failed to save last ckpt: {e}", flush=True)
+
 
 
 if __name__ == "__main__":
