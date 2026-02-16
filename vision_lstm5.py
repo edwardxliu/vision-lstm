@@ -123,6 +123,14 @@ def parallel_stabilized_simple(
         torch.Tensor: (B, NH, S, DH), h_tilde_state
     """
 
+    orig_dtype = queries.dtype
+    queries = queries.float()
+    keys = keys.float()
+    values = values.float()
+    igate_preact = igate_preact.float()
+    fgate_preact = fgate_preact.float()
+    eps = 1e-6  # float32 下可以更小一点
+
     B, NH, S, DH = queries.shape
     _dtype, _device = queries.dtype, queries.device
 
@@ -174,6 +182,8 @@ def parallel_stabilized_simple(
 
     # retrieved values
     h_tilde_state = C_matrix_normalized @ values  # (B, NH, S, DH)
+
+    h_tilde_state = h_tilde_state.to(orig_dtype)
 
     return h_tilde_state
 
@@ -378,11 +388,12 @@ class MatrixLSTMCell(nn.Module):
         fgate_preact = fgate_preact.transpose(-1, -2).unsqueeze(-1)  # (B, NH, S, 1)#
 
         # cache causal mask to avoid memory allocation in every iteration
-        if S in self.causal_mask_cache:
-            causal_mask = self.causal_mask_cache[(S, str(q.device))]
+        key = (S, str(q.device))
+        if key in self.causal_mask_cache:
+            causal_mask = self.causal_mask_cache[key]
         else:
             causal_mask = torch.tril(torch.ones(S, S, dtype=torch.bool, device=q.device))
-            self.causal_mask_cache[(S, str(q.device))] = causal_mask
+            self.causal_mask_cache[key] = causal_mask
 
         h_state = parallel_stabilized_simple(
             queries=q,
@@ -585,7 +596,6 @@ class ViLBlock(nn.Module):
             norm_bias=norm_bias,
             proj_bias=proj_bias,
         )
-        #self.gamma = nn.Parameter(torch.ones(dim) * 1e-2)
         self.gamma = nn.Parameter(torch.ones(dim) * 1e-4)
         self.reset_parameters()
 
@@ -640,10 +650,13 @@ class VitPatchEmbed(nn.Module):
 
         # Validate resolution and patch size
         for i in range(self.ndim):
-            assert resolution[i] % self.patch_size[i] == 0, \
-                f"Resolution[{i}] % Patch_Size[{i}] != 0 (Resolution={resolution}, Patch_Size={patch_size})"
+            assert (resolution[i] - self.patch_size[i]) % self.stride[i] == 0, \
+                f"Bad (resolution, patch, stride) at dim {i}: {resolution[i]}, {self.patch_size[i]}, {self.stride[i]}"
 
-        self.seqlens = [resolution[i] // self.patch_size[i] for i in range(self.ndim)]
+        self.seqlens = [
+            (resolution[i] - self.patch_size[i]) // self.stride[i] + 1
+            for i in range(self.ndim)
+        ]
 
         # Choose appropriate convolution function
         if self.ndim == 1:
@@ -680,8 +693,11 @@ class VitPatchEmbed(nn.Module):
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, num_patches, dim)
         """
-        assert all(x.size(i + 2) % self.patch_size[i] == 0 for i in range(self.ndim)), \
-            f"x.shape={x.shape} incompatible with patch_size={self.patch_size}"
+        for i in range(self.ndim):
+            s = x.size(i + 2)
+            assert s >= self.patch_size[i] and (s - self.patch_size[i]) % self.stride[i] == 0, \
+                f"x.shape={x.shape} incompatible with patch={self.patch_size} stride={self.stride}"
+
         
         # Apply convolution to extract patches and project them
         x = self.proj(x)
@@ -776,21 +792,6 @@ class ViLBlockPair(nn.Module):
         x = self.rowwise_from_bot_right(x)
         return x
 
-
-
-class FourierTransform(nn.Module):
-    def __init__(self):
-        super(FourierTransform, self).__init__()
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Compute the 2D Fourier transform
-        x_fft = torch.fft.fft2(x)
-        # Compute the magnitude of the complex result
-        x_fft_magnitude = torch.abs(x_fft)
-        # Normalize
-        x_fft_normalized = torch.log1p(x_fft_magnitude)
-        return x_fft_normalized
-
 class HaarDWT2d(nn.Module):
     """
     Fixed-weight 2D Haar DWT（depthwise conv + stride=2），输出四个子带：LL, LH, HL, HH。
@@ -815,16 +816,21 @@ class HaarDWT2d(nn.Module):
         self.register_buffer('weight', weight)
 
     def forward(self, x):  # x: (B,C,H,W)
-        if self.padding == 'reflect':
-            x = F.pad(x, (1,0,1,0), mode='reflect')
-        y = F.conv2d(x, self.weight, stride=2, padding=0, groups=self.channels)  # (B,4C,H/2,W/2)
+        B, C, H, W = x.shape
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            # 只补右/下，避免整体偏移
+            x = F.pad(x, (0, pad_w, 0, pad_h), mode='reflect')
+        y = F.conv2d(x, self.weight, stride=2, padding=0, groups=self.channels)
+
         B, OC, H2, W2 = y.shape
         C = self.channels
         y = y.view(B, C, 4, H2, W2)
         LL, LH, HL, HH = y[:, :, 0], y[:, :, 1], y[:, :, 2], y[:, :, 3]  # (B,C,H/2,W/2)
         return LL, LH, HL, HH
 
-# === NEW: 旁路→主干 的残差适配器 ===
+# === 旁路→主干 的残差适配器 ===
 class HeadResidualAdapter(nn.Module):
     """
     把分支向量投到 head_dim ，以可学习缩放的方式残差注入到主干向量里。
@@ -838,7 +844,7 @@ class HeadResidualAdapter(nn.Module):
         return main_vec + self.alpha * delta
 
 
-# === NEW: 残差卷积块（替换 FeatureExtractor 里的 Conv+SiLU 堆叠）===
+# === 残差卷积块 ===
 class ResidualConvBlock(nn.Module):
     def __init__(self, in_ch, out_ch, k=3, s=1, p=1):
         super().__init__()
@@ -850,8 +856,7 @@ class ResidualConvBlock(nn.Module):
         self.act2 = nn.SiLU(inplace=True)
         self.conv2 = nn.Conv2d(out_ch, out_ch, k, stride=1, padding=p, bias=False)
         self.short = nn.Identity() if self.same else nn.Conv2d(in_ch, out_ch, 1, stride=s, bias=False)
-        #self.gamma = nn.Parameter(torch.zeros(1))  # LayerScale：初始很小，先“别叠太多改动”
-        self.gamma = nn.Parameter(torch.zeros(1e-4))  # LayerScale：初始很小，先“别叠太多改动”
+        self.gamma = nn.Parameter(torch.ones(1) * 1e-4)  # LayerScale：初始很小，先“别叠太多改动”
 
     def forward(self, x):
         identity = self.short(x)
@@ -860,7 +865,7 @@ class ResidualConvBlock(nn.Module):
         return identity + self.gamma * y
 
 
-# === NEW（可选）: 轻量局部残差混合器（DWConv）===
+# === : 轻量局部残差混合器（DWConv）===
 class ResidualDepthwiseMix(nn.Module):
     """
     在 token 序列与网格之间做一次极轻的 3x3 深度可分离卷积，再残差回去。
@@ -882,70 +887,89 @@ class ResidualDepthwiseMix(nn.Module):
 
 class FeatureExtractor(nn.Module):
     """
-    WaveCNet 风格：先做一次 DWT 下采样（默认只用 LL），再进入小卷积堆叠提取局部特征。
-    注意：保留了原有的 use_fourier 参数名作为“启用 DWT”的别名，方便你现有调用不改动。
+    先可选 DWT（输出 LL/LH/HL/HH），再用轻量卷积堆叠提取局部特征。
+    dwt_fuse: 'LL' | 'concat' | 'add' | 'gated'
     """
-    def __init__(self, input_channels: int, conv_channels: list, use_fourier: bool = False,
-                 use_dwt: bool = None, dwt_fuse: str = 'LL'):
-        super(FeatureExtractor, self).__init__()
-        # 兼容：如果未显式传 use_dwt，则沿用 use_fourier 的值
-        self.use_dwt = use_dwt if use_dwt is not None else use_fourier
+    def __init__(self, input_channels: int, conv_channels: list,
+                 use_dwt: bool = False, dwt_fuse: str = "LL"):
+        super().__init__()
+        self.use_dwt = bool(use_dwt)
         self.dwt_fuse = dwt_fuse
-        self.input_channels = input_channels
+        C = input_channels
+
+        self.dwt = None
+        self.reduce = None
+        self.hf_reduce = None
+        self.hf_gate = None
 
         if self.use_dwt:
-            self.dwt = HaarDWT2d(input_channels)
-            if dwt_fuse == 'LL':
-                first_in = input_channels
-                self.reduce = None
-            elif dwt_fuse == 'concat':
-                first_in = input_channels * 4
-                self.reduce = None
-            elif dwt_fuse == 'add':
-                first_in = input_channels
-                self.reduce = nn.Conv2d(input_channels * 4, input_channels, kernel_size=1, bias=False)
+            self.dwt = HaarDWT2d(C)
+
+            if dwt_fuse == "LL":
+                first_in = C
+
+            elif dwt_fuse == "concat":
+                first_in = 4 * C
+
+            elif dwt_fuse == "add":
+                first_in = C
+                # 用 4C->C，把 LL/LH/HL/HH 综合成一个 C 通道的残差项
+                self.reduce = nn.Conv2d(4 * C, C, kernel_size=1, bias=False)
+
+            elif dwt_fuse == "gated":
+                first_in = C
+                # 高频 3C -> C
+                self.hf_reduce = nn.Conv2d(3 * C, C, kernel_size=1, bias=True)
+                # gate: [ll(C), hf3(C)] -> gate(C)
+                self.hf_gate = nn.Sequential(
+                    nn.Conv2d(2 * C, C, kernel_size=1, bias=True),
+                    nn.Sigmoid()
+                )
+
             else:
-                raise ValueError("dwt_fuse must be one of {'LL','concat','add'}")
+                raise ValueError("dwt_fuse must be one of {'LL','concat','add','gated'}")
         else:
-            first_in = input_channels
-            self.reduce = None
+            first_in = C
 
-        # layers = []
-        # in_channels = first_in
-        # for out_channels in conv_channels:
-        #     layers.append(nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1))
-        #     layers.append(nn.SiLU(inplace=True))
-        #     in_channels = out_channels
-
-        # self.conv_features = nn.Sequential(*layers)
         blocks = []
-        in_channels = first_in
-        for out_channels in conv_channels:
-            blocks.append(ResidualConvBlock(in_channels, out_channels, k=3, s=1, p=1))
-            in_channels = out_channels
+        in_ch = first_in
+        for out_ch in conv_channels:
+            blocks.append(ResidualConvBlock(in_ch, out_ch, k=3, s=1, p=1))
+            in_ch = out_ch
         self.conv_features = nn.Sequential(*blocks)
-        self.final_channels = conv_channels[-1]  # 输出通道
+        self.final_channels = conv_channels[-1]
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # DWT 下采样（H,W -> H/2,W/2）
-        if self.use_dwt:
-            LL, LH, HL, HH = self.dwt(x)
-            if self.dwt_fuse == 'LL':
-                z = LL
-            elif self.dwt_fuse == 'concat':
-                z = torch.cat([LL, LH, HL, HH], dim=1)
-            else:  # 'add'
-                z = LL + self.reduce(torch.cat([LL, LH, HL, HH], dim=1))
-        else:
+        if not self.use_dwt:
             z = x
-        # 卷积特征
-        return self.conv_features(z)
+        else:
+            ll, lh, hl, hh = self.dwt(x)
 
+            if self.dwt_fuse == "LL":
+                z = ll
+
+            elif self.dwt_fuse == "concat":
+                z = torch.cat([ll, lh, hl, hh], dim=1)
+
+            elif self.dwt_fuse == "add":
+                all4 = torch.cat([ll, lh, hl, hh], dim=1)      # 4C
+                z = ll + self.reduce(all4)                     # C
+
+            elif self.dwt_fuse == "gated":
+                hf = torch.cat([lh, hl, hh], dim=1)            # 3C
+                hf3 = self.hf_reduce(hf)                       # C
+                gate = self.hf_gate(torch.cat([ll, hf3], dim=1))  # C
+                z = ll + gate * hf3
+
+            else:
+                z = ll  # 保底
+
+        return self.conv_features(z)
 
 class VisionLSTM2(nn.Module):
     def __init__(self, dim, input_shape, patch_size, depth, output_shape, mode, pooling,
                  drop_path_rate, drop_path_decay, stride, legacy_norm, conv_kind,
-                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_fourier=False):
+                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False):
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -964,21 +988,20 @@ class VisionLSTM2(nn.Module):
         self.proj_bias = proj_bias
         self.norm_bias = norm_bias
         
-        # 1) 用 DWT 替代 FFT（仍然沿用 use_fourier 变量作为开关）
         self.feature_extractor = FeatureExtractor(
             input_channels=input_shape[0],
             conv_channels=feature_extractor_channels,
-            use_fourier=use_fourier,    # 现在等价于 use_dwt
-            use_dwt=use_fourier,        # 显式传入
+            use_dwt=use_dwt, 
             #dwt_fuse='LL'               # 'LL'（推荐）/'concat'/'add'
-            dwt_fuse='concat'
+            #dwt_fuse='concat'
+            dwt_fuse='gated'
         )
         
         # 2) DWT 不再增加通道，PatchEmbed 的输入通道就是卷积输出通道
         num_channels = feature_extractor_channels[-1]
 
         # 3) 若启用 DWT，下采样一半；确保 patch_size 能整除新的 H,W
-        if use_fourier:  # DWT on
+        if use_dwt:  # DWT on
             pe_res = (input_shape[1] // 2, input_shape[2] // 2)
         else:
             pe_res = (input_shape[1], input_shape[2])
@@ -988,7 +1011,7 @@ class VisionLSTM2(nn.Module):
             num_channels=num_channels,
             resolution=pe_res,
             patch_size=patch_size,
-            stride=patch_size,
+            stride=stride,
             init_weights="xavier_uniform"
         )
 
@@ -1037,9 +1060,6 @@ class VisionLSTM2(nn.Module):
         elif mode == "classifier":
             assert self.output_shape is not None and len(self.output_shape) == 1, \
                 f"define number of classes via output_shape=(num_classes,) (e.g. output_shape=(1000,) for ImageNet-1K"
-            #self.head = nn.Linear(dim * 3, self.output_shape[0])  # Updated to match combined feature size
-            #nn.init.trunc_normal_(self.head.weight, std=2e-5)
-            #nn.init.zeros_(self.head.bias)
             self.head = nn.Linear(head_dim, self.output_shape[0])
             nn.init.trunc_normal_(self.head.weight, std=2e-5)
             nn.init.zeros_(self.head.bias)
@@ -1064,12 +1084,14 @@ class VisionLSTM2(nn.Module):
     
         g_h, g_w = self.patch_embed.seqlens   # e.g., 8x8 或 4x4
         assert g_h == g_w
-        self.mixers = nn.ModuleList([ResidualDepthwiseMix(self.dim, grid=g_h) for _ in range(self.depth)])
+        self.mixer_every = 2
+        self.mixers = nn.ModuleList([ResidualDepthwiseMix(self.dim, grid=g_h) for _ in range((self.depth + self.mixer_every - 1)//self.mixer_every)])
 
     def load_state_dict(self, state_dict, strict=True):
-        old_pos_embed = state_dict["pos_embed.embed"]
-        if old_pos_embed.shape != self.pos_embed.embed.shape:
-            state_dict["pos_embed.embed"] = interpolate_sincos(embed=old_pos_embed, seqlens=self.pos_embed.seqlens)
+        if "pos_embed.embed" in state_dict:
+            old_pos_embed = state_dict["pos_embed.embed"]
+            if old_pos_embed.shape != self.pos_embed.embed.shape:
+                state_dict["pos_embed.embed"] = interpolate_sincos(embed=old_pos_embed, seqlens=self.pos_embed.seqlens)
         return super().load_state_dict(state_dict=state_dict, strict=strict)
 
     @torch.jit.ignore
@@ -1078,17 +1100,19 @@ class VisionLSTM2(nn.Module):
 
     def forward(self, x):
         # Main branch
-        x_main = self.feature_extractor(x)
-        x_main = self.patch_embed(x_main)
+        feature_maps = self.feature_extractor(x)
+        x_main = self.patch_embed(feature_maps)
         x_main = self.pos_embed(x_main)
         x_main = einops.rearrange(x_main, "b ... d -> b (...) d")
-        
+
+        midx = 0
         for i, block in enumerate(self.blocks):
             x_main = block(x_main)
-            if (i % 2) == 0:   # 每隔一层插一次，控制开销
-                x_main = self.mixers[i](x_main)
+            if (i % self.mixer_every) == 0:
+                x_main = self.mixers[midx](x_main)
+                midx += 1
         x_main = self.norm(x_main)
-    
+
         if self.pooling is None:
             x_main = self.legacy_norm(x_main)
         elif self.pooling == "to_image":
@@ -1100,6 +1124,10 @@ class VisionLSTM2(nn.Module):
                 seqlen_h=seqlen_h,
                 seqlen_w=seqlen_w,
             )
+        elif self.pooling == "global":
+            # Global Average Pooling over tokens: [B, N, D] -> [B, D]
+            x_main = x_main.mean(dim=1)
+            x_main = self.legacy_norm(x_main)
         elif self.pooling == "bilateral_avg":
             x_main = (x_main[:, 0] + x_main[:, -1]) / 2
             x_main = self.legacy_norm(x_main)
@@ -1110,21 +1138,10 @@ class VisionLSTM2(nn.Module):
             raise NotImplementedError(f"pooling '{self.pooling}' is not implemented")
     
         # Feature extractor branch
-        #feature_maps = self.feature_extractor(x)
-        #feature_branch_out = self.feature_extractor_branch(feature_maps)
-        feature_maps = self.feature_extractor(x)
         feature_branch_out = self.feature_extractor_branch(feature_maps)   # (B, dim)
     
         # Combine both branches
-        #combined_features = torch.cat([x_main, feature_branch_out], dim=1)
         x_main = self.head_adapter(x_main, feature_branch_out)             # (B, head_dim)
         combined_output = self.head(x_main)
         return combined_output
-        # Final classification head
-        # if self.head is not None:
-        #     combined_output = self.head(combined_features)
-        # else:
-        #     combined_output = combined_features
-
-        # return combined_output
 

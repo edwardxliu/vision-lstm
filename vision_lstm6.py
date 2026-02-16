@@ -956,6 +956,157 @@ class HaarTokenMerging(nn.Module):
         y = einops.rearrange(y, "b h w c -> b (h w) c")        # (B, H2*W2, out_dim)
         return y
 
+
+
+
+class PatchMerging2D(nn.Module):
+    '''
+    Swin-style Patch Merging (token -> grid -> 2x2 merge):
+      (B, H*W, C) -> (B, H/2 * W/2, C_out)
+
+    Uses LN on the concatenated 4C features and a Linear(4C -> C_out).
+    '''
+    def __init__(self, in_dim: int, out_dim: int, in_seqlens: tuple, norm_bias: bool = True):
+        super().__init__()
+        assert len(in_seqlens) == 2
+        self.in_dim = int(in_dim)
+        self.out_dim = int(out_dim)
+        self.in_seqlens = tuple(in_seqlens)
+        H, W = self.in_seqlens
+        self.out_seqlens = ((H + 1) // 2, (W + 1) // 2)  # pad后stride=2
+        self.norm = LayerNorm(ndim=4 * self.in_dim, weight=True, bias=norm_bias, eps=1e-6)
+        self.reduction = nn.Linear(4 * self.in_dim, self.out_dim, bias=False)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, N, C = x.shape
+        H, W = self.in_seqlens
+        assert C == self.in_dim, f"expected C={self.in_dim}, got {C}"
+        assert N == H * W, f"expected N=H*W={H*W}, got N={N}"
+
+        x = x.view(B, H, W, C)
+
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x_nchw = einops.rearrange(x, "b h w c -> b c h w")
+            x_nchw = F.pad(x_nchw, (0, pad_w, 0, pad_h), mode="replicate")
+            x = einops.rearrange(x_nchw, "b c h w -> b h w c")
+            H = H + pad_h
+            W = W + pad_w
+
+        x0 = x[:, 0::2, 0::2, :]
+        x1 = x[:, 1::2, 0::2, :]
+        x2 = x[:, 0::2, 1::2, :]
+        x3 = x[:, 1::2, 1::2, :]
+        x = torch.cat([x0, x1, x2, x3], dim=-1)  # (B, H/2, W/2, 4C)
+
+        x = self.norm(x)
+        x = self.reduction(x)  # (B, H/2, W/2, C_out)
+        x = einops.rearrange(x, "b h w c -> b (h w) c")
+        return x
+
+
+# Backward-compat alias (older code used PatchMerging)
+PatchMerging = PatchMerging2D
+
+
+class StridedConvDownsample(nn.Module):
+    '''
+    Strided Conv downsample on the token grid:
+      (B, H*W, C) -> reshape -> Conv2d(stride=2) -> flatten -> (B, H/2*W/2, C_out)
+    '''
+    def __init__(self, in_dim: int, out_dim: int, in_seqlens: tuple, kernel_size: int = 3,
+                 norm_bias: bool = True, conv_bias: bool = False):
+        super().__init__()
+        assert len(in_seqlens) == 2
+        self.in_dim = int(in_dim)
+        self.out_dim = int(out_dim)
+        self.in_seqlens = tuple(in_seqlens)
+        H, W = self.in_seqlens
+        self.out_seqlens = ((H + 1) // 2, (W + 1) // 2)
+
+        k = int(kernel_size)
+        assert k % 2 == 1, "use odd kernel for same-padding"
+        self.norm = LayerNorm(ndim=self.in_dim, weight=True, bias=norm_bias, eps=1e-6)
+        self.conv = nn.Conv2d(self.in_dim, self.out_dim, kernel_size=k, stride=2, padding=k // 2, bias=conv_bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, N, C = x.shape
+        H, W = self.in_seqlens
+        assert C == self.in_dim, f"expected C={self.in_dim}, got {C}"
+        assert N == H * W, f"expected N=H*W={H*W}, got N={N}"
+
+        x = x.view(B, H, W, C)
+        x = self.norm(x)
+        x = einops.rearrange(x, "b h w c -> b c h w")
+
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x = F.pad(x, (0, pad_w, 0, pad_h), mode="replicate")
+
+        y = self.conv(x)  # (B, out_dim, H2, W2)
+        y = einops.rearrange(y, "b c h w -> b (h w) c")
+        return y
+
+
+# Backward-compat alias (older code used StridedConvMerging)
+StridedConvMerging = StridedConvDownsample
+
+
+class ConvPatchMerging(nn.Module):
+    '''
+    Conv + Patch Merging:
+      1) light local mixing (DWConv kxk) on NCHW grid
+      2) PatchMerging2D (2x2 merge + LN + Linear)
+    '''
+    def __init__(self, in_dim: int, out_dim: int, in_seqlens: tuple, kernel_size: int = 3,
+                 norm_bias: bool = True, conv_bias: bool = False):
+        super().__init__()
+        assert len(in_seqlens) == 2
+        self.in_dim = int(in_dim)
+        self.out_dim = int(out_dim)
+        self.in_seqlens = tuple(in_seqlens)
+        H, W = self.in_seqlens
+        self.out_seqlens = ((H + 1) // 2, (W + 1) // 2)
+
+        k = int(kernel_size)
+        assert k % 2 == 1, "use odd kernel for same-padding"
+        self.pre_norm = LayerNorm(ndim=self.in_dim, weight=True, bias=norm_bias, eps=1e-6)
+
+        self.dw = nn.Conv2d(self.in_dim, self.in_dim, kernel_size=k, stride=1, padding=k // 2,
+                            groups=self.in_dim, bias=conv_bias)
+        self.pw = nn.Conv2d(self.in_dim, self.in_dim, kernel_size=1, stride=1, padding=0, bias=conv_bias)
+
+        self.merge = PatchMerging2D(in_dim=self.in_dim, out_dim=self.out_dim, in_seqlens=self.in_seqlens, norm_bias=norm_bias)
+
+        # start close to identity
+        self.gamma = nn.Parameter(torch.zeros(1))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, N, C = x.shape
+        H, W = self.in_seqlens
+        assert C == self.in_dim, f"expected C={self.in_dim}, got {C}"
+        assert N == H * W, f"expected N=H*W={H*W}, got N={N}"
+
+        x_hw = x.view(B, H, W, C)
+        x_hw = self.pre_norm(x_hw)
+        x_nchw = einops.rearrange(x_hw, "b h w c -> b c h w")
+
+        pad_h = H % 2
+        pad_w = W % 2
+        if pad_h or pad_w:
+            x_nchw = F.pad(x_nchw, (0, pad_w, 0, pad_h), mode="replicate")
+
+        y = self.pw(self.dw(x_nchw))
+        x_nchw = x_nchw + self.gamma * y
+
+        if pad_h or pad_w:
+            x_nchw = x_nchw[:, :, :H, :W]
+
+        x2 = einops.rearrange(x_nchw, "b c h w -> b (h w) c")
+        return self.merge(x2)
+
 # === 旁路→主干 的残差适配器 ===
 class HeadResidualAdapter(nn.Module):
     """
@@ -1111,6 +1262,11 @@ class VisionLSTM2(nn.Module):
         col_every: int = 0,                    # 0=关闭；比如 2 表示每 2 个 block 用一次 ColViLBlockPair
         gamma_init: float = 1e-4,              # 建议扫 1e-6/1e-5/1e-4
 
+        # ===== 新增：下采样/合并方式（stage merges） =====
+        merge_kind: str = "patch",          # "haar" | "patch" | "conv" | "conv_patch"
+        merge_kinds=None,                    # 逐 merge 指定（len = num_stages-1），如 ["haar","patch","patch"]
+        last_merge_kind="patch",             # 强制覆盖最后一次 merge（None 表示不覆盖）
+
     ):
         super().__init__()
 
@@ -1142,8 +1298,8 @@ class VisionLSTM2(nn.Module):
             input_channels=input_shape[0],
             conv_channels=feature_extractor_channels,
             use_dwt=use_dwt,
-            #dwt_fuse='gated',  # 你现在用 gated；如果想更稳建议改回 'LL'
-            dwt_fuse='LL',
+            dwt_fuse='gated',  # 你现在用 gated；如果想更稳建议改回 'LL'
+            #dwt_fuse='LL',
         )
 
         num_channels = feature_extractor_channels[-1]
@@ -1175,6 +1331,20 @@ class VisionLSTM2(nn.Module):
         num_stages = len(stage_dims)
         num_merges = num_stages - 1
 
+        # -------------------------
+        # 1.1) 解析 merge 配置（替代 HaarTokenMerging）
+        # -------------------------
+        _mk = (merge_kind or "patch").lower()
+        if merge_kinds is None:
+            merge_kinds = [_mk] * num_merges
+        else:
+            merge_kinds = [str(k).lower() for k in merge_kinds]
+            assert len(merge_kinds) == num_merges, f"merge_kinds length must be {num_merges}, got {len(merge_kinds)}"
+        self.merge_kinds = merge_kinds
+
+        # ✅ optional: force the last merge kind (e.g. deepest downsample always uses patch)
+        if (last_merge_kind is not None) and (num_merges > 0):
+            self.merge_kinds[-1] = str(last_merge_kind).lower()
         if stage_depths is None:
             # 默认：越往后（分辨率越低）block 越多
             if num_stages == 1:
@@ -1274,7 +1444,27 @@ class VisionLSTM2(nn.Module):
             # merge（stage i -> i+1）
             if si < num_merges:
                 out_dim = stage_dims[si + 1]
-                merge = HaarTokenMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
+                mk = self.merge_kinds[si]
+                mk = str(mk).lower().replace("-", "_")
+
+                # normalize aliases
+                if mk in {"strided", "stridedconv", "strideconv"}:
+                    mk = "conv"
+                if mk in {"patch2d", "patch_merge", "patchmerging"}:
+                    mk = "patch"
+                if mk in {"wavelet", "dwt"}:
+                    mk = "haar"
+
+                if mk == "haar":
+                    merge = HaarTokenMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
+                elif mk == "patch":
+                    merge = PatchMerging2D(in_dim=sd, out_dim=out_dim, in_seqlens=sl, norm_bias=norm_bias)
+                elif mk == "conv":
+                    merge = StridedConvDownsample(in_dim=sd, out_dim=out_dim, in_seqlens=sl, kernel_size=3, norm_bias=norm_bias)
+                elif mk == "conv_patch":
+                    merge = ConvPatchMerging(in_dim=sd, out_dim=out_dim, in_seqlens=sl, kernel_size=3, norm_bias=norm_bias)
+                else:
+                    raise ValueError(f"unknown merge kind '{mk}'. use one of: haar | patch | conv | conv_patch")
                 self.merges.append(merge)
                 self.stage_seqlens.append(merge.out_seqlens)
 

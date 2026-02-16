@@ -858,6 +858,7 @@ class HeadResidualAdapter(nn.Module):
         super().__init__()
         self.proj = nn.Linear(branch_dim, head_dim, bias=True)
         self.alpha = nn.Parameter(torch.ones(head_dim) * init_scale)  # LayerScale 风格
+        self.alpha.requires_grad_(False)
 
         self.use_gate = bool(use_gate)
         if self.use_gate:
