@@ -1,0 +1,22 @@
+{
+  "brightness": 0.08656,
+  "contrast": 0.02116,
+  "defocus_blur": 0.07831999999999999,
+  "elastic_transform": 0.09836,
+  "fog": 0.048679999999999994,
+  "frost": 0.08216,
+  "gaussian_blur": 0.08005999999999999,
+  "gaussian_noise": 0.1368,
+  "glass_blur": 0.09566,
+  "impulse_noise": 0.12991999999999998,
+  "jpeg_compression": 0.12610000000000002,
+  "motion_blur": 0.08628,
+  "pixelate": 0.1293,
+  "saturate": 0.05686,
+  "shot_noise": 0.14194,
+  "snow": 0.08654,
+  "spatter": 0.15414,
+  "speckle_noise": 0.12868,
+  "zoom_blur": 0.0823,
+  "mean": 0.09735894736842104
+}

@@ -1,0 +1,239 @@
+WARNING:__main__:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[W120 16:17:50.653346244 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.657454461 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.669116368 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.725635864 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.802189694 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.831078974 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.835738674 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W120 16:17:50.839003079 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[Data] train=1281167 val=50000 classes=1000
+[Subset] keep 500/1000 classes seed=1234 | train=250000 val=25000
+[Cap] train_cap=500 val_cap=0 cap_seed=1234
+[Config] ablation=B0 baseline=A0 | img=192 | epochs=150 warmup=7 per_gpu_bs=32 global_bs=256 accum=1
+[Model] dim=192 depth=12 feat_ch=[32, 64, 64] | patch_base=16 stride_base=16 auto_patch_dwt=True
+        use_stem=True use_dwt=True pre_patch_dwt=False | pooling=bilateral_flatten | disable_branch=False gated=True
+[Opt] base_lr=5.00e-04 wd=0.05 clip=1.0 ema=0.9995 amp=bf16
+
+[Train] Epoch 1/150 | branch_alpha=0.000e+00
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank7]: Traceback (most recent call last):
+[rank7]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank7]:     main()
+[rank7]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank7]:     logits = model(imgs_mixed)
+[rank7]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank7]:     return self._call_impl(*args, **kwargs)
+[rank7]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank7]:     return forward_call(*args, **kwargs)
+[rank7]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank7]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank7]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank7]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank7]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank7]: making sure all `forward` function outputs participate in calculating loss. 
+[rank7]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank7]: Parameter indices which did not receive grad for rank 7: 562
+[rank7]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank4]: Traceback (most recent call last):
+[rank4]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank4]:     main()
+[rank4]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank4]:     logits = model(imgs_mixed)
+[rank4]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank4]:     return self._call_impl(*args, **kwargs)
+[rank4]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank4]:     return forward_call(*args, **kwargs)
+[rank4]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank4]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank4]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank4]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank4]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank4]: making sure all `forward` function outputs participate in calculating loss. 
+[rank4]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank4]: Parameter indices which did not receive grad for rank 4: 562
+[rank4]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank0]:     main()
+[rank0]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank0]:     logits = model(imgs_mixed)
+[rank0]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank0]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank0]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank0]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank0]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank0]: making sure all `forward` function outputs participate in calculating loss. 
+[rank0]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank0]: Parameter indices which did not receive grad for rank 0: 562
+[rank0]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank6]: Traceback (most recent call last):
+[rank6]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank6]:     main()
+[rank6]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank6]:     logits = model(imgs_mixed)
+[rank6]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank6]:     return self._call_impl(*args, **kwargs)
+[rank6]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank6]:     return forward_call(*args, **kwargs)
+[rank6]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank6]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank6]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank6]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank6]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank6]: making sure all `forward` function outputs participate in calculating loss. 
+[rank6]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank6]: Parameter indices which did not receive grad for rank 6: 562
+[rank6]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank3]: Traceback (most recent call last):
+[rank3]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank3]:     main()
+[rank3]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank3]:     logits = model(imgs_mixed)
+[rank3]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank3]:     return self._call_impl(*args, **kwargs)
+[rank3]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank3]:     return forward_call(*args, **kwargs)
+[rank3]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank3]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank3]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank3]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank3]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank3]: making sure all `forward` function outputs participate in calculating loss. 
+[rank3]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank3]: Parameter indices which did not receive grad for rank 3: 562
+[rank3]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank2]: Traceback (most recent call last):
+[rank2]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank2]:     main()
+[rank2]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank2]:     logits = model(imgs_mixed)
+[rank2]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank2]:     return self._call_impl(*args, **kwargs)
+[rank2]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank2]:     return forward_call(*args, **kwargs)
+[rank2]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank2]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank2]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank2]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank2]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank2]: making sure all `forward` function outputs participate in calculating loss. 
+[rank2]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank2]: Parameter indices which did not receive grad for rank 2: 562
+[rank2]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank5]: Traceback (most recent call last):
+[rank5]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank5]:     main()
+[rank5]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank5]:     logits = model(imgs_mixed)
+[rank5]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank5]:     return self._call_impl(*args, **kwargs)
+[rank5]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank5]:     return forward_call(*args, **kwargs)
+[rank5]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank5]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank5]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank5]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank5]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank5]: making sure all `forward` function outputs participate in calculating loss. 
+[rank5]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank5]: Parameter indices which did not receive grad for rank 5: 562
+[rank5]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 775, in <module>
+[rank1]:     main()
+[rank1]:   File "/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py", line 689, in main
+[rank1]:     logits = model(imgs_mixed)
+[rank1]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank1]:     return self._call_impl(*args, **kwargs)
+[rank1]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank1]:     return forward_call(*args, **kwargs)
+[rank1]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1639, in forward
+[rank1]:     inputs, kwargs = self._pre_forward(*inputs, **kwargs)
+[rank1]:   File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1528, in _pre_forward
+[rank1]:     if torch.is_grad_enabled() and self.reducer._rebuild_buckets():
+[rank1]: RuntimeError: Expected to have finished reduction in the prior iteration before starting a new one. This error indicates that your module has parameters that were not used in producing loss. You can enable unused parameter detection by passing the keyword argument `find_unused_parameters=True` to `torch.nn.parallel.DistributedDataParallel`, and by 
+[rank1]: making sure all `forward` function outputs participate in calculating loss. 
+[rank1]: If you already have done the above, then the distributed data parallel module wasn't able to locate the output tensors in the return value of your module's `forward` function. Please include the loss function and the structure of the return value of `forward` of your module when reporting this issue (e.g. list, dict, iterable).
+[rank1]: Parameter indices which did not receive grad for rank 1: 562
+[rank1]:  In addition, you can set the environment variable TORCH_DISTRIBUTED_DEBUG to either INFO or DETAIL to print out information about which particular parameters did not receive gradient on this rank as part of this error
+[rank0]:[W120 16:18:42.056668193 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+W0120 16:18:43.815587 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8276 closing signal SIGTERM
+W0120 16:18:43.817153 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8277 closing signal SIGTERM
+W0120 16:18:43.817741 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8278 closing signal SIGTERM
+W0120 16:18:43.818207 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8279 closing signal SIGTERM
+W0120 16:18:43.818651 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8280 closing signal SIGTERM
+W0120 16:18:43.819092 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8281 closing signal SIGTERM
+W0120 16:18:43.819534 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:897] Sending process 8282 closing signal SIGTERM
+E0120 16:18:45.078697 8210 site-packages/torch/distributed/elastic/multiprocessing/api.py:869] failed (exitcode: 1) local_rank: 7 (pid: 8283) of binary: /home/omnisky/anaconda3/envs/d2l/bin/python
+Traceback (most recent call last):
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/run.py", line 923, in <module>
+    main()
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/run.py", line 919, in main
+    run(args)
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/run.py", line 910, in run
+    elastic_launch(
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 269, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+lstm5_stage1_pretrain_192_sample_ablation.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-01-20_16:18:43
+  host      : localhost
+  rank      : 7 (local_rank: 7)
+  exitcode  : 1 (pid: 8283)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
