@@ -1,0 +1,17 @@
+tmux new -s train -d \
+"PRETRAIN_CKPT=lstm6_half_patchsize8_col_mixer_branch.pth 
+PATCH_SIZE=8 
+STRIDE=8 
+EPOCHS=150 
+PYRAMID=half 
+MERGE_KIND=patch 
+USE_DWT=0 
+BRANCH_ALPHA_MAX=1e-3 
+BRANCH_ALPHA_MAX=25
+BRANCH_RAMP=60 
+STAGE_DIMS=256,384 
+STAGE_DEPTHS=0,8
+COL_EVERY=4 
+MIXER_EVERY=4 \
+torchrun --nproc_per_node=8 lstm6_stage1_pretrain_192_sample.py \
+ > /home/omnisky/lstm6_half_patchsize8_col_mixer_branch.log 2>&1"

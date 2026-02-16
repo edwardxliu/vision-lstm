@@ -1,0 +1,15 @@
+tmux new -s train -d \
+"PRETRAIN_CKPT=lstm6_half_only.pth
+PATCH_SIZE=16
+STRIDE=16 
+EPOCHS=150 
+PYRAMID=half 
+MERGE_KIND=patch 
+USE_DWT=0 
+BRANCH_ALPHA_MAX=0 
+STAGE_DIMS=384,384 
+STAGE_DEPTHS=2,6 
+COL_EVERY=0 
+MIXER_EVERY=9999
+ torchrun --nproc_per_node=8 lstm6_stage1_pretrain_192_sample.py \
+ > /home/omnisky/edward_train_lstm6.log 2>&1"
