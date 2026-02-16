@@ -1,0 +1,1364 @@
+WARNING:__main__:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[W202 09:41:27.583803543 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.589828798 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.593315560 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.671304856 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.711782775 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.719739038 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.730596741 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W202 09:41:27.840109780 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[Data] dataset=tiny_imagenet train=100000 val=10000 classes=200
+[Run] dir=./outputs_pswf_paper/tiny_vil_W3_add_ch32
+[Model] kind=vil params=6.547M | dwt_fuse=add | ablation=W3
+
+[Train] Epoch 1/300 | branch_alpha=0.000e+00
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[Epoch 1] Train loss=5.2498, soft_acc=0.0209
+[Epoch 1] Val   loss=5.2993, acc=0.0216 | epoch_sec=22.6 | elapsed=0.01h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0216)
+
+[Train] Epoch 2/300 | branch_alpha=0.000e+00
+[Epoch 2] Train loss=5.0891, soft_acc=0.0271
+[Epoch 2] Val   loss=5.2920, acc=0.0200 | epoch_sec=18.8 | elapsed=0.01h
+
+[Train] Epoch 3/300 | branch_alpha=0.000e+00
+[Epoch 3] Train loss=4.9412, soft_acc=0.0360
+[Epoch 3] Val   loss=5.2846, acc=0.0232 | epoch_sec=18.8 | elapsed=0.02h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0232)
+
+[Train] Epoch 4/300 | branch_alpha=0.000e+00
+[Epoch 4] Train loss=4.7552, soft_acc=0.0560
+[Epoch 4] Val   loss=5.2738, acc=0.0224 | epoch_sec=18.5 | elapsed=0.02h
+
+[Train] Epoch 5/300 | branch_alpha=0.000e+00
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[Epoch 5] Train loss=4.5424, soft_acc=0.0760
+[Epoch 5] Val   loss=5.2617, acc=0.0224 | epoch_sec=18.2 | elapsed=0.03h
+
+[Train] Epoch 6/300 | branch_alpha=0.000e+00
+[Epoch 6] Train loss=4.3438, soft_acc=0.1035
+[Epoch 6] Val   loss=5.2473, acc=0.0240 | epoch_sec=18.2 | elapsed=0.03h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0240)
+
+[Train] Epoch 7/300 | branch_alpha=0.000e+00
+[Epoch 7] Train loss=4.2014, soft_acc=0.1252
+[Epoch 7] Val   loss=5.2333, acc=0.0264 | epoch_sec=18.1 | elapsed=0.04h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0264)
+
+[Train] Epoch 8/300 | branch_alpha=0.000e+00
+[Epoch 8] Train loss=4.0508, soft_acc=0.1453
+[Epoch 8] Val   loss=5.2195, acc=0.0280 | epoch_sec=18.3 | elapsed=0.04h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0280)
+
+[Train] Epoch 9/300 | branch_alpha=0.000e+00
+[Epoch 9] Train loss=3.9967, soft_acc=0.1502
+[Epoch 9] Val   loss=5.2062, acc=0.0272 | epoch_sec=18.5 | elapsed=0.05h
+
+[Train] Epoch 10/300 | branch_alpha=0.000e+00
+[Epoch 10] Train loss=3.8801, soft_acc=0.1703
+[Epoch 10] Val   loss=5.1926, acc=0.0272 | epoch_sec=18.4 | elapsed=0.05h
+
+[Train] Epoch 11/300 | branch_alpha=0.000e+00
+[Epoch 11] Train loss=3.8070, soft_acc=0.1765
+[Epoch 11] Val   loss=5.1797, acc=0.0272 | epoch_sec=18.0 | elapsed=0.06h
+
+[Train] Epoch 12/300 | branch_alpha=0.000e+00
+[Epoch 12] Train loss=3.7224, soft_acc=0.1914
+[Epoch 12] Val   loss=5.1680, acc=0.0272 | epoch_sec=18.3 | elapsed=0.06h
+
+[Train] Epoch 13/300 | branch_alpha=0.000e+00
+[Epoch 13] Train loss=3.6620, soft_acc=0.1960
+[Epoch 13] Val   loss=5.1567, acc=0.0248 | epoch_sec=18.4 | elapsed=0.07h
+
+[Train] Epoch 14/300 | branch_alpha=0.000e+00
+[Epoch 14] Train loss=3.5831, soft_acc=0.2142
+[Epoch 14] Val   loss=5.1458, acc=0.0232 | epoch_sec=18.2 | elapsed=0.07h
+
+[Train] Epoch 15/300 | branch_alpha=0.000e+00
+[Epoch 15] Train loss=3.5327, soft_acc=0.2184
+[Epoch 15] Val   loss=5.1366, acc=0.0248 | epoch_sec=18.5 | elapsed=0.08h
+
+[Train] Epoch 16/300 | branch_alpha=0.000e+00
+[Epoch 16] Train loss=3.4675, soft_acc=0.2317
+[Epoch 16] Val   loss=5.1272, acc=0.0248 | epoch_sec=18.6 | elapsed=0.08h
+
+[Train] Epoch 17/300 | branch_alpha=0.000e+00
+[Epoch 17] Train loss=3.3874, soft_acc=0.2418
+[Epoch 17] Val   loss=5.1189, acc=0.0248 | epoch_sec=18.2 | elapsed=0.09h
+
+[Train] Epoch 18/300 | branch_alpha=0.000e+00
+[Epoch 18] Train loss=3.3209, soft_acc=0.2557
+[Epoch 18] Val   loss=5.1104, acc=0.0240 | epoch_sec=18.1 | elapsed=0.09h
+
+[Train] Epoch 19/300 | branch_alpha=0.000e+00
+[Epoch 19] Train loss=3.2464, soft_acc=0.2659
+[Epoch 19] Val   loss=5.1035, acc=0.0232 | epoch_sec=18.3 | elapsed=0.10h
+
+[Train] Epoch 20/300 | branch_alpha=0.000e+00
+[Epoch 20] Train loss=3.1883, soft_acc=0.2817
+[Epoch 20] Val   loss=5.0967, acc=0.0240 | epoch_sec=18.1 | elapsed=0.10h
+
+[Train] Epoch 21/300 | branch_alpha=0.000e+00
+[Epoch 21] Train loss=3.1484, soft_acc=0.2832
+[Epoch 21] Val   loss=5.0916, acc=0.0232 | epoch_sec=17.6 | elapsed=0.11h
+
+[Train] Epoch 22/300 | branch_alpha=0.000e+00
+[Epoch 22] Train loss=3.0948, soft_acc=0.2920
+[Epoch 22] Val   loss=5.0863, acc=0.0248 | epoch_sec=18.5 | elapsed=0.11h
+
+[Train] Epoch 23/300 | branch_alpha=0.000e+00
+[Epoch 23] Train loss=3.0455, soft_acc=0.3009
+[Epoch 23] Val   loss=5.0818, acc=0.0240 | epoch_sec=17.8 | elapsed=0.12h
+
+[Train] Epoch 24/300 | branch_alpha=0.000e+00
+[Epoch 24] Train loss=2.9858, soft_acc=0.3127
+[Epoch 24] Val   loss=5.0778, acc=0.0240 | epoch_sec=18.3 | elapsed=0.12h
+
+[Train] Epoch 25/300 | branch_alpha=0.000e+00
+[Epoch 25] Train loss=2.9228, soft_acc=0.3228
+[Epoch 25] Val   loss=5.0745, acc=0.0240 | epoch_sec=18.2 | elapsed=0.13h
+
+[Train] Epoch 26/300 | branch_alpha=0.000e+00
+[Epoch 26] Train loss=2.8720, soft_acc=0.3293
+[Epoch 26] Val   loss=5.0716, acc=0.0232 | epoch_sec=18.9 | elapsed=0.13h
+
+[Train] Epoch 27/300 | branch_alpha=0.000e+00
+[Epoch 27] Train loss=2.7974, soft_acc=0.3446
+[Epoch 27] Val   loss=5.0689, acc=0.0232 | epoch_sec=18.5 | elapsed=0.14h
+
+[Train] Epoch 28/300 | branch_alpha=0.000e+00
+[Epoch 28] Train loss=2.7496, soft_acc=0.3552
+[Epoch 28] Val   loss=5.0679, acc=0.0240 | epoch_sec=18.5 | elapsed=0.14h
+
+[Train] Epoch 29/300 | branch_alpha=0.000e+00
+[Epoch 29] Train loss=2.6986, soft_acc=0.3659
+[Epoch 29] Val   loss=5.0664, acc=0.0240 | epoch_sec=19.1 | elapsed=0.15h
+
+[Train] Epoch 30/300 | branch_alpha=0.000e+00
+[Epoch 30] Train loss=2.6300, soft_acc=0.3797
+[Epoch 30] Val   loss=5.0668, acc=0.0240 | epoch_sec=18.3 | elapsed=0.15h
+
+[Train] Epoch 31/300 | branch_alpha=0.000e+00
+[Epoch 31] Train loss=2.5904, soft_acc=0.3860
+[Epoch 31] Val   loss=5.0663, acc=0.0232 | epoch_sec=18.4 | elapsed=0.16h
+
+[Train] Epoch 32/300 | branch_alpha=0.000e+00
+[Epoch 32] Train loss=2.5469, soft_acc=0.3906
+[Epoch 32] Val   loss=5.0678, acc=0.0232 | epoch_sec=18.8 | elapsed=0.16h
+
+[Train] Epoch 33/300 | branch_alpha=0.000e+00
+[Epoch 33] Train loss=2.5041, soft_acc=0.4025
+[Epoch 33] Val   loss=5.0698, acc=0.0248 | epoch_sec=18.0 | elapsed=0.17h
+
+[Train] Epoch 34/300 | branch_alpha=0.000e+00
+[Epoch 34] Train loss=2.4318, soft_acc=0.4120
+[Epoch 34] Val   loss=5.0715, acc=0.0272 | epoch_sec=18.5 | elapsed=0.17h
+
+[Train] Epoch 35/300 | branch_alpha=0.000e+00
+[Epoch 35] Train loss=2.3603, soft_acc=0.4269
+[Epoch 35] Val   loss=5.0750, acc=0.0272 | epoch_sec=18.5 | elapsed=0.18h
+
+[Train] Epoch 36/300 | branch_alpha=0.000e+00
+[Epoch 36] Train loss=2.3306, soft_acc=0.4340
+[Epoch 36] Val   loss=5.0792, acc=0.0288 | epoch_sec=18.3 | elapsed=0.18h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0288)
+
+[Train] Epoch 37/300 | branch_alpha=0.000e+00
+[Epoch 37] Train loss=2.2622, soft_acc=0.4431
+[Epoch 37] Val   loss=5.0838, acc=0.0312 | epoch_sec=17.9 | elapsed=0.19h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0312)
+
+[Train] Epoch 38/300 | branch_alpha=0.000e+00
+[Epoch 38] Train loss=2.2060, soft_acc=0.4591
+[Epoch 38] Val   loss=5.0903, acc=0.0304 | epoch_sec=18.2 | elapsed=0.19h
+
+[Train] Epoch 39/300 | branch_alpha=0.000e+00
+[Epoch 39] Train loss=2.1330, soft_acc=0.4766
+[Epoch 39] Val   loss=5.0974, acc=0.0304 | epoch_sec=18.5 | elapsed=0.20h
+
+[Train] Epoch 40/300 | branch_alpha=0.000e+00
+[Epoch 40] Train loss=2.0972, soft_acc=0.4776
+[Epoch 40] Val   loss=5.1050, acc=0.0288 | epoch_sec=18.7 | elapsed=0.21h
+
+[Train] Epoch 41/300 | branch_alpha=0.000e+00
+[Epoch 41] Train loss=2.0367, soft_acc=0.4957
+[Epoch 41] Val   loss=5.1151, acc=0.0312 | epoch_sec=18.5 | elapsed=0.21h
+
+[Train] Epoch 42/300 | branch_alpha=0.000e+00
+[Epoch 42] Train loss=1.9853, soft_acc=0.5060
+[Epoch 42] Val   loss=5.1244, acc=0.0320 | epoch_sec=17.9 | elapsed=0.22h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0320)
+
+[Train] Epoch 43/300 | branch_alpha=0.000e+00
+[Epoch 43] Train loss=1.9408, soft_acc=0.5098
+[Epoch 43] Val   loss=5.1358, acc=0.0328 | epoch_sec=18.2 | elapsed=0.22h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0328)
+
+[Train] Epoch 44/300 | branch_alpha=0.000e+00
+[Epoch 44] Train loss=1.8643, soft_acc=0.5316
+[Epoch 44] Val   loss=5.1482, acc=0.0312 | epoch_sec=18.5 | elapsed=0.23h
+
+[Train] Epoch 45/300 | branch_alpha=0.000e+00
+[Epoch 45] Train loss=1.7928, soft_acc=0.5549
+[Epoch 45] Val   loss=5.1620, acc=0.0296 | epoch_sec=18.4 | elapsed=0.23h
+
+[Train] Epoch 46/300 | branch_alpha=0.000e+00
+[Epoch 46] Train loss=1.7378, soft_acc=0.5605
+[Epoch 46] Val   loss=5.1765, acc=0.0296 | epoch_sec=18.1 | elapsed=0.24h
+
+[Train] Epoch 47/300 | branch_alpha=0.000e+00
+[Epoch 47] Train loss=1.6978, soft_acc=0.5703
+[Epoch 47] Val   loss=5.1923, acc=0.0304 | epoch_sec=18.2 | elapsed=0.24h
+
+[Train] Epoch 48/300 | branch_alpha=0.000e+00
+[Epoch 48] Train loss=1.6274, soft_acc=0.5888
+[Epoch 48] Val   loss=5.2094, acc=0.0312 | epoch_sec=18.7 | elapsed=0.25h
+
+[Train] Epoch 49/300 | branch_alpha=0.000e+00
+[Epoch 49] Train loss=1.6036, soft_acc=0.5897
+[Epoch 49] Val   loss=5.2269, acc=0.0328 | epoch_sec=17.6 | elapsed=0.25h
+
+[Train] Epoch 50/300 | branch_alpha=0.000e+00
+[Epoch 50] Train loss=1.5179, soft_acc=0.6133
+[Epoch 50] Val   loss=5.2471, acc=0.0328 | epoch_sec=17.7 | elapsed=0.26h
+
+[Train] Epoch 51/300 | branch_alpha=0.000e+00
+[Epoch 51] Train loss=1.4973, soft_acc=0.6189
+[Epoch 51] Val   loss=5.2672, acc=0.0336 | epoch_sec=17.8 | elapsed=0.26h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0336)
+
+[Train] Epoch 52/300 | branch_alpha=0.000e+00
+[Epoch 52] Train loss=1.4616, soft_acc=0.6256
+[Epoch 52] Val   loss=5.2883, acc=0.0336 | epoch_sec=18.1 | elapsed=0.27h
+
+[Train] Epoch 53/300 | branch_alpha=0.000e+00
+[Epoch 53] Train loss=1.3924, soft_acc=0.6386
+[Epoch 53] Val   loss=5.3120, acc=0.0328 | epoch_sec=18.0 | elapsed=0.27h
+
+[Train] Epoch 54/300 | branch_alpha=0.000e+00
+[Epoch 54] Train loss=1.3779, soft_acc=0.6416
+[Epoch 54] Val   loss=5.3368, acc=0.0344 | epoch_sec=18.5 | elapsed=0.28h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0344)
+
+[Train] Epoch 55/300 | branch_alpha=0.000e+00
+[Epoch 55] Train loss=1.3095, soft_acc=0.6561
+[Epoch 55] Val   loss=5.3614, acc=0.0336 | epoch_sec=17.8 | elapsed=0.28h
+
+[Train] Epoch 56/300 | branch_alpha=0.000e+00
+[Epoch 56] Train loss=1.2488, soft_acc=0.6769
+[Epoch 56] Val   loss=5.3886, acc=0.0336 | epoch_sec=17.8 | elapsed=0.29h
+
+[Train] Epoch 57/300 | branch_alpha=0.000e+00
+[Epoch 57] Train loss=1.1973, soft_acc=0.6883
+[Epoch 57] Val   loss=5.4161, acc=0.0336 | epoch_sec=18.5 | elapsed=0.29h
+
+[Train] Epoch 58/300 | branch_alpha=0.000e+00
+[Epoch 58] Train loss=1.1530, soft_acc=0.6968
+[Epoch 58] Val   loss=5.4482, acc=0.0320 | epoch_sec=18.3 | elapsed=0.30h
+
+[Train] Epoch 59/300 | branch_alpha=0.000e+00
+[Epoch 59] Train loss=1.1226, soft_acc=0.7040
+[Epoch 59] Val   loss=5.4794, acc=0.0328 | epoch_sec=18.2 | elapsed=0.30h
+
+[Train] Epoch 60/300 | branch_alpha=0.000e+00
+[Epoch 60] Train loss=1.0610, soft_acc=0.7184
+[Epoch 60] Val   loss=5.5109, acc=0.0328 | epoch_sec=18.4 | elapsed=0.31h
+
+[Train] Epoch 61/300 | branch_alpha=0.000e+00
+[Epoch 61] Train loss=1.0043, soft_acc=0.7359
+[Epoch 61] Val   loss=5.5434, acc=0.0328 | epoch_sec=18.3 | elapsed=0.31h
+
+[Train] Epoch 62/300 | branch_alpha=0.000e+00
+[Epoch 62] Train loss=0.9629, soft_acc=0.7470
+[Epoch 62] Val   loss=5.5797, acc=0.0344 | epoch_sec=18.2 | elapsed=0.32h
+
+[Train] Epoch 63/300 | branch_alpha=0.000e+00
+[Epoch 63] Train loss=0.9451, soft_acc=0.7453
+[Epoch 63] Val   loss=5.6182, acc=0.0352 | epoch_sec=18.5 | elapsed=0.32h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0352)
+
+[Train] Epoch 64/300 | branch_alpha=0.000e+00
+[Epoch 64] Train loss=0.8839, soft_acc=0.7656
+[Epoch 64] Val   loss=5.6574, acc=0.0360 | epoch_sec=18.4 | elapsed=0.33h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0360)
+
+[Train] Epoch 65/300 | branch_alpha=0.000e+00
+[Epoch 65] Train loss=0.8661, soft_acc=0.7670
+[Epoch 65] Val   loss=5.6961, acc=0.0368 | epoch_sec=18.3 | elapsed=0.33h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0368)
+
+[Train] Epoch 66/300 | branch_alpha=0.000e+00
+[Epoch 66] Train loss=0.8190, soft_acc=0.7769
+[Epoch 66] Val   loss=5.7373, acc=0.0376 | epoch_sec=18.5 | elapsed=0.34h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0376)
+
+[Train] Epoch 67/300 | branch_alpha=0.000e+00
+[Epoch 67] Train loss=0.7895, soft_acc=0.7862
+[Epoch 67] Val   loss=5.7800, acc=0.0384 | epoch_sec=17.4 | elapsed=0.34h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0384)
+
+[Train] Epoch 68/300 | branch_alpha=0.000e+00
+[Epoch 68] Train loss=0.7511, soft_acc=0.7971
+[Epoch 68] Val   loss=5.8250, acc=0.0384 | epoch_sec=17.8 | elapsed=0.35h
+
+[Train] Epoch 69/300 | branch_alpha=0.000e+00
+[Epoch 69] Train loss=0.6952, soft_acc=0.8125
+[Epoch 69] Val   loss=5.8695, acc=0.0400 | epoch_sec=18.2 | elapsed=0.35h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0400)
+
+[Train] Epoch 70/300 | branch_alpha=0.000e+00
+[Epoch 70] Train loss=0.6773, soft_acc=0.8174
+[Epoch 70] Val   loss=5.9170, acc=0.0416 | epoch_sec=17.9 | elapsed=0.36h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0416)
+
+[Train] Epoch 71/300 | branch_alpha=0.000e+00
+[Epoch 71] Train loss=0.6553, soft_acc=0.8194
+[Epoch 71] Val   loss=5.9640, acc=0.0416 | epoch_sec=17.9 | elapsed=0.36h
+
+[Train] Epoch 72/300 | branch_alpha=0.000e+00
+[Epoch 72] Train loss=0.6404, soft_acc=0.8261
+[Epoch 72] Val   loss=6.0152, acc=0.0424 | epoch_sec=18.3 | elapsed=0.37h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0424)
+
+[Train] Epoch 73/300 | branch_alpha=0.000e+00
+[Epoch 73] Train loss=0.6074, soft_acc=0.8354
+[Epoch 73] Val   loss=6.0638, acc=0.0424 | epoch_sec=18.0 | elapsed=0.37h
+
+[Train] Epoch 74/300 | branch_alpha=0.000e+00
+[Epoch 74] Train loss=0.5722, soft_acc=0.8452
+[Epoch 74] Val   loss=6.1150, acc=0.0400 | epoch_sec=18.4 | elapsed=0.38h
+
+[Train] Epoch 75/300 | branch_alpha=0.000e+00
+[Epoch 75] Train loss=0.5496, soft_acc=0.8506
+[Epoch 75] Val   loss=6.1633, acc=0.0408 | epoch_sec=18.2 | elapsed=0.38h
+
+[Train] Epoch 76/300 | branch_alpha=0.000e+00
+[Epoch 76] Train loss=0.5032, soft_acc=0.8638
+[Epoch 76] Val   loss=6.2201, acc=0.0416 | epoch_sec=18.1 | elapsed=0.39h
+
+[Train] Epoch 77/300 | branch_alpha=0.000e+00
+[Epoch 77] Train loss=0.5085, soft_acc=0.8622
+[Epoch 77] Val   loss=6.2737, acc=0.0424 | epoch_sec=17.9 | elapsed=0.39h
+
+[Train] Epoch 78/300 | branch_alpha=0.000e+00
+[Epoch 78] Train loss=0.4694, soft_acc=0.8742
+[Epoch 78] Val   loss=6.3264, acc=0.0424 | epoch_sec=18.0 | elapsed=0.40h
+
+[Train] Epoch 79/300 | branch_alpha=0.000e+00
+[Epoch 79] Train loss=0.4464, soft_acc=0.8782
+[Epoch 79] Val   loss=6.3792, acc=0.0416 | epoch_sec=18.4 | elapsed=0.40h
+
+[Train] Epoch 80/300 | branch_alpha=0.000e+00
+[Epoch 80] Train loss=0.4502, soft_acc=0.8772
+[Epoch 80] Val   loss=6.4313, acc=0.0424 | epoch_sec=18.3 | elapsed=0.41h
+
+[Train] Epoch 81/300 | branch_alpha=0.000e+00
+[Epoch 81] Train loss=0.4259, soft_acc=0.8844
+[Epoch 81] Val   loss=6.4921, acc=0.0416 | epoch_sec=18.1 | elapsed=0.41h
+
+[Train] Epoch 82/300 | branch_alpha=0.000e+00
+[Epoch 82] Train loss=0.4014, soft_acc=0.8905
+[Epoch 82] Val   loss=6.5495, acc=0.0400 | epoch_sec=18.1 | elapsed=0.42h
+
+[Train] Epoch 83/300 | branch_alpha=0.000e+00
+[Epoch 83] Train loss=0.3830, soft_acc=0.8959
+[Epoch 83] Val   loss=6.6047, acc=0.0400 | epoch_sec=18.3 | elapsed=0.42h
+
+[Train] Epoch 84/300 | branch_alpha=0.000e+00
+[Epoch 84] Train loss=0.3872, soft_acc=0.8932
+[Epoch 84] Val   loss=6.6501, acc=0.0416 | epoch_sec=19.0 | elapsed=0.43h
+
+[Train] Epoch 85/300 | branch_alpha=0.000e+00
+[Epoch 85] Train loss=0.3498, soft_acc=0.9058
+[Epoch 85] Val   loss=6.7096, acc=0.0424 | epoch_sec=18.3 | elapsed=0.43h
+
+[Train] Epoch 86/300 | branch_alpha=0.000e+00
+[Epoch 86] Train loss=0.3444, soft_acc=0.9031
+[Epoch 86] Val   loss=6.7782, acc=0.0440 | epoch_sec=18.2 | elapsed=0.44h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0440)
+
+[Train] Epoch 87/300 | branch_alpha=0.000e+00
+[Epoch 87] Train loss=0.3150, soft_acc=0.9148
+[Epoch 87] Val   loss=6.8333, acc=0.0432 | epoch_sec=18.1 | elapsed=0.44h
+
+[Train] Epoch 88/300 | branch_alpha=0.000e+00
+[Epoch 88] Train loss=0.3119, soft_acc=0.9141
+[Epoch 88] Val   loss=6.8880, acc=0.0408 | epoch_sec=18.4 | elapsed=0.45h
+
+[Train] Epoch 89/300 | branch_alpha=0.000e+00
+[Epoch 89] Train loss=0.3213, soft_acc=0.9105
+[Epoch 89] Val   loss=6.9354, acc=0.0464 | epoch_sec=18.4 | elapsed=0.45h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0464)
+
+[Train] Epoch 90/300 | branch_alpha=0.000e+00
+[Epoch 90] Train loss=0.3037, soft_acc=0.9170
+[Epoch 90] Val   loss=7.0063, acc=0.0480 | epoch_sec=17.9 | elapsed=0.46h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0480)
+
+[Train] Epoch 91/300 | branch_alpha=0.000e+00
+[Epoch 91] Train loss=0.2746, soft_acc=0.9274
+[Epoch 91] Val   loss=7.0581, acc=0.0496 | epoch_sec=18.2 | elapsed=0.46h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0496)
+
+[Train] Epoch 92/300 | branch_alpha=0.000e+00
+[Epoch 92] Train loss=0.2569, soft_acc=0.9332
+[Epoch 92] Val   loss=7.1090, acc=0.0504 | epoch_sec=18.2 | elapsed=0.47h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0504)
+
+[Train] Epoch 93/300 | branch_alpha=0.000e+00
+[Epoch 93] Train loss=0.2563, soft_acc=0.9287
+[Epoch 93] Val   loss=7.1606, acc=0.0496 | epoch_sec=18.0 | elapsed=0.47h
+
+[Train] Epoch 94/300 | branch_alpha=0.000e+00
+[Epoch 94] Train loss=0.2490, soft_acc=0.9292
+[Epoch 94] Val   loss=7.2019, acc=0.0520 | epoch_sec=18.4 | elapsed=0.48h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0520)
+
+[Train] Epoch 95/300 | branch_alpha=0.000e+00
+[Epoch 95] Train loss=0.2550, soft_acc=0.9277
+[Epoch 95] Val   loss=7.2586, acc=0.0536 | epoch_sec=17.5 | elapsed=0.48h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0536)
+
+[Train] Epoch 96/300 | branch_alpha=0.000e+00
+[Epoch 96] Train loss=0.2353, soft_acc=0.9335
+[Epoch 96] Val   loss=7.3098, acc=0.0544 | epoch_sec=18.5 | elapsed=0.49h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0544)
+
+[Train] Epoch 97/300 | branch_alpha=0.000e+00
+[Epoch 97] Train loss=0.2312, soft_acc=0.9361
+[Epoch 97] Val   loss=7.3624, acc=0.0536 | epoch_sec=18.0 | elapsed=0.49h
+
+[Train] Epoch 98/300 | branch_alpha=0.000e+00
+[Epoch 98] Train loss=0.2166, soft_acc=0.9410
+[Epoch 98] Val   loss=7.4027, acc=0.0536 | epoch_sec=18.7 | elapsed=0.50h
+
+[Train] Epoch 99/300 | branch_alpha=0.000e+00
+[Epoch 99] Train loss=0.2223, soft_acc=0.9377
+[Epoch 99] Val   loss=7.4407, acc=0.0584 | epoch_sec=18.5 | elapsed=0.50h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0584)
+
+[Train] Epoch 100/300 | branch_alpha=0.000e+00
+[Epoch 100] Train loss=0.1921, soft_acc=0.9458
+[Epoch 100] Val   loss=7.4807, acc=0.0592 | epoch_sec=18.5 | elapsed=0.51h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0592)
+
+[Train] Epoch 101/300 | branch_alpha=0.000e+00
+[Epoch 101] Train loss=0.2005, soft_acc=0.9421
+[Epoch 101] Val   loss=7.5309, acc=0.0640 | epoch_sec=18.4 | elapsed=0.51h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0640)
+
+[Train] Epoch 102/300 | branch_alpha=0.000e+00
+[Epoch 102] Train loss=0.1990, soft_acc=0.9447
+[Epoch 102] Val   loss=7.5759, acc=0.0624 | epoch_sec=18.0 | elapsed=0.52h
+
+[Train] Epoch 103/300 | branch_alpha=0.000e+00
+[Epoch 103] Train loss=0.2015, soft_acc=0.9437
+[Epoch 103] Val   loss=7.6065, acc=0.0648 | epoch_sec=18.2 | elapsed=0.52h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0648)
+
+[Train] Epoch 104/300 | branch_alpha=0.000e+00
+[Epoch 104] Train loss=0.1975, soft_acc=0.9455
+[Epoch 104] Val   loss=7.6469, acc=0.0648 | epoch_sec=18.1 | elapsed=0.53h
+
+[Train] Epoch 105/300 | branch_alpha=0.000e+00
+[Epoch 105] Train loss=0.1725, soft_acc=0.9504
+[Epoch 105] Val   loss=7.6606, acc=0.0680 | epoch_sec=17.8 | elapsed=0.53h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0680)
+
+[Train] Epoch 106/300 | branch_alpha=0.000e+00
+[Epoch 106] Train loss=0.1779, soft_acc=0.9477
+[Epoch 106] Val   loss=7.6961, acc=0.0712 | epoch_sec=18.5 | elapsed=0.54h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0712)
+
+[Train] Epoch 107/300 | branch_alpha=0.000e+00
+[Epoch 107] Train loss=0.1601, soft_acc=0.9543
+[Epoch 107] Val   loss=7.7397, acc=0.0720 | epoch_sec=18.2 | elapsed=0.54h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0720)
+
+[Train] Epoch 108/300 | branch_alpha=0.000e+00
+[Epoch 108] Train loss=0.1529, soft_acc=0.9579
+[Epoch 108] Val   loss=7.7683, acc=0.0720 | epoch_sec=18.0 | elapsed=0.55h
+
+[Train] Epoch 109/300 | branch_alpha=0.000e+00
+[Epoch 109] Train loss=0.1603, soft_acc=0.9547
+[Epoch 109] Val   loss=7.7874, acc=0.0776 | epoch_sec=17.6 | elapsed=0.55h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0776)
+
+[Train] Epoch 110/300 | branch_alpha=0.000e+00
+[Epoch 110] Train loss=0.1576, soft_acc=0.9562
+[Epoch 110] Val   loss=7.8046, acc=0.0768 | epoch_sec=18.6 | elapsed=0.56h
+
+[Train] Epoch 111/300 | branch_alpha=0.000e+00
+[Epoch 111] Train loss=0.1485, soft_acc=0.9585
+[Epoch 111] Val   loss=7.7978, acc=0.0816 | epoch_sec=18.1 | elapsed=0.56h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0816)
+
+[Train] Epoch 112/300 | branch_alpha=0.000e+00
+[Epoch 112] Train loss=0.1549, soft_acc=0.9546
+[Epoch 112] Val   loss=7.8382, acc=0.0808 | epoch_sec=18.1 | elapsed=0.57h
+
+[Train] Epoch 113/300 | branch_alpha=0.000e+00
+[Epoch 113] Train loss=0.1405, soft_acc=0.9604
+[Epoch 113] Val   loss=7.8472, acc=0.0856 | epoch_sec=18.0 | elapsed=0.57h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0856)
+
+[Train] Epoch 114/300 | branch_alpha=0.000e+00
+[Epoch 114] Train loss=0.1366, soft_acc=0.9617
+[Epoch 114] Val   loss=7.8677, acc=0.0840 | epoch_sec=18.1 | elapsed=0.58h
+
+[Train] Epoch 115/300 | branch_alpha=0.000e+00
+[Epoch 115] Train loss=0.1327, soft_acc=0.9603
+[Epoch 115] Val   loss=7.8947, acc=0.0840 | epoch_sec=18.4 | elapsed=0.58h
+
+[Train] Epoch 116/300 | branch_alpha=0.000e+00
+[Epoch 116] Train loss=0.1272, soft_acc=0.9652
+[Epoch 116] Val   loss=7.8677, acc=0.0864 | epoch_sec=17.8 | elapsed=0.59h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0864)
+
+[Train] Epoch 117/300 | branch_alpha=0.000e+00
+[Epoch 117] Train loss=0.1387, soft_acc=0.9588
+[Epoch 117] Val   loss=7.8816, acc=0.0864 | epoch_sec=18.9 | elapsed=0.59h
+
+[Train] Epoch 118/300 | branch_alpha=0.000e+00
+[Epoch 118] Train loss=0.1291, soft_acc=0.9613
+[Epoch 118] Val   loss=7.9042, acc=0.0904 | epoch_sec=18.6 | elapsed=0.60h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0904)
+
+[Train] Epoch 119/300 | branch_alpha=0.000e+00
+[Epoch 119] Train loss=0.1299, soft_acc=0.9637
+[Epoch 119] Val   loss=7.9037, acc=0.0904 | epoch_sec=17.8 | elapsed=0.60h
+
+[Train] Epoch 120/300 | branch_alpha=0.000e+00
+[Epoch 120] Train loss=0.1212, soft_acc=0.9672
+[Epoch 120] Val   loss=7.9178, acc=0.0920 | epoch_sec=18.4 | elapsed=0.61h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0920)
+
+[Train] Epoch 121/300 | branch_alpha=0.000e+00
+[Epoch 121] Train loss=0.1156, soft_acc=0.9675
+[Epoch 121] Val   loss=7.9145, acc=0.0896 | epoch_sec=18.0 | elapsed=0.62h
+
+[Train] Epoch 122/300 | branch_alpha=0.000e+00
+[Epoch 122] Train loss=0.1175, soft_acc=0.9652
+[Epoch 122] Val   loss=7.9092, acc=0.0960 | epoch_sec=18.0 | elapsed=0.62h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0960)
+
+[Train] Epoch 123/300 | branch_alpha=0.000e+00
+[Epoch 123] Train loss=0.1186, soft_acc=0.9665
+[Epoch 123] Val   loss=7.8863, acc=0.0976 | epoch_sec=18.3 | elapsed=0.63h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.0976)
+
+[Train] Epoch 124/300 | branch_alpha=0.000e+00
+[Epoch 124] Train loss=0.1097, soft_acc=0.9674
+[Epoch 124] Val   loss=7.8920, acc=0.1008 | epoch_sec=17.9 | elapsed=0.63h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1008)
+
+[Train] Epoch 125/300 | branch_alpha=0.000e+00
+[Epoch 125] Train loss=0.1058, soft_acc=0.9684
+[Epoch 125] Val   loss=7.8792, acc=0.1032 | epoch_sec=18.2 | elapsed=0.64h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1032)
+
+[Train] Epoch 126/300 | branch_alpha=0.000e+00
+[Epoch 126] Train loss=0.1071, soft_acc=0.9688
+[Epoch 126] Val   loss=7.8877, acc=0.1040 | epoch_sec=18.0 | elapsed=0.64h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1040)
+
+[Train] Epoch 127/300 | branch_alpha=0.000e+00
+[Epoch 127] Train loss=0.1047, soft_acc=0.9707
+[Epoch 127] Val   loss=7.8392, acc=0.1064 | epoch_sec=18.3 | elapsed=0.65h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1064)
+
+[Train] Epoch 128/300 | branch_alpha=0.000e+00
+[Epoch 128] Train loss=0.1012, soft_acc=0.9695
+[Epoch 128] Val   loss=7.8367, acc=0.1072 | epoch_sec=18.4 | elapsed=0.65h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1072)
+
+[Train] Epoch 129/300 | branch_alpha=0.000e+00
+[Epoch 129] Train loss=0.1003, soft_acc=0.9717
+[Epoch 129] Val   loss=7.8070, acc=0.1104 | epoch_sec=18.1 | elapsed=0.66h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1104)
+
+[Train] Epoch 130/300 | branch_alpha=0.000e+00
+[Epoch 130] Train loss=0.0989, soft_acc=0.9712
+[Epoch 130] Val   loss=7.8102, acc=0.1120 | epoch_sec=17.9 | elapsed=0.66h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1120)
+
+[Train] Epoch 131/300 | branch_alpha=0.000e+00
+[Epoch 131] Train loss=0.0893, soft_acc=0.9746
+[Epoch 131] Val   loss=7.8188, acc=0.1176 | epoch_sec=17.6 | elapsed=0.67h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1176)
+
+[Train] Epoch 132/300 | branch_alpha=0.000e+00
+[Epoch 132] Train loss=0.0867, soft_acc=0.9754
+[Epoch 132] Val   loss=7.8054, acc=0.1232 | epoch_sec=18.3 | elapsed=0.67h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1232)
+
+[Train] Epoch 133/300 | branch_alpha=0.000e+00
+[Epoch 133] Train loss=0.0829, soft_acc=0.9762
+[Epoch 133] Val   loss=7.7628, acc=0.1288 | epoch_sec=17.5 | elapsed=0.68h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1288)
+
+[Train] Epoch 134/300 | branch_alpha=0.000e+00
+[Epoch 134] Train loss=0.0789, soft_acc=0.9788
+[Epoch 134] Val   loss=7.7702, acc=0.1320 | epoch_sec=18.1 | elapsed=0.68h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1320)
+
+[Train] Epoch 135/300 | branch_alpha=0.000e+00
+[Epoch 135] Train loss=0.0831, soft_acc=0.9763
+[Epoch 135] Val   loss=7.7687, acc=0.1288 | epoch_sec=18.0 | elapsed=0.69h
+
+[Train] Epoch 136/300 | branch_alpha=0.000e+00
+[Epoch 136] Train loss=0.0836, soft_acc=0.9758
+[Epoch 136] Val   loss=7.7716, acc=0.1312 | epoch_sec=18.8 | elapsed=0.69h
+
+[Train] Epoch 137/300 | branch_alpha=0.000e+00
+[Epoch 137] Train loss=0.0769, soft_acc=0.9779
+[Epoch 137] Val   loss=7.7061, acc=0.1288 | epoch_sec=18.1 | elapsed=0.70h
+
+[Train] Epoch 138/300 | branch_alpha=0.000e+00
+[Epoch 138] Train loss=0.0841, soft_acc=0.9760
+[Epoch 138] Val   loss=7.6951, acc=0.1328 | epoch_sec=18.2 | elapsed=0.70h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1328)
+
+[Train] Epoch 139/300 | branch_alpha=0.000e+00
+[Epoch 139] Train loss=0.0834, soft_acc=0.9783
+[Epoch 139] Val   loss=7.6307, acc=0.1360 | epoch_sec=18.6 | elapsed=0.71h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1360)
+
+[Train] Epoch 140/300 | branch_alpha=0.000e+00
+[Epoch 140] Train loss=0.0670, soft_acc=0.9806
+[Epoch 140] Val   loss=7.6227, acc=0.1400 | epoch_sec=18.1 | elapsed=0.71h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1400)
+
+[Train] Epoch 141/300 | branch_alpha=0.000e+00
+[Epoch 141] Train loss=0.0752, soft_acc=0.9776
+[Epoch 141] Val   loss=7.6588, acc=0.1408 | epoch_sec=18.5 | elapsed=0.72h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1408)
+
+[Train] Epoch 142/300 | branch_alpha=0.000e+00
+[Epoch 142] Train loss=0.0713, soft_acc=0.9797
+[Epoch 142] Val   loss=7.6610, acc=0.1440 | epoch_sec=18.8 | elapsed=0.72h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1440)
+
+[Train] Epoch 143/300 | branch_alpha=0.000e+00
+[Epoch 143] Train loss=0.0728, soft_acc=0.9798
+[Epoch 143] Val   loss=7.6514, acc=0.1480 | epoch_sec=17.6 | elapsed=0.73h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1480)
+
+[Train] Epoch 144/300 | branch_alpha=0.000e+00
+[Epoch 144] Train loss=0.0723, soft_acc=0.9782
+[Epoch 144] Val   loss=7.6267, acc=0.1464 | epoch_sec=17.7 | elapsed=0.73h
+
+[Train] Epoch 145/300 | branch_alpha=0.000e+00
+[Epoch 145] Train loss=0.0723, soft_acc=0.9795
+[Epoch 145] Val   loss=7.5701, acc=0.1496 | epoch_sec=18.5 | elapsed=0.74h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1496)
+
+[Train] Epoch 146/300 | branch_alpha=0.000e+00
+[Epoch 146] Train loss=0.0647, soft_acc=0.9809
+[Epoch 146] Val   loss=7.5719, acc=0.1456 | epoch_sec=18.5 | elapsed=0.74h
+
+[Train] Epoch 147/300 | branch_alpha=0.000e+00
+[Epoch 147] Train loss=0.0619, soft_acc=0.9824
+[Epoch 147] Val   loss=7.5760, acc=0.1520 | epoch_sec=18.0 | elapsed=0.75h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1520)
+
+[Train] Epoch 148/300 | branch_alpha=0.000e+00
+[Epoch 148] Train loss=0.0650, soft_acc=0.9812
+[Epoch 148] Val   loss=7.6109, acc=0.1536 | epoch_sec=18.1 | elapsed=0.75h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1536)
+
+[Train] Epoch 149/300 | branch_alpha=0.000e+00
+[Epoch 149] Train loss=0.0583, soft_acc=0.9830
+[Epoch 149] Val   loss=7.5838, acc=0.1568 | epoch_sec=17.8 | elapsed=0.76h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1568)
+
+[Train] Epoch 150/300 | branch_alpha=0.000e+00
+[Epoch 150] Train loss=0.0586, soft_acc=0.9830
+[Epoch 150] Val   loss=7.5663, acc=0.1600 | epoch_sec=17.5 | elapsed=0.76h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1600)
+
+[Train] Epoch 151/300 | branch_alpha=0.000e+00
+[Epoch 151] Train loss=0.0635, soft_acc=0.9819
+[Epoch 151] Val   loss=7.5486, acc=0.1616 | epoch_sec=18.4 | elapsed=0.77h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1616)
+
+[Train] Epoch 152/300 | branch_alpha=0.000e+00
+[Epoch 152] Train loss=0.0503, soft_acc=0.9859
+[Epoch 152] Val   loss=7.5809, acc=0.1648 | epoch_sec=18.0 | elapsed=0.77h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1648)
+
+[Train] Epoch 153/300 | branch_alpha=0.000e+00
+[Epoch 153] Train loss=0.0613, soft_acc=0.9822
+[Epoch 153] Val   loss=7.5882, acc=0.1680 | epoch_sec=18.2 | elapsed=0.78h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1680)
+
+[Train] Epoch 154/300 | branch_alpha=0.000e+00
+[Epoch 154] Train loss=0.0497, soft_acc=0.9857
+[Epoch 154] Val   loss=7.6029, acc=0.1712 | epoch_sec=18.2 | elapsed=0.78h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1712)
+
+[Train] Epoch 155/300 | branch_alpha=0.000e+00
+[Epoch 155] Train loss=0.0550, soft_acc=0.9836
+[Epoch 155] Val   loss=7.6090, acc=0.1728 | epoch_sec=18.0 | elapsed=0.79h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1728)
+
+[Train] Epoch 156/300 | branch_alpha=0.000e+00
+[Epoch 156] Train loss=0.0542, soft_acc=0.9846
+[Epoch 156] Val   loss=7.6173, acc=0.1824 | epoch_sec=18.1 | elapsed=0.79h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1824)
+
+[Train] Epoch 157/300 | branch_alpha=0.000e+00
+[Epoch 157] Train loss=0.0467, soft_acc=0.9863
+[Epoch 157] Val   loss=7.6412, acc=0.1776 | epoch_sec=17.8 | elapsed=0.80h
+
+[Train] Epoch 158/300 | branch_alpha=0.000e+00
+[Epoch 158] Train loss=0.0474, soft_acc=0.9871
+[Epoch 158] Val   loss=7.6041, acc=0.1872 | epoch_sec=18.0 | elapsed=0.80h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1872)
+
+[Train] Epoch 159/300 | branch_alpha=0.000e+00
+[Epoch 159] Train loss=0.0514, soft_acc=0.9857
+[Epoch 159] Val   loss=7.6205, acc=0.1872 | epoch_sec=18.4 | elapsed=0.81h
+
+[Train] Epoch 160/300 | branch_alpha=0.000e+00
+[Epoch 160] Train loss=0.0466, soft_acc=0.9870
+[Epoch 160] Val   loss=7.6210, acc=0.1936 | epoch_sec=18.3 | elapsed=0.81h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1936)
+
+[Train] Epoch 161/300 | branch_alpha=0.000e+00
+[Epoch 161] Train loss=0.0411, soft_acc=0.9891
+[Epoch 161] Val   loss=7.6542, acc=0.1968 | epoch_sec=17.6 | elapsed=0.82h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1968)
+
+[Train] Epoch 162/300 | branch_alpha=0.000e+00
+[Epoch 162] Train loss=0.0463, soft_acc=0.9870
+[Epoch 162] Val   loss=7.6656, acc=0.1984 | epoch_sec=18.2 | elapsed=0.82h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.1984)
+
+[Train] Epoch 163/300 | branch_alpha=0.000e+00
+[Epoch 163] Train loss=0.0419, soft_acc=0.9877
+[Epoch 163] Val   loss=7.6687, acc=0.2032 | epoch_sec=18.1 | elapsed=0.83h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2032)
+
+[Train] Epoch 164/300 | branch_alpha=0.000e+00
+[Epoch 164] Train loss=0.0431, soft_acc=0.9883
+[Epoch 164] Val   loss=7.6652, acc=0.2024 | epoch_sec=17.9 | elapsed=0.83h
+
+[Train] Epoch 165/300 | branch_alpha=0.000e+00
+[Epoch 165] Train loss=0.0409, soft_acc=0.9882
+[Epoch 165] Val   loss=7.6592, acc=0.2048 | epoch_sec=17.9 | elapsed=0.84h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2048)
+
+[Train] Epoch 166/300 | branch_alpha=0.000e+00
+[Epoch 166] Train loss=0.0361, soft_acc=0.9908
+[Epoch 166] Val   loss=7.6854, acc=0.2072 | epoch_sec=17.9 | elapsed=0.84h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2072)
+
+[Train] Epoch 167/300 | branch_alpha=0.000e+00
+[Epoch 167] Train loss=0.0353, soft_acc=0.9894
+[Epoch 167] Val   loss=7.6887, acc=0.2080 | epoch_sec=17.9 | elapsed=0.85h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2080)
+
+[Train] Epoch 168/300 | branch_alpha=0.000e+00
+[Epoch 168] Train loss=0.0417, soft_acc=0.9881
+[Epoch 168] Val   loss=7.7034, acc=0.2112 | epoch_sec=18.6 | elapsed=0.85h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2112)
+
+[Train] Epoch 169/300 | branch_alpha=0.000e+00
+[Epoch 169] Train loss=0.0376, soft_acc=0.9903
+[Epoch 169] Val   loss=7.7204, acc=0.2128 | epoch_sec=18.4 | elapsed=0.86h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2128)
+
+[Train] Epoch 170/300 | branch_alpha=0.000e+00
+[Epoch 170] Train loss=0.0415, soft_acc=0.9880
+[Epoch 170] Val   loss=7.7216, acc=0.2128 | epoch_sec=18.0 | elapsed=0.86h
+
+[Train] Epoch 171/300 | branch_alpha=0.000e+00
+[Epoch 171] Train loss=0.0356, soft_acc=0.9900
+[Epoch 171] Val   loss=7.7204, acc=0.2144 | epoch_sec=18.4 | elapsed=0.87h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2144)
+
+[Train] Epoch 172/300 | branch_alpha=0.000e+00
+[Epoch 172] Train loss=0.0324, soft_acc=0.9912
+[Epoch 172] Val   loss=7.7283, acc=0.2208 | epoch_sec=18.0 | elapsed=0.87h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2208)
+
+[Train] Epoch 173/300 | branch_alpha=0.000e+00
+[Epoch 173] Train loss=0.0366, soft_acc=0.9901
+[Epoch 173] Val   loss=7.7201, acc=0.2216 | epoch_sec=18.1 | elapsed=0.88h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2216)
+
+[Train] Epoch 174/300 | branch_alpha=0.000e+00
+[Epoch 174] Train loss=0.0335, soft_acc=0.9901
+[Epoch 174] Val   loss=7.7270, acc=0.2256 | epoch_sec=17.8 | elapsed=0.88h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2256)
+
+[Train] Epoch 175/300 | branch_alpha=0.000e+00
+[Epoch 175] Train loss=0.0328, soft_acc=0.9915
+[Epoch 175] Val   loss=7.7635, acc=0.2216 | epoch_sec=17.9 | elapsed=0.89h
+
+[Train] Epoch 176/300 | branch_alpha=0.000e+00
+[Epoch 176] Train loss=0.0344, soft_acc=0.9902
+[Epoch 176] Val   loss=7.7813, acc=0.2232 | epoch_sec=18.6 | elapsed=0.89h
+
+[Train] Epoch 177/300 | branch_alpha=0.000e+00
+[Epoch 177] Train loss=0.0323, soft_acc=0.9914
+[Epoch 177] Val   loss=7.8002, acc=0.2264 | epoch_sec=18.2 | elapsed=0.90h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2264)
+
+[Train] Epoch 178/300 | branch_alpha=0.000e+00
+[Epoch 178] Train loss=0.0293, soft_acc=0.9923
+[Epoch 178] Val   loss=7.8223, acc=0.2240 | epoch_sec=18.1 | elapsed=0.90h
+
+[Train] Epoch 179/300 | branch_alpha=0.000e+00
+[Epoch 179] Train loss=0.0271, soft_acc=0.9919
+[Epoch 179] Val   loss=7.8134, acc=0.2280 | epoch_sec=18.3 | elapsed=0.91h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2280)
+
+[Train] Epoch 180/300 | branch_alpha=0.000e+00
+[Epoch 180] Train loss=0.0281, soft_acc=0.9928
+[Epoch 180] Val   loss=7.8255, acc=0.2312 | epoch_sec=18.3 | elapsed=0.91h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2312)
+
+[Train] Epoch 181/300 | branch_alpha=0.000e+00
+[Epoch 181] Train loss=0.0272, soft_acc=0.9932
+[Epoch 181] Val   loss=7.7903, acc=0.2360 | epoch_sec=17.7 | elapsed=0.92h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2360)
+
+[Train] Epoch 182/300 | branch_alpha=0.000e+00
+[Epoch 182] Train loss=0.0272, soft_acc=0.9927
+[Epoch 182] Val   loss=7.7985, acc=0.2392 | epoch_sec=18.3 | elapsed=0.92h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2392)
+
+[Train] Epoch 183/300 | branch_alpha=0.000e+00
+[Epoch 183] Train loss=0.0223, soft_acc=0.9938
+[Epoch 183] Val   loss=7.8190, acc=0.2360 | epoch_sec=18.1 | elapsed=0.93h
+
+[Train] Epoch 184/300 | branch_alpha=0.000e+00
+[Epoch 184] Train loss=0.0243, soft_acc=0.9937
+[Epoch 184] Val   loss=7.8277, acc=0.2352 | epoch_sec=18.0 | elapsed=0.93h
+
+[Train] Epoch 185/300 | branch_alpha=0.000e+00
+[Epoch 185] Train loss=0.0228, soft_acc=0.9937
+[Epoch 185] Val   loss=7.8595, acc=0.2392 | epoch_sec=18.7 | elapsed=0.94h
+
+[Train] Epoch 186/300 | branch_alpha=0.000e+00
+[Epoch 186] Train loss=0.0241, soft_acc=0.9934
+[Epoch 186] Val   loss=7.8684, acc=0.2448 | epoch_sec=18.1 | elapsed=0.94h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2448)
+
+[Train] Epoch 187/300 | branch_alpha=0.000e+00
+[Epoch 187] Train loss=0.0233, soft_acc=0.9937
+[Epoch 187] Val   loss=7.8905, acc=0.2440 | epoch_sec=18.0 | elapsed=0.95h
+
+[Train] Epoch 188/300 | branch_alpha=0.000e+00
+[Epoch 188] Train loss=0.0210, soft_acc=0.9940
+[Epoch 188] Val   loss=7.8746, acc=0.2496 | epoch_sec=18.6 | elapsed=0.95h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2496)
+
+[Train] Epoch 189/300 | branch_alpha=0.000e+00
+[Epoch 189] Train loss=0.0232, soft_acc=0.9940
+[Epoch 189] Val   loss=7.8836, acc=0.2464 | epoch_sec=18.0 | elapsed=0.96h
+
+[Train] Epoch 190/300 | branch_alpha=0.000e+00
+[Epoch 190] Train loss=0.0208, soft_acc=0.9950
+[Epoch 190] Val   loss=7.8910, acc=0.2488 | epoch_sec=18.5 | elapsed=0.96h
+
+[Train] Epoch 191/300 | branch_alpha=0.000e+00
+[Epoch 191] Train loss=0.0206, soft_acc=0.9946
+[Epoch 191] Val   loss=7.9052, acc=0.2520 | epoch_sec=18.4 | elapsed=0.97h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2520)
+
+[Train] Epoch 192/300 | branch_alpha=0.000e+00
+[Epoch 192] Train loss=0.0235, soft_acc=0.9936
+[Epoch 192] Val   loss=7.9005, acc=0.2504 | epoch_sec=18.4 | elapsed=0.97h
+
+[Train] Epoch 193/300 | branch_alpha=0.000e+00
+[Epoch 193] Train loss=0.0181, soft_acc=0.9954
+[Epoch 193] Val   loss=7.9260, acc=0.2520 | epoch_sec=18.3 | elapsed=0.98h
+
+[Train] Epoch 194/300 | branch_alpha=0.000e+00
+[Epoch 194] Train loss=0.0203, soft_acc=0.9944
+[Epoch 194] Val   loss=7.9406, acc=0.2520 | epoch_sec=18.0 | elapsed=0.98h
+
+[Train] Epoch 195/300 | branch_alpha=0.000e+00
+[Epoch 195] Train loss=0.0162, soft_acc=0.9952
+[Epoch 195] Val   loss=7.9646, acc=0.2472 | epoch_sec=18.5 | elapsed=0.99h
+
+[Train] Epoch 196/300 | branch_alpha=0.000e+00
+[Epoch 196] Train loss=0.0183, soft_acc=0.9953
+[Epoch 196] Val   loss=7.9721, acc=0.2480 | epoch_sec=18.9 | elapsed=0.99h
+
+[Train] Epoch 197/300 | branch_alpha=0.000e+00
+[Epoch 197] Train loss=0.0170, soft_acc=0.9953
+[Epoch 197] Val   loss=7.9833, acc=0.2536 | epoch_sec=18.0 | elapsed=1.00h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2536)
+
+[Train] Epoch 198/300 | branch_alpha=0.000e+00
+[Epoch 198] Train loss=0.0195, soft_acc=0.9944
+[Epoch 198] Val   loss=7.9603, acc=0.2560 | epoch_sec=18.9 | elapsed=1.00h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2560)
+
+[Train] Epoch 199/300 | branch_alpha=0.000e+00
+[Epoch 199] Train loss=0.0227, soft_acc=0.9932
+[Epoch 199] Val   loss=7.9787, acc=0.2576 | epoch_sec=18.4 | elapsed=1.01h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2576)
+
+[Train] Epoch 200/300 | branch_alpha=0.000e+00
+[Epoch 200] Train loss=0.0173, soft_acc=0.9965
+[Epoch 200] Val   loss=7.9993, acc=0.2584 | epoch_sec=18.4 | elapsed=1.02h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2584)
+
+[Train] Epoch 201/300 | branch_alpha=0.000e+00
+[Epoch 201] Train loss=0.0147, soft_acc=0.9966
+[Epoch 201] Val   loss=8.0280, acc=0.2512 | epoch_sec=18.5 | elapsed=1.02h
+
+[Train] Epoch 202/300 | branch_alpha=0.000e+00
+[Epoch 202] Train loss=0.0147, soft_acc=0.9961
+[Epoch 202] Val   loss=8.0378, acc=0.2544 | epoch_sec=17.7 | elapsed=1.03h
+
+[Train] Epoch 203/300 | branch_alpha=0.000e+00
+[Epoch 203] Train loss=0.0169, soft_acc=0.9948
+[Epoch 203] Val   loss=8.0582, acc=0.2480 | epoch_sec=19.1 | elapsed=1.03h
+
+[Train] Epoch 204/300 | branch_alpha=0.000e+00
+[Epoch 204] Train loss=0.0166, soft_acc=0.9946
+[Epoch 204] Val   loss=8.0804, acc=0.2472 | epoch_sec=18.1 | elapsed=1.04h
+
+[Train] Epoch 205/300 | branch_alpha=0.000e+00
+[Epoch 205] Train loss=0.0146, soft_acc=0.9961
+[Epoch 205] Val   loss=8.0938, acc=0.2496 | epoch_sec=18.5 | elapsed=1.04h
+
+[Train] Epoch 206/300 | branch_alpha=0.000e+00
+[Epoch 206] Train loss=0.0129, soft_acc=0.9969
+[Epoch 206] Val   loss=8.0956, acc=0.2472 | epoch_sec=18.5 | elapsed=1.05h
+
+[Train] Epoch 207/300 | branch_alpha=0.000e+00
+[Epoch 207] Train loss=0.0137, soft_acc=0.9964
+[Epoch 207] Val   loss=8.1004, acc=0.2488 | epoch_sec=18.3 | elapsed=1.05h
+
+[Train] Epoch 208/300 | branch_alpha=0.000e+00
+[Epoch 208] Train loss=0.0141, soft_acc=0.9965
+[Epoch 208] Val   loss=8.1066, acc=0.2544 | epoch_sec=17.5 | elapsed=1.06h
+
+[Train] Epoch 209/300 | branch_alpha=0.000e+00
+[Epoch 209] Train loss=0.0126, soft_acc=0.9967
+[Epoch 209] Val   loss=8.1129, acc=0.2528 | epoch_sec=17.8 | elapsed=1.06h
+
+[Train] Epoch 210/300 | branch_alpha=0.000e+00
+[Epoch 210] Train loss=0.0128, soft_acc=0.9962
+[Epoch 210] Val   loss=8.1294, acc=0.2552 | epoch_sec=17.8 | elapsed=1.07h
+
+[Train] Epoch 211/300 | branch_alpha=0.000e+00
+[Epoch 211] Train loss=0.0106, soft_acc=0.9976
+[Epoch 211] Val   loss=8.1392, acc=0.2552 | epoch_sec=17.7 | elapsed=1.07h
+
+[Train] Epoch 212/300 | branch_alpha=0.000e+00
+[Epoch 212] Train loss=0.0105, soft_acc=0.9979
+[Epoch 212] Val   loss=8.1441, acc=0.2552 | epoch_sec=18.6 | elapsed=1.08h
+
+[Train] Epoch 213/300 | branch_alpha=0.000e+00
+[Epoch 213] Train loss=0.0111, soft_acc=0.9974
+[Epoch 213] Val   loss=8.1631, acc=0.2568 | epoch_sec=18.5 | elapsed=1.08h
+
+[Train] Epoch 214/300 | branch_alpha=0.000e+00
+[Epoch 214] Train loss=0.0122, soft_acc=0.9967
+[Epoch 214] Val   loss=8.1826, acc=0.2568 | epoch_sec=18.2 | elapsed=1.09h
+
+[Train] Epoch 215/300 | branch_alpha=0.000e+00
+[Epoch 215] Train loss=0.0087, soft_acc=0.9980
+[Epoch 215] Val   loss=8.2119, acc=0.2528 | epoch_sec=18.0 | elapsed=1.09h
+
+[Train] Epoch 216/300 | branch_alpha=0.000e+00
+[Epoch 216] Train loss=0.0077, soft_acc=0.9986
+[Epoch 216] Val   loss=8.2230, acc=0.2488 | epoch_sec=18.8 | elapsed=1.10h
+
+[Train] Epoch 217/300 | branch_alpha=0.000e+00
+[Epoch 217] Train loss=0.0097, soft_acc=0.9977
+[Epoch 217] Val   loss=8.2406, acc=0.2520 | epoch_sec=18.2 | elapsed=1.10h
+
+[Train] Epoch 218/300 | branch_alpha=0.000e+00
+[Epoch 218] Train loss=0.0086, soft_acc=0.9981
+[Epoch 218] Val   loss=8.2430, acc=0.2464 | epoch_sec=18.1 | elapsed=1.11h
+
+[Train] Epoch 219/300 | branch_alpha=0.000e+00
+[Epoch 219] Train loss=0.0089, soft_acc=0.9981
+[Epoch 219] Val   loss=8.2499, acc=0.2568 | epoch_sec=18.6 | elapsed=1.11h
+
+[Train] Epoch 220/300 | branch_alpha=0.000e+00
+[Epoch 220] Train loss=0.0094, soft_acc=0.9979
+[Epoch 220] Val   loss=8.2414, acc=0.2512 | epoch_sec=18.1 | elapsed=1.12h
+
+[Train] Epoch 221/300 | branch_alpha=0.000e+00
+[Epoch 221] Train loss=0.0074, soft_acc=0.9985
+[Epoch 221] Val   loss=8.2434, acc=0.2536 | epoch_sec=18.3 | elapsed=1.12h
+
+[Train] Epoch 222/300 | branch_alpha=0.000e+00
+[Epoch 222] Train loss=0.0083, soft_acc=0.9980
+[Epoch 222] Val   loss=8.2781, acc=0.2584 | epoch_sec=18.3 | elapsed=1.13h
+
+[Train] Epoch 223/300 | branch_alpha=0.000e+00
+[Epoch 223] Train loss=0.0079, soft_acc=0.9983
+[Epoch 223] Val   loss=8.2740, acc=0.2520 | epoch_sec=18.6 | elapsed=1.13h
+
+[Train] Epoch 224/300 | branch_alpha=0.000e+00
+[Epoch 224] Train loss=0.0091, soft_acc=0.9977
+[Epoch 224] Val   loss=8.2905, acc=0.2552 | epoch_sec=18.1 | elapsed=1.14h
+
+[Train] Epoch 225/300 | branch_alpha=0.000e+00
+[Epoch 225] Train loss=0.0076, soft_acc=0.9983
+[Epoch 225] Val   loss=8.2984, acc=0.2544 | epoch_sec=18.3 | elapsed=1.14h
+
+[Train] Epoch 226/300 | branch_alpha=0.000e+00
+[Epoch 226] Train loss=0.0051, soft_acc=0.9993
+[Epoch 226] Val   loss=8.3081, acc=0.2608 | epoch_sec=17.9 | elapsed=1.15h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2608)
+
+[Train] Epoch 227/300 | branch_alpha=0.000e+00
+[Epoch 227] Train loss=0.0079, soft_acc=0.9983
+[Epoch 227] Val   loss=8.3032, acc=0.2600 | epoch_sec=19.4 | elapsed=1.15h
+
+[Train] Epoch 228/300 | branch_alpha=0.000e+00
+[Epoch 228] Train loss=0.0060, soft_acc=0.9987
+[Epoch 228] Val   loss=8.3004, acc=0.2616 | epoch_sec=18.1 | elapsed=1.16h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2616)
+
+[Train] Epoch 229/300 | branch_alpha=0.000e+00
+[Epoch 229] Train loss=0.0060, soft_acc=0.9990
+[Epoch 229] Val   loss=8.3213, acc=0.2536 | epoch_sec=18.3 | elapsed=1.16h
+
+[Train] Epoch 230/300 | branch_alpha=0.000e+00
+[Epoch 230] Train loss=0.0064, soft_acc=0.9984
+[Epoch 230] Val   loss=8.3452, acc=0.2560 | epoch_sec=18.1 | elapsed=1.17h
+
+[Train] Epoch 231/300 | branch_alpha=0.000e+00
+[Epoch 231] Train loss=0.0064, soft_acc=0.9987
+[Epoch 231] Val   loss=8.3698, acc=0.2568 | epoch_sec=18.7 | elapsed=1.17h
+
+[Train] Epoch 232/300 | branch_alpha=0.000e+00
+[Epoch 232] Train loss=0.0055, soft_acc=0.9990
+[Epoch 232] Val   loss=8.3859, acc=0.2584 | epoch_sec=18.0 | elapsed=1.18h
+
+[Train] Epoch 233/300 | branch_alpha=0.000e+00
+[Epoch 233] Train loss=0.0051, soft_acc=0.9988
+[Epoch 233] Val   loss=8.4027, acc=0.2544 | epoch_sec=18.1 | elapsed=1.18h
+
+[Train] Epoch 234/300 | branch_alpha=0.000e+00
+[Epoch 234] Train loss=0.0043, soft_acc=0.9990
+[Epoch 234] Val   loss=8.4051, acc=0.2536 | epoch_sec=18.4 | elapsed=1.19h
+
+[Train] Epoch 235/300 | branch_alpha=0.000e+00
+[Epoch 235] Train loss=0.0062, soft_acc=0.9986
+[Epoch 235] Val   loss=8.4026, acc=0.2520 | epoch_sec=17.8 | elapsed=1.19h
+
+[Train] Epoch 236/300 | branch_alpha=0.000e+00
+[Epoch 236] Train loss=0.0052, soft_acc=0.9988
+[Epoch 236] Val   loss=8.4172, acc=0.2536 | epoch_sec=18.2 | elapsed=1.20h
+
+[Train] Epoch 237/300 | branch_alpha=0.000e+00
+[Epoch 237] Train loss=0.0047, soft_acc=0.9991
+[Epoch 237] Val   loss=8.4428, acc=0.2600 | epoch_sec=18.2 | elapsed=1.20h
+
+[Train] Epoch 238/300 | branch_alpha=0.000e+00
+[Epoch 238] Train loss=0.0050, soft_acc=0.9990
+[Epoch 238] Val   loss=8.4461, acc=0.2504 | epoch_sec=19.1 | elapsed=1.21h
+
+[Train] Epoch 239/300 | branch_alpha=0.000e+00
+[Epoch 239] Train loss=0.0040, soft_acc=0.9993
+[Epoch 239] Val   loss=8.4634, acc=0.2568 | epoch_sec=18.0 | elapsed=1.21h
+
+[Train] Epoch 240/300 | branch_alpha=0.000e+00
+[Epoch 240] Train loss=0.0036, soft_acc=0.9994
+[Epoch 240] Val   loss=8.4786, acc=0.2560 | epoch_sec=18.4 | elapsed=1.22h
+
+[Train] Epoch 241/300 | branch_alpha=0.000e+00
+[Epoch 241] Train loss=0.0046, soft_acc=0.9990
+[Epoch 241] Val   loss=8.4938, acc=0.2592 | epoch_sec=18.1 | elapsed=1.22h
+
+[Train] Epoch 242/300 | branch_alpha=0.000e+00
+[Epoch 242] Train loss=0.0046, soft_acc=0.9990
+[Epoch 242] Val   loss=8.5020, acc=0.2552 | epoch_sec=18.0 | elapsed=1.23h
+
+[Train] Epoch 243/300 | branch_alpha=0.000e+00
+[Epoch 243] Train loss=0.0048, soft_acc=0.9990
+[Epoch 243] Val   loss=8.5121, acc=0.2616 | epoch_sec=18.0 | elapsed=1.23h
+
+[Train] Epoch 244/300 | branch_alpha=0.000e+00
+[Epoch 244] Train loss=0.0039, soft_acc=0.9988
+[Epoch 244] Val   loss=8.5262, acc=0.2616 | epoch_sec=18.2 | elapsed=1.24h
+
+[Train] Epoch 245/300 | branch_alpha=0.000e+00
+[Epoch 245] Train loss=0.0036, soft_acc=0.9995
+[Epoch 245] Val   loss=8.5225, acc=0.2584 | epoch_sec=18.5 | elapsed=1.24h
+
+[Train] Epoch 246/300 | branch_alpha=0.000e+00
+[Epoch 246] Train loss=0.0043, soft_acc=0.9991
+[Epoch 246] Val   loss=8.5287, acc=0.2544 | epoch_sec=18.7 | elapsed=1.25h
+
+[Train] Epoch 247/300 | branch_alpha=0.000e+00
+[Epoch 247] Train loss=0.0029, soft_acc=0.9994
+[Epoch 247] Val   loss=8.5332, acc=0.2536 | epoch_sec=18.1 | elapsed=1.25h
+
+[Train] Epoch 248/300 | branch_alpha=0.000e+00
+[Epoch 248] Train loss=0.0032, soft_acc=0.9993
+[Epoch 248] Val   loss=8.5496, acc=0.2576 | epoch_sec=18.5 | elapsed=1.26h
+
+[Train] Epoch 249/300 | branch_alpha=0.000e+00
+[Epoch 249] Train loss=0.0038, soft_acc=0.9991
+[Epoch 249] Val   loss=8.5594, acc=0.2584 | epoch_sec=18.8 | elapsed=1.26h
+
+[Train] Epoch 250/300 | branch_alpha=0.000e+00
+[Epoch 250] Train loss=0.0025, soft_acc=0.9996
+[Epoch 250] Val   loss=8.5684, acc=0.2536 | epoch_sec=18.9 | elapsed=1.27h
+
+[Train] Epoch 251/300 | branch_alpha=0.000e+00
+[Epoch 251] Train loss=0.0022, soft_acc=0.9997
+[Epoch 251] Val   loss=8.5775, acc=0.2536 | epoch_sec=18.2 | elapsed=1.27h
+
+[Train] Epoch 252/300 | branch_alpha=0.000e+00
+[Epoch 252] Train loss=0.0032, soft_acc=0.9991
+[Epoch 252] Val   loss=8.5882, acc=0.2528 | epoch_sec=17.8 | elapsed=1.28h
+
+[Train] Epoch 253/300 | branch_alpha=0.000e+00
+[Epoch 253] Train loss=0.0023, soft_acc=0.9994
+[Epoch 253] Val   loss=8.5960, acc=0.2560 | epoch_sec=17.8 | elapsed=1.28h
+
+[Train] Epoch 254/300 | branch_alpha=0.000e+00
+[Epoch 254] Train loss=0.0022, soft_acc=0.9998
+[Epoch 254] Val   loss=8.6009, acc=0.2568 | epoch_sec=17.9 | elapsed=1.29h
+
+[Train] Epoch 255/300 | branch_alpha=0.000e+00
+[Epoch 255] Train loss=0.0028, soft_acc=0.9994
+[Epoch 255] Val   loss=8.6137, acc=0.2576 | epoch_sec=18.3 | elapsed=1.29h
+
+[Train] Epoch 256/300 | branch_alpha=0.000e+00
+[Epoch 256] Train loss=0.0023, soft_acc=0.9994
+[Epoch 256] Val   loss=8.6337, acc=0.2560 | epoch_sec=18.2 | elapsed=1.30h
+
+[Train] Epoch 257/300 | branch_alpha=0.000e+00
+[Epoch 257] Train loss=0.0027, soft_acc=0.9992
+[Epoch 257] Val   loss=8.6388, acc=0.2584 | epoch_sec=18.2 | elapsed=1.30h
+
+[Train] Epoch 258/300 | branch_alpha=0.000e+00
+[Epoch 258] Train loss=0.0017, soft_acc=0.9998
+[Epoch 258] Val   loss=8.6556, acc=0.2616 | epoch_sec=18.7 | elapsed=1.31h
+
+[Train] Epoch 259/300 | branch_alpha=0.000e+00
+[Epoch 259] Train loss=0.0021, soft_acc=0.9997
+[Epoch 259] Val   loss=8.6684, acc=0.2608 | epoch_sec=19.1 | elapsed=1.31h
+
+[Train] Epoch 260/300 | branch_alpha=0.000e+00
+[Epoch 260] Train loss=0.0018, soft_acc=0.9997
+[Epoch 260] Val   loss=8.6685, acc=0.2608 | epoch_sec=18.6 | elapsed=1.32h
+
+[Train] Epoch 261/300 | branch_alpha=0.000e+00
+[Epoch 261] Train loss=0.0018, soft_acc=0.9996
+[Epoch 261] Val   loss=8.6807, acc=0.2632 | epoch_sec=18.4 | elapsed=1.33h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2632)
+
+[Train] Epoch 262/300 | branch_alpha=0.000e+00
+[Epoch 262] Train loss=0.0021, soft_acc=0.9996
+[Epoch 262] Val   loss=8.6957, acc=0.2608 | epoch_sec=18.1 | elapsed=1.33h
+
+[Train] Epoch 263/300 | branch_alpha=0.000e+00
+[Epoch 263] Train loss=0.0025, soft_acc=0.9994
+[Epoch 263] Val   loss=8.7155, acc=0.2640 | epoch_sec=17.8 | elapsed=1.34h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2640)
+
+[Train] Epoch 264/300 | branch_alpha=0.000e+00
+[Epoch 264] Train loss=0.0019, soft_acc=0.9998
+[Epoch 264] Val   loss=8.7324, acc=0.2632 | epoch_sec=18.4 | elapsed=1.34h
+
+[Train] Epoch 265/300 | branch_alpha=0.000e+00
+[Epoch 265] Train loss=0.0016, soft_acc=0.9996
+[Epoch 265] Val   loss=8.7440, acc=0.2664 | epoch_sec=19.2 | elapsed=1.35h
+  🌟 New best saved: ./outputs_pswf_paper/tiny_vil_W3_add_ch32/ema_best.pth (acc=0.2664)
+
+[Train] Epoch 266/300 | branch_alpha=0.000e+00
+[Epoch 266] Train loss=0.0015, soft_acc=0.9998
+[Epoch 266] Val   loss=8.7587, acc=0.2648 | epoch_sec=18.2 | elapsed=1.35h
+
+[Train] Epoch 267/300 | branch_alpha=0.000e+00
+[Epoch 267] Train loss=0.0021, soft_acc=0.9993
+[Epoch 267] Val   loss=8.7726, acc=0.2632 | epoch_sec=18.0 | elapsed=1.36h
+
+[Train] Epoch 268/300 | branch_alpha=0.000e+00
+[Epoch 268] Train loss=0.0016, soft_acc=0.9995
+[Epoch 268] Val   loss=8.7864, acc=0.2592 | epoch_sec=18.3 | elapsed=1.36h
+
+[Train] Epoch 269/300 | branch_alpha=0.000e+00
+[Epoch 269] Train loss=0.0010, soft_acc=0.9999
+[Epoch 269] Val   loss=8.8003, acc=0.2632 | epoch_sec=18.6 | elapsed=1.37h
+
+[Train] Epoch 270/300 | branch_alpha=0.000e+00
+[Epoch 270] Train loss=0.0018, soft_acc=0.9995
+[Epoch 270] Val   loss=8.8174, acc=0.2584 | epoch_sec=19.0 | elapsed=1.37h
+
+[Train] Epoch 271/300 | branch_alpha=0.000e+00
+[Epoch 271] Train loss=0.0020, soft_acc=0.9994
+[Epoch 271] Val   loss=8.8228, acc=0.2592 | epoch_sec=18.5 | elapsed=1.38h
+
+[Train] Epoch 272/300 | branch_alpha=0.000e+00
+[Epoch 272] Train loss=0.0020, soft_acc=0.9995
+[Epoch 272] Val   loss=8.8334, acc=0.2608 | epoch_sec=18.7 | elapsed=1.38h
+
+[Train] Epoch 273/300 | branch_alpha=0.000e+00
+[Epoch 273] Train loss=0.0013, soft_acc=0.9995
+[Epoch 273] Val   loss=8.8451, acc=0.2584 | epoch_sec=18.3 | elapsed=1.39h
+
+[Train] Epoch 274/300 | branch_alpha=0.000e+00
+[Epoch 274] Train loss=0.0017, soft_acc=0.9994
+[Epoch 274] Val   loss=8.8409, acc=0.2584 | epoch_sec=18.6 | elapsed=1.39h
+
+[Train] Epoch 275/300 | branch_alpha=0.000e+00
+[Epoch 275] Train loss=0.0009, soft_acc=1.0000
+[Epoch 275] Val   loss=8.8490, acc=0.2560 | epoch_sec=18.6 | elapsed=1.40h
+
+[Train] Epoch 276/300 | branch_alpha=0.000e+00
+[Epoch 276] Train loss=0.0014, soft_acc=0.9996
+[Epoch 276] Val   loss=8.8558, acc=0.2592 | epoch_sec=18.3 | elapsed=1.40h
+
+[Train] Epoch 277/300 | branch_alpha=0.000e+00
+[Epoch 277] Train loss=0.0014, soft_acc=0.9995
+[Epoch 277] Val   loss=8.8567, acc=0.2600 | epoch_sec=18.0 | elapsed=1.41h
+
+[Train] Epoch 278/300 | branch_alpha=0.000e+00
+[Epoch 278] Train loss=0.0011, soft_acc=0.9998
+[Epoch 278] Val   loss=8.8641, acc=0.2600 | epoch_sec=18.3 | elapsed=1.41h
+
+[Train] Epoch 279/300 | branch_alpha=0.000e+00
+[Epoch 279] Train loss=0.0009, soft_acc=0.9999
+[Epoch 279] Val   loss=8.8647, acc=0.2576 | epoch_sec=18.4 | elapsed=1.42h
+
+[Train] Epoch 280/300 | branch_alpha=0.000e+00
+[Epoch 280] Train loss=0.0009, soft_acc=0.9999
+[Epoch 280] Val   loss=8.8710, acc=0.2584 | epoch_sec=18.6 | elapsed=1.42h
+
+[Train] Epoch 281/300 | branch_alpha=0.000e+00
+[Epoch 281] Train loss=0.0009, soft_acc=0.9998
+[Epoch 281] Val   loss=8.8826, acc=0.2560 | epoch_sec=18.2 | elapsed=1.43h
+
+[Train] Epoch 282/300 | branch_alpha=0.000e+00
+[Epoch 282] Train loss=0.0018, soft_acc=0.9994
+[Epoch 282] Val   loss=8.8940, acc=0.2592 | epoch_sec=18.4 | elapsed=1.43h
+
+[Train] Epoch 283/300 | branch_alpha=0.000e+00
+[Epoch 283] Train loss=0.0015, soft_acc=0.9996
+[Epoch 283] Val   loss=8.9142, acc=0.2616 | epoch_sec=18.6 | elapsed=1.44h
+
+[Train] Epoch 284/300 | branch_alpha=0.000e+00
+[Epoch 284] Train loss=0.0014, soft_acc=0.9994
+[Epoch 284] Val   loss=8.9202, acc=0.2624 | epoch_sec=18.1 | elapsed=1.44h
+
+[Train] Epoch 285/300 | branch_alpha=0.000e+00
+[Epoch 285] Train loss=0.0010, soft_acc=0.9998
+[Epoch 285] Val   loss=8.9287, acc=0.2640 | epoch_sec=18.5 | elapsed=1.45h
+
+[Train] Epoch 286/300 | branch_alpha=0.000e+00
+[Epoch 286] Train loss=0.0012, soft_acc=0.9995
+[Epoch 286] Val   loss=8.9329, acc=0.2624 | epoch_sec=18.6 | elapsed=1.45h
+
+[Train] Epoch 287/300 | branch_alpha=0.000e+00
+[Epoch 287] Train loss=0.0008, soft_acc=0.9998
+[Epoch 287] Val   loss=8.9320, acc=0.2648 | epoch_sec=18.5 | elapsed=1.46h
+
+[Train] Epoch 288/300 | branch_alpha=0.000e+00
+[Epoch 288] Train loss=0.0010, soft_acc=0.9998
+[Epoch 288] Val   loss=8.9311, acc=0.2600 | epoch_sec=18.3 | elapsed=1.46h
+
+[Train] Epoch 289/300 | branch_alpha=0.000e+00
+[Epoch 289] Train loss=0.0009, soft_acc=0.9998
+[Epoch 289] Val   loss=8.9388, acc=0.2600 | epoch_sec=18.4 | elapsed=1.47h
+
+[Train] Epoch 290/300 | branch_alpha=0.000e+00
+[Epoch 290] Train loss=0.0009, soft_acc=0.9998
+[Epoch 290] Val   loss=8.9468, acc=0.2576 | epoch_sec=19.1 | elapsed=1.47h
+
+[Train] Epoch 291/300 | branch_alpha=0.000e+00
+[Epoch 291] Train loss=0.0009, soft_acc=0.9998
+[Epoch 291] Val   loss=8.9519, acc=0.2576 | epoch_sec=18.4 | elapsed=1.48h
+
+[Train] Epoch 292/300 | branch_alpha=0.000e+00
+[Epoch 292] Train loss=0.0013, soft_acc=0.9995
+[Epoch 292] Val   loss=8.9600, acc=0.2576 | epoch_sec=18.4 | elapsed=1.48h
+
+[Train] Epoch 293/300 | branch_alpha=0.000e+00
+[Epoch 293] Train loss=0.0011, soft_acc=0.9997
+[Epoch 293] Val   loss=8.9652, acc=0.2600 | epoch_sec=17.5 | elapsed=1.49h
+
+[Train] Epoch 294/300 | branch_alpha=0.000e+00
+[Epoch 294] Train loss=0.0007, soft_acc=0.9999
+[Epoch 294] Val   loss=8.9738, acc=0.2600 | epoch_sec=18.3 | elapsed=1.49h
+
+[Train] Epoch 295/300 | branch_alpha=0.000e+00
+[Epoch 295] Train loss=0.0008, soft_acc=0.9998
+[Epoch 295] Val   loss=8.9800, acc=0.2616 | epoch_sec=18.4 | elapsed=1.50h
+
+[Train] Epoch 296/300 | branch_alpha=0.000e+00
+[Epoch 296] Train loss=0.0009, soft_acc=0.9998
+[Epoch 296] Val   loss=8.9865, acc=0.2608 | epoch_sec=18.0 | elapsed=1.50h
+
+[Train] Epoch 297/300 | branch_alpha=0.000e+00
+[Epoch 297] Train loss=0.0009, soft_acc=0.9998
+[Epoch 297] Val   loss=8.9971, acc=0.2640 | epoch_sec=18.2 | elapsed=1.51h
+
+[Train] Epoch 298/300 | branch_alpha=0.000e+00
+[Epoch 298] Train loss=0.0010, soft_acc=0.9996
+[Epoch 298] Val   loss=9.0034, acc=0.2640 | epoch_sec=18.4 | elapsed=1.51h
+
+[Train] Epoch 299/300 | branch_alpha=0.000e+00
+[Epoch 299] Train loss=0.0009, soft_acc=0.9998
+[Epoch 299] Val   loss=8.9959, acc=0.2608 | epoch_sec=18.1 | elapsed=1.52h
+
+[Train] Epoch 300/300 | branch_alpha=0.000e+00
+[Epoch 300] Train loss=0.0006, soft_acc=0.9998
+[Epoch 300] Val   loss=9.0034, acc=0.2544 | epoch_sec=18.1 | elapsed=1.52h

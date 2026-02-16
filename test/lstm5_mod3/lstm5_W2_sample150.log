@@ -1,0 +1,945 @@
+WARNING:__main__:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[W122 17:20:11.323629245 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.335731788 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.375565731 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.525224704 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.559615950 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.565893524 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.611450483 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W122 17:20:11.616299305 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[Data] train=1281167 val=50000 classes=1000
+[Subset] keep 150/1000 classes seed=1234 | train=30000 val=7500
+[Cap] train_cap=200 val_cap=0 cap_seed=1234
+[Config] ablation=W2 baseline=A0 | img=192 | epochs=150 warmup=7 per_gpu_bs=32 global_bs=256 accum=1
+[Model] dim=192 depth=12 feat_ch=[32, 64, 64] | patch_base=16 stride_base=16 auto_patch_dwt=True
+        use_stem=True use_dwt=False pre_patch_dwt=False | pooling=bilateral_flatten | disable_branch=False gated=True
+[Opt] base_lr=5.00e-04 wd=0.05 clip=1.0 ema=0.9995 amp=bf16
+
+[Train] Epoch 1/150 | branch_alpha=0.000e+00
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  iter   100/118 | loss 4.9747 | soft_acc 0.015 | lr 1.04e-04
+[Epoch 1] Train loss=4.9959, soft_acc=0.0148
+[Epoch 1] Val   loss=5.0022, acc=0.0265
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0265)
+
+[Train] Epoch 2/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.9610 | soft_acc 0.017 | lr 1.69e-04
+[Epoch 2] Train loss=4.9473, soft_acc=0.0171
+[Epoch 2] Val   loss=5.0021, acc=0.0279
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0279)
+
+[Train] Epoch 3/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.6811 | soft_acc 0.023 | lr 2.33e-04
+[Epoch 3] Train loss=4.8706, soft_acc=0.0262
+[Epoch 3] Val   loss=4.9934, acc=0.0271
+
+[Train] Epoch 4/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.7561 | soft_acc 0.029 | lr 2.97e-04
+[Epoch 4] Train loss=4.7874, soft_acc=0.0303
+[Epoch 4] Val   loss=4.9813, acc=0.0275
+
+[Train] Epoch 5/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.5216 | soft_acc 0.052 | lr 3.62e-04
+[Epoch 5] Train loss=4.6404, soft_acc=0.0526
+[Epoch 5] Val   loss=4.9663, acc=0.0280
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0280)
+
+[Train] Epoch 6/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.7740 | soft_acc 0.074 | lr 4.26e-04
+[Epoch 6] Train loss=4.4995, soft_acc=0.0745
+[Epoch 6] Val   loss=4.9497, acc=0.0283
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0283)
+
+[Train] Epoch 7/150 | branch_alpha=0.000e+00
+  iter   100/118 | loss 4.0782 | soft_acc 0.083 | lr 4.90e-04
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[Epoch 7] Train loss=4.4520, soft_acc=0.0823
+[Epoch 7] Val   loss=4.9320, acc=0.0288
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0288)
+
+[Train] Epoch 8/150 | branch_alpha=6.667e-04
+  iter   100/118 | loss 4.3553 | soft_acc 0.102 | lr 5.00e-04
+[Epoch 8] Train loss=4.3386, soft_acc=0.1012
+[Epoch 8] Val   loss=4.9130, acc=0.0284
+
+[Train] Epoch 9/150 | branch_alpha=1.333e-03
+  iter   100/118 | loss 4.1422 | soft_acc 0.128 | lr 5.00e-04
+[Epoch 9] Train loss=4.1885, soft_acc=0.1278
+[Epoch 9] Val   loss=4.8934, acc=0.0304
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0304)
+
+[Train] Epoch 10/150 | branch_alpha=2.000e-03
+  iter   100/118 | loss 3.7353 | soft_acc 0.140 | lr 5.00e-04
+[Epoch 10] Train loss=4.1177, soft_acc=0.1402
+[Epoch 10] Val   loss=4.8725, acc=0.0311
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0311)
+
+[Train] Epoch 11/150 | branch_alpha=2.667e-03
+  iter   100/118 | loss 3.8590 | soft_acc 0.146 | lr 4.99e-04
+[Epoch 11] Train loss=4.0651, soft_acc=0.1491
+[Epoch 11] Val   loss=4.8508, acc=0.0320
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0320)
+
+[Train] Epoch 12/150 | branch_alpha=3.333e-03
+  iter   100/118 | loss 4.2511 | soft_acc 0.157 | lr 4.99e-04
+[Epoch 12] Train loss=4.0011, soft_acc=0.1607
+[Epoch 12] Val   loss=4.8279, acc=0.0333
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0333)
+
+[Train] Epoch 13/150 | branch_alpha=4.000e-03
+  iter   100/118 | loss 3.7287 | soft_acc 0.171 | lr 4.98e-04
+[Epoch 13] Train loss=3.9793, soft_acc=0.1713
+[Epoch 13] Val   loss=4.8032, acc=0.0332
+
+[Train] Epoch 14/150 | branch_alpha=4.667e-03
+  iter   100/118 | loss 4.7187 | soft_acc 0.195 | lr 4.97e-04
+[Epoch 14] Train loss=3.8251, soft_acc=0.1936
+[Epoch 14] Val   loss=4.7764, acc=0.0341
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0341)
+
+[Train] Epoch 15/150 | branch_alpha=5.333e-03
+  iter   100/118 | loss 4.2778 | soft_acc 0.199 | lr 4.96e-04
+[Epoch 15] Train loss=3.8055, soft_acc=0.1934
+[Epoch 15] Val   loss=4.7480, acc=0.0371
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0371)
+
+[Train] Epoch 16/150 | branch_alpha=6.000e-03
+  iter   100/118 | loss 3.8966 | soft_acc 0.232 | lr 4.95e-04
+[Epoch 16] Train loss=3.6792, soft_acc=0.2323
+[Epoch 16] Val   loss=4.7166, acc=0.0395
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0395)
+
+[Train] Epoch 17/150 | branch_alpha=6.667e-03
+  iter   100/118 | loss 3.1212 | soft_acc 0.244 | lr 4.94e-04
+[Epoch 17] Train loss=3.6585, soft_acc=0.2362
+[Epoch 17] Val   loss=4.6833, acc=0.0427
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0427)
+
+[Train] Epoch 18/150 | branch_alpha=7.333e-03
+  iter   100/118 | loss 4.0786 | soft_acc 0.239 | lr 4.93e-04
+[Epoch 18] Train loss=3.6321, soft_acc=0.2426
+[Epoch 18] Val   loss=4.6478, acc=0.0455
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0455)
+
+[Train] Epoch 19/150 | branch_alpha=8.000e-03
+  iter   100/118 | loss 2.4608 | soft_acc 0.241 | lr 4.92e-04
+[Epoch 19] Train loss=3.6743, soft_acc=0.2442
+[Epoch 19] Val   loss=4.6096, acc=0.0495
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0495)
+
+[Train] Epoch 20/150 | branch_alpha=8.667e-03
+  iter   100/118 | loss 2.9010 | soft_acc 0.273 | lr 4.90e-04
+[Epoch 20] Train loss=3.5206, soft_acc=0.2733
+[Epoch 20] Val   loss=4.5698, acc=0.0563
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0563)
+
+[Train] Epoch 21/150 | branch_alpha=9.333e-03
+  iter   100/118 | loss 4.2764 | soft_acc 0.268 | lr 4.89e-04
+[Epoch 21] Train loss=3.4794, soft_acc=0.2780
+[Epoch 21] Val   loss=4.5286, acc=0.0619
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0619)
+
+[Train] Epoch 22/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.6297 | soft_acc 0.313 | lr 4.87e-04
+[Epoch 22] Train loss=3.3136, soft_acc=0.3115
+[Epoch 22] Val   loss=4.4861, acc=0.0664
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0664)
+
+[Train] Epoch 23/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5828 | soft_acc 0.320 | lr 4.85e-04
+[Epoch 23] Train loss=3.3318, soft_acc=0.3145
+[Epoch 23] Val   loss=4.4454, acc=0.0709
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0709)
+
+[Train] Epoch 24/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.8963 | soft_acc 0.302 | lr 4.84e-04
+[Epoch 24] Train loss=3.3856, soft_acc=0.2980
+[Epoch 24] Val   loss=4.4043, acc=0.0747
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0747)
+
+[Train] Epoch 25/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.6848 | soft_acc 0.333 | lr 4.82e-04
+[Epoch 25] Train loss=3.2318, soft_acc=0.3356
+[Epoch 25] Val   loss=4.3657, acc=0.0795
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0795)
+
+[Train] Epoch 26/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.2514 | soft_acc 0.330 | lr 4.80e-04
+[Epoch 26] Train loss=3.2688, soft_acc=0.3316
+[Epoch 26] Val   loss=4.3278, acc=0.0857
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0857)
+
+[Train] Epoch 27/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 4.1114 | soft_acc 0.329 | lr 4.77e-04
+[Epoch 27] Train loss=3.2931, soft_acc=0.3266
+[Epoch 27] Val   loss=4.2938, acc=0.0905
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0905)
+
+[Train] Epoch 28/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.8188 | soft_acc 0.353 | lr 4.75e-04
+[Epoch 28] Train loss=3.1467, soft_acc=0.3626
+[Epoch 28] Val   loss=4.2632, acc=0.0948
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0948)
+
+[Train] Epoch 29/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.0426 | soft_acc 0.373 | lr 4.73e-04
+[Epoch 29] Train loss=3.1128, soft_acc=0.3648
+[Epoch 29] Val   loss=4.2366, acc=0.0975
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.0975)
+
+[Train] Epoch 30/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.3971 | soft_acc 0.358 | lr 4.70e-04
+[Epoch 30] Train loss=3.1536, soft_acc=0.3580
+[Epoch 30] Val   loss=4.2104, acc=0.1029
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1029)
+
+[Train] Epoch 31/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.3366 | soft_acc 0.355 | lr 4.67e-04
+[Epoch 31] Train loss=3.1526, soft_acc=0.3582
+[Epoch 31] Val   loss=4.1913, acc=0.1044
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1044)
+
+[Train] Epoch 32/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.0515 | soft_acc 0.374 | lr 4.65e-04
+[Epoch 32] Train loss=3.0880, soft_acc=0.3744
+[Epoch 32] Val   loss=4.1749, acc=0.1087
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1087)
+
+[Train] Epoch 33/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4041 | soft_acc 0.403 | lr 4.62e-04
+[Epoch 33] Train loss=3.0077, soft_acc=0.3970
+[Epoch 33] Val   loss=4.1605, acc=0.1137
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1137)
+
+[Train] Epoch 34/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.9981 | soft_acc 0.432 | lr 4.59e-04
+[Epoch 34] Train loss=2.8529, soft_acc=0.4311
+[Epoch 34] Val   loss=4.1538, acc=0.1180
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1180)
+
+[Train] Epoch 35/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 4.0039 | soft_acc 0.418 | lr 4.56e-04
+[Epoch 35] Train loss=2.9512, soft_acc=0.4099
+[Epoch 35] Val   loss=4.1512, acc=0.1204
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1204)
+
+[Train] Epoch 36/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.0791 | soft_acc 0.444 | lr 4.53e-04
+[Epoch 36] Train loss=2.8336, soft_acc=0.4330
+[Epoch 36] Val   loss=4.1466, acc=0.1216
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1216)
+
+[Train] Epoch 37/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.8636 | soft_acc 0.451 | lr 4.50e-04
+[Epoch 37] Train loss=2.8443, soft_acc=0.4378
+[Epoch 37] Val   loss=4.1454, acc=0.1239
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1239)
+
+[Train] Epoch 38/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.9912 | soft_acc 0.404 | lr 4.46e-04
+[Epoch 38] Train loss=2.9947, soft_acc=0.4043
+[Epoch 38] Val   loss=4.1502, acc=0.1259
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1259)
+
+[Train] Epoch 39/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.3345 | soft_acc 0.465 | lr 4.43e-04
+[Epoch 39] Train loss=2.7906, soft_acc=0.4566
+[Epoch 39] Val   loss=4.1552, acc=0.1259
+
+[Train] Epoch 40/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.0272 | soft_acc 0.449 | lr 4.40e-04
+[Epoch 40] Train loss=2.8011, soft_acc=0.4544
+[Epoch 40] Val   loss=4.1599, acc=0.1275
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1275)
+
+[Train] Epoch 41/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.9572 | soft_acc 0.454 | lr 4.36e-04
+[Epoch 41] Train loss=2.7556, soft_acc=0.4650
+[Epoch 41] Val   loss=4.1614, acc=0.1315
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1315)
+
+[Train] Epoch 42/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.8958 | soft_acc 0.470 | lr 4.32e-04
+[Epoch 42] Train loss=2.7166, soft_acc=0.4761
+[Epoch 42] Val   loss=4.1628, acc=0.1341
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1341)
+
+[Train] Epoch 43/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.0393 | soft_acc 0.457 | lr 4.29e-04
+[Epoch 43] Train loss=2.7915, soft_acc=0.4579
+[Epoch 43] Val   loss=4.1714, acc=0.1360
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1360)
+
+[Train] Epoch 44/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.6163 | soft_acc 0.497 | lr 4.25e-04
+[Epoch 44] Train loss=2.6801, soft_acc=0.4879
+[Epoch 44] Val   loss=4.1805, acc=0.1377
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1377)
+
+[Train] Epoch 45/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 4.2393 | soft_acc 0.533 | lr 4.21e-04
+[Epoch 45] Train loss=2.5222, soft_acc=0.5232
+[Epoch 45] Val   loss=4.1853, acc=0.1385
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1385)
+
+[Train] Epoch 46/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.8034 | soft_acc 0.501 | lr 4.17e-04
+[Epoch 46] Train loss=2.6663, soft_acc=0.4965
+[Epoch 46] Val   loss=4.1971, acc=0.1401
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1401)
+
+[Train] Epoch 47/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.7668 | soft_acc 0.522 | lr 4.13e-04
+[Epoch 47] Train loss=2.5614, soft_acc=0.5284
+[Epoch 47] Val   loss=4.1932, acc=0.1423
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1423)
+
+[Train] Epoch 48/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.5957 | soft_acc 0.533 | lr 4.09e-04
+[Epoch 48] Train loss=2.5523, soft_acc=0.5249
+[Epoch 48] Val   loss=4.2016, acc=0.1437
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1437)
+
+[Train] Epoch 49/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.3835 | soft_acc 0.546 | lr 4.05e-04
+[Epoch 49] Train loss=2.4654, soft_acc=0.5451
+[Epoch 49] Val   loss=4.1977, acc=0.1472
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1472)
+
+[Train] Epoch 50/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.1734 | soft_acc 0.553 | lr 4.00e-04
+[Epoch 50] Train loss=2.4619, soft_acc=0.5425
+[Epoch 50] Val   loss=4.1958, acc=0.1493
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1493)
+
+[Train] Epoch 51/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.5656 | soft_acc 0.563 | lr 3.96e-04
+[Epoch 51] Train loss=2.4664, soft_acc=0.5549
+[Epoch 51] Val   loss=4.1820, acc=0.1501
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1501)
+
+[Train] Epoch 52/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.8644 | soft_acc 0.600 | lr 3.92e-04
+[Epoch 52] Train loss=2.3017, soft_acc=0.5875
+[Epoch 52] Val   loss=4.1846, acc=0.1539
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1539)
+
+[Train] Epoch 53/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.6896 | soft_acc 0.592 | lr 3.87e-04
+[Epoch 53] Train loss=2.3131, soft_acc=0.5834
+[Epoch 53] Val   loss=4.1637, acc=0.1580
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1580)
+
+[Train] Epoch 54/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 4.1691 | soft_acc 0.514 | lr 3.83e-04
+[Epoch 54] Train loss=2.5768, soft_acc=0.5271
+[Epoch 54] Val   loss=4.1583, acc=0.1597
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1597)
+
+[Train] Epoch 55/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.6533 | soft_acc 0.546 | lr 3.78e-04
+[Epoch 55] Train loss=2.4194, soft_acc=0.5627
+[Epoch 55] Val   loss=4.1516, acc=0.1625
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1625)
+
+[Train] Epoch 56/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3861 | soft_acc 0.561 | lr 3.73e-04
+[Epoch 56] Train loss=2.4193, soft_acc=0.5654
+[Epoch 56] Val   loss=4.1230, acc=0.1656
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1656)
+
+[Train] Epoch 57/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.5679 | soft_acc 0.597 | lr 3.69e-04
+[Epoch 57] Train loss=2.2861, soft_acc=0.5971
+[Epoch 57] Val   loss=4.1077, acc=0.1693
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1693)
+
+[Train] Epoch 58/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3496 | soft_acc 0.591 | lr 3.64e-04
+[Epoch 58] Train loss=2.3920, soft_acc=0.5745
+[Epoch 58] Val   loss=4.0920, acc=0.1729
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1729)
+
+[Train] Epoch 59/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.1536 | soft_acc 0.593 | lr 3.59e-04
+[Epoch 59] Train loss=2.3171, soft_acc=0.5883
+[Epoch 59] Val   loss=4.0779, acc=0.1748
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1748)
+
+[Train] Epoch 60/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3722 | soft_acc 0.584 | lr 3.54e-04
+[Epoch 60] Train loss=2.3608, soft_acc=0.5781
+[Epoch 60] Val   loss=4.0488, acc=0.1800
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1800)
+
+[Train] Epoch 61/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3099 | soft_acc 0.612 | lr 3.49e-04
+[Epoch 61] Train loss=2.2383, soft_acc=0.6052
+[Epoch 61] Val   loss=4.0183, acc=0.1848
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1848)
+
+[Train] Epoch 62/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2907 | soft_acc 0.615 | lr 3.44e-04
+[Epoch 62] Train loss=2.2141, soft_acc=0.6207
+[Epoch 62] Val   loss=3.9812, acc=0.1888
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1888)
+
+[Train] Epoch 63/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.1796 | soft_acc 0.573 | lr 3.39e-04
+[Epoch 63] Train loss=2.3830, soft_acc=0.5772
+[Epoch 63] Val   loss=3.9579, acc=0.1913
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1913)
+
+[Train] Epoch 64/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.0439 | soft_acc 0.558 | lr 3.34e-04
+[Epoch 64] Train loss=2.5291, soft_acc=0.5454
+[Epoch 64] Val   loss=3.9309, acc=0.1956
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.1956)
+
+[Train] Epoch 65/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.0868 | soft_acc 0.599 | lr 3.29e-04
+[Epoch 65] Train loss=2.2926, soft_acc=0.6028
+[Epoch 65] Val   loss=3.8942, acc=0.2021
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2021)
+
+[Train] Epoch 66/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.6033 | soft_acc 0.549 | lr 3.24e-04
+[Epoch 66] Train loss=2.4610, soft_acc=0.5543
+[Epoch 66] Val   loss=3.8579, acc=0.2072
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2072)
+
+[Train] Epoch 67/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3451 | soft_acc 0.623 | lr 3.19e-04
+[Epoch 67] Train loss=2.2410, soft_acc=0.6162
+[Epoch 67] Val   loss=3.8217, acc=0.2128
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2128)
+
+[Train] Epoch 68/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3332 | soft_acc 0.605 | lr 3.14e-04
+[Epoch 68] Train loss=2.2828, soft_acc=0.6049
+[Epoch 68] Val   loss=3.7814, acc=0.2181
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2181)
+
+[Train] Epoch 69/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.9339 | soft_acc 0.646 | lr 3.09e-04
+[Epoch 69] Train loss=2.1024, soft_acc=0.6487
+[Epoch 69] Val   loss=3.7448, acc=0.2255
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2255)
+
+[Train] Epoch 70/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1653 | soft_acc 0.622 | lr 3.03e-04
+[Epoch 70] Train loss=2.2243, soft_acc=0.6193
+[Epoch 70] Val   loss=3.7096, acc=0.2296
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2296)
+
+[Train] Epoch 71/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0663 | soft_acc 0.634 | lr 2.98e-04
+[Epoch 71] Train loss=2.1255, soft_acc=0.6391
+[Epoch 71] Val   loss=3.6782, acc=0.2336
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2336)
+
+[Train] Epoch 72/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 4.0556 | soft_acc 0.626 | lr 2.93e-04
+[Epoch 72] Train loss=2.2215, soft_acc=0.6191
+[Epoch 72] Val   loss=3.6136, acc=0.2416
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2416)
+
+[Train] Epoch 73/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.8785 | soft_acc 0.637 | lr 2.88e-04
+[Epoch 73] Train loss=2.2107, soft_acc=0.6218
+[Epoch 73] Val   loss=3.5887, acc=0.2465
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2465)
+
+[Train] Epoch 74/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.7777 | soft_acc 0.676 | lr 2.82e-04
+[Epoch 74] Train loss=1.9711, soft_acc=0.6861
+[Epoch 74] Val   loss=3.5460, acc=0.2536
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2536)
+
+[Train] Epoch 75/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4160 | soft_acc 0.651 | lr 2.77e-04
+[Epoch 75] Train loss=2.1232, soft_acc=0.6521
+[Epoch 75] Val   loss=3.5119, acc=0.2585
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2585)
+
+[Train] Epoch 76/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1316 | soft_acc 0.607 | lr 2.72e-04
+[Epoch 76] Train loss=2.2828, soft_acc=0.6064
+[Epoch 76] Val   loss=3.4611, acc=0.2679
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2679)
+
+[Train] Epoch 77/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0200 | soft_acc 0.655 | lr 2.66e-04
+[Epoch 77] Train loss=2.1685, soft_acc=0.6406
+[Epoch 77] Val   loss=3.4337, acc=0.2743
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2743)
+
+[Train] Epoch 78/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.5717 | soft_acc 0.638 | lr 2.61e-04
+[Epoch 78] Train loss=2.1007, soft_acc=0.6443
+[Epoch 78] Val   loss=3.3729, acc=0.2820
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2820)
+
+[Train] Epoch 79/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.6006 | soft_acc 0.637 | lr 2.56e-04
+[Epoch 79] Train loss=2.1125, soft_acc=0.6451
+[Epoch 79] Val   loss=3.3414, acc=0.2864
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2864)
+
+[Train] Epoch 80/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.7443 | soft_acc 0.655 | lr 2.50e-04
+[Epoch 80] Train loss=2.0663, soft_acc=0.6560
+[Epoch 80] Val   loss=3.3039, acc=0.2928
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2928)
+
+[Train] Epoch 81/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.5932 | soft_acc 0.596 | lr 2.45e-04
+[Epoch 81] Train loss=2.2743, soft_acc=0.6111
+[Epoch 81] Val   loss=3.2778, acc=0.2977
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.2977)
+
+[Train] Epoch 82/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.2195 | soft_acc 0.657 | lr 2.40e-04
+[Epoch 82] Train loss=2.0817, soft_acc=0.6569
+[Epoch 82] Val   loss=3.2141, acc=0.3081
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3081)
+
+[Train] Epoch 83/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.8757 | soft_acc 0.636 | lr 2.34e-04
+[Epoch 83] Train loss=2.1163, soft_acc=0.6371
+[Epoch 83] Val   loss=3.1636, acc=0.3169
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3169)
+
+[Train] Epoch 84/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0773 | soft_acc 0.665 | lr 2.29e-04
+[Epoch 84] Train loss=2.0213, soft_acc=0.6721
+[Epoch 84] Val   loss=3.1418, acc=0.3199
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3199)
+
+[Train] Epoch 85/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.4307 | soft_acc 0.624 | lr 2.24e-04
+[Epoch 85] Train loss=2.2053, soft_acc=0.6210
+[Epoch 85] Val   loss=3.1309, acc=0.3233
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3233)
+
+[Train] Epoch 86/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0203 | soft_acc 0.636 | lr 2.19e-04
+[Epoch 86] Train loss=2.1730, soft_acc=0.6335
+[Epoch 86] Val   loss=3.0649, acc=0.3351
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3351)
+
+[Train] Epoch 87/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.1888 | soft_acc 0.673 | lr 2.13e-04
+[Epoch 87] Train loss=1.9928, soft_acc=0.6703
+[Epoch 87] Val   loss=3.0389, acc=0.3364
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3364)
+
+[Train] Epoch 88/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.1519 | soft_acc 0.645 | lr 2.08e-04
+[Epoch 88] Train loss=2.1489, soft_acc=0.6388
+[Epoch 88] Val   loss=2.9912, acc=0.3457
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3457)
+
+[Train] Epoch 89/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1197 | soft_acc 0.681 | lr 2.03e-04
+[Epoch 89] Train loss=2.0018, soft_acc=0.6744
+[Epoch 89] Val   loss=2.9660, acc=0.3496
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3496)
+
+[Train] Epoch 90/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.4202 | soft_acc 0.708 | lr 1.98e-04
+[Epoch 90] Train loss=1.9219, soft_acc=0.6981
+[Epoch 90] Val   loss=2.9198, acc=0.3577
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3577)
+
+[Train] Epoch 91/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.7398 | soft_acc 0.668 | lr 1.93e-04
+[Epoch 91] Train loss=2.0859, soft_acc=0.6502
+[Epoch 91] Val   loss=2.9033, acc=0.3623
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3623)
+
+[Train] Epoch 92/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4033 | soft_acc 0.635 | lr 1.87e-04
+[Epoch 92] Train loss=2.1573, soft_acc=0.6325
+[Epoch 92] Val   loss=2.8015, acc=0.3809
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3809)
+
+[Train] Epoch 93/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0210 | soft_acc 0.639 | lr 1.82e-04
+[Epoch 93] Train loss=2.1300, soft_acc=0.6431
+[Epoch 93] Val   loss=2.8334, acc=0.3763
+
+[Train] Epoch 94/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2641 | soft_acc 0.648 | lr 1.77e-04
+[Epoch 94] Train loss=2.0481, soft_acc=0.6569
+[Epoch 94] Val   loss=2.7774, acc=0.3864
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3864)
+
+[Train] Epoch 95/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.7495 | soft_acc 0.690 | lr 1.72e-04
+[Epoch 95] Train loss=1.9570, soft_acc=0.6828
+[Epoch 95] Val   loss=2.7308, acc=0.3955
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.3955)
+
+[Train] Epoch 96/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5417 | soft_acc 0.667 | lr 1.67e-04
+[Epoch 96] Train loss=2.0284, soft_acc=0.6691
+[Epoch 96] Val   loss=2.6918, acc=0.4039
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4039)
+
+[Train] Epoch 97/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1738 | soft_acc 0.646 | lr 1.62e-04
+[Epoch 97] Train loss=2.0782, soft_acc=0.6527
+[Epoch 97] Val   loss=2.6859, acc=0.4068
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4068)
+
+[Train] Epoch 98/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1362 | soft_acc 0.649 | lr 1.58e-04
+[Epoch 98] Train loss=2.0595, soft_acc=0.6573
+[Epoch 98] Val   loss=2.6741, acc=0.4077
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4077)
+
+[Train] Epoch 99/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0338 | soft_acc 0.702 | lr 1.53e-04
+[Epoch 99] Train loss=1.8939, soft_acc=0.7021
+[Epoch 99] Val   loss=2.6528, acc=0.4111
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4111)
+
+[Train] Epoch 100/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0832 | soft_acc 0.669 | lr 1.48e-04
+[Epoch 100] Train loss=1.9889, soft_acc=0.6667
+[Epoch 100] Val   loss=2.6331, acc=0.4175
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4175)
+
+[Train] Epoch 101/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1179 | soft_acc 0.649 | lr 1.43e-04
+[Epoch 101] Train loss=2.0946, soft_acc=0.6486
+[Epoch 101] Val   loss=2.5870, acc=0.4308
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4308)
+
+[Train] Epoch 102/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0629 | soft_acc 0.707 | lr 1.38e-04
+[Epoch 102] Train loss=1.9245, soft_acc=0.6932
+[Epoch 102] Val   loss=2.5698, acc=0.4347
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4347)
+
+[Train] Epoch 103/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5164 | soft_acc 0.682 | lr 1.34e-04
+[Epoch 103] Train loss=1.9932, soft_acc=0.6725
+[Epoch 103] Val   loss=2.5594, acc=0.4356
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4356)
+
+[Train] Epoch 104/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5664 | soft_acc 0.689 | lr 1.29e-04
+[Epoch 104] Train loss=1.9207, soft_acc=0.6932
+[Epoch 104] Val   loss=2.5191, acc=0.4453
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4453)
+
+[Train] Epoch 105/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.3634 | soft_acc 0.682 | lr 1.25e-04
+[Epoch 105] Train loss=1.9683, soft_acc=0.6811
+[Epoch 105] Val   loss=2.5215, acc=0.4435
+
+[Train] Epoch 106/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0291 | soft_acc 0.671 | lr 1.20e-04
+[Epoch 106] Train loss=1.9747, soft_acc=0.6768
+[Epoch 106] Val   loss=2.4872, acc=0.4493
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4493)
+
+[Train] Epoch 107/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1287 | soft_acc 0.672 | lr 1.16e-04
+[Epoch 107] Train loss=1.8903, soft_acc=0.6884
+[Epoch 107] Val   loss=2.4675, acc=0.4549
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4549)
+
+[Train] Epoch 108/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.5211 | soft_acc 0.687 | lr 1.12e-04
+[Epoch 108] Train loss=1.9767, soft_acc=0.6759
+[Epoch 108] Val   loss=2.4410, acc=0.4605
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4605)
+
+[Train] Epoch 109/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.6151 | soft_acc 0.678 | lr 1.08e-04
+[Epoch 109] Train loss=2.0136, soft_acc=0.6710
+[Epoch 109] Val   loss=2.4539, acc=0.4581
+
+[Train] Epoch 110/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4863 | soft_acc 0.633 | lr 1.03e-04
+[Epoch 110] Train loss=2.1777, soft_acc=0.6257
+[Epoch 110] Val   loss=2.4441, acc=0.4605
+
+[Train] Epoch 111/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.6383 | soft_acc 0.667 | lr 9.93e-05
+[Epoch 111] Train loss=1.9739, soft_acc=0.6749
+[Epoch 111] Val   loss=2.4288, acc=0.4637
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4637)
+
+[Train] Epoch 112/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.9908 | soft_acc 0.665 | lr 9.53e-05
+[Epoch 112] Train loss=2.0301, soft_acc=0.6637
+[Epoch 112] Val   loss=2.3963, acc=0.4715
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4715)
+
+[Train] Epoch 113/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9689 | soft_acc 0.684 | lr 9.14e-05
+[Epoch 113] Train loss=1.9960, soft_acc=0.6714
+[Epoch 113] Val   loss=2.3855, acc=0.4752
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4752)
+
+[Train] Epoch 114/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4996 | soft_acc 0.693 | lr 8.75e-05
+[Epoch 114] Train loss=1.9262, soft_acc=0.6858
+[Epoch 114] Val   loss=2.3722, acc=0.4781
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4781)
+
+[Train] Epoch 115/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9675 | soft_acc 0.722 | lr 8.38e-05
+[Epoch 115] Train loss=1.8260, soft_acc=0.7152
+[Epoch 115] Val   loss=2.3538, acc=0.4805
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4805)
+
+[Train] Epoch 116/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1415 | soft_acc 0.698 | lr 8.01e-05
+[Epoch 116] Train loss=1.8972, soft_acc=0.6990
+[Epoch 116] Val   loss=2.3495, acc=0.4831
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4831)
+
+[Train] Epoch 117/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2516 | soft_acc 0.708 | lr 7.65e-05
+[Epoch 117] Train loss=1.8171, soft_acc=0.7094
+[Epoch 117] Val   loss=2.3314, acc=0.4879
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4879)
+
+[Train] Epoch 118/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0505 | soft_acc 0.688 | lr 7.30e-05
+[Epoch 118] Train loss=1.9167, soft_acc=0.6875
+[Epoch 118] Val   loss=2.3422, acc=0.4861
+
+[Train] Epoch 119/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0849 | soft_acc 0.673 | lr 6.96e-05
+[Epoch 119] Train loss=1.9706, soft_acc=0.6762
+[Epoch 119] Val   loss=2.3260, acc=0.4889
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4889)
+
+[Train] Epoch 120/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.2654 | soft_acc 0.686 | lr 6.63e-05
+[Epoch 120] Train loss=1.9296, soft_acc=0.6868
+[Epoch 120] Val   loss=2.3144, acc=0.4928
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4928)
+
+[Train] Epoch 121/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9707 | soft_acc 0.678 | lr 6.31e-05
+[Epoch 121] Train loss=1.9944, soft_acc=0.6757
+[Epoch 121] Val   loss=2.3036, acc=0.4945
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4945)
+
+[Train] Epoch 122/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0195 | soft_acc 0.724 | lr 5.99e-05
+[Epoch 122] Train loss=1.7974, soft_acc=0.7242
+[Epoch 122] Val   loss=2.3032, acc=0.4951
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4951)
+
+[Train] Epoch 123/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.2297 | soft_acc 0.723 | lr 5.69e-05
+[Epoch 123] Train loss=1.8583, soft_acc=0.7028
+[Epoch 123] Val   loss=2.2977, acc=0.4956
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4956)
+
+[Train] Epoch 124/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9554 | soft_acc 0.690 | lr 5.39e-05
+[Epoch 124] Train loss=1.9671, soft_acc=0.6780
+[Epoch 124] Val   loss=2.3100, acc=0.4932
+
+[Train] Epoch 125/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.9415 | soft_acc 0.702 | lr 5.11e-05
+[Epoch 125] Train loss=1.8489, soft_acc=0.7056
+[Epoch 125] Val   loss=2.2890, acc=0.4980
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.4980)
+
+[Train] Epoch 126/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.0101 | soft_acc 0.731 | lr 4.83e-05
+[Epoch 126] Train loss=1.7715, soft_acc=0.7313
+[Epoch 126] Val   loss=2.2787, acc=0.5015
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5015)
+
+[Train] Epoch 127/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9134 | soft_acc 0.652 | lr 4.57e-05
+[Epoch 127] Train loss=2.0930, soft_acc=0.6458
+[Epoch 127] Val   loss=2.2768, acc=0.5031
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5031)
+
+[Train] Epoch 128/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.4929 | soft_acc 0.701 | lr 4.32e-05
+[Epoch 128] Train loss=1.8868, soft_acc=0.6997
+[Epoch 128] Val   loss=2.2810, acc=0.5019
+
+[Train] Epoch 129/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5177 | soft_acc 0.674 | lr 4.07e-05
+[Epoch 129] Train loss=1.9604, soft_acc=0.6861
+[Epoch 129] Val   loss=2.2788, acc=0.5040
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5040)
+
+[Train] Epoch 130/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9551 | soft_acc 0.683 | lr 3.84e-05
+[Epoch 130] Train loss=1.9209, soft_acc=0.6894
+[Epoch 130] Val   loss=2.2862, acc=0.5009
+
+[Train] Epoch 131/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1394 | soft_acc 0.651 | lr 3.62e-05
+[Epoch 131] Train loss=1.9642, soft_acc=0.6704
+[Epoch 131] Val   loss=2.2826, acc=0.5005
+
+[Train] Epoch 132/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9340 | soft_acc 0.687 | lr 3.40e-05
+[Epoch 132] Train loss=1.9324, soft_acc=0.6942
+[Epoch 132] Val   loss=2.2638, acc=0.5079
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5079)
+
+[Train] Epoch 133/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2646 | soft_acc 0.690 | lr 3.20e-05
+[Epoch 133] Train loss=1.9323, soft_acc=0.6861
+[Epoch 133] Val   loss=2.2615, acc=0.5089
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5089)
+
+[Train] Epoch 134/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.4030 | soft_acc 0.668 | lr 3.01e-05
+[Epoch 134] Train loss=1.9163, soft_acc=0.6911
+[Epoch 134] Val   loss=2.2565, acc=0.5107
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5107)
+
+[Train] Epoch 135/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9894 | soft_acc 0.703 | lr 2.83e-05
+[Epoch 135] Train loss=1.8775, soft_acc=0.7061
+[Epoch 135] Val   loss=2.2529, acc=0.5111
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5111)
+
+[Train] Epoch 136/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9307 | soft_acc 0.686 | lr 2.66e-05
+[Epoch 136] Train loss=1.9768, soft_acc=0.6818
+[Epoch 136] Val   loss=2.2534, acc=0.5119
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5119)
+
+[Train] Epoch 137/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.3926 | soft_acc 0.659 | lr 2.51e-05
+[Epoch 137] Train loss=2.0278, soft_acc=0.6592
+[Epoch 137] Val   loss=2.2502, acc=0.5120
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5120)
+
+[Train] Epoch 138/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9947 | soft_acc 0.728 | lr 2.36e-05
+[Epoch 138] Train loss=1.7663, soft_acc=0.7261
+[Epoch 138] Val   loss=2.2523, acc=0.5113
+
+[Train] Epoch 139/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1710 | soft_acc 0.677 | lr 2.22e-05
+[Epoch 139] Train loss=1.9317, soft_acc=0.6878
+[Epoch 139] Val   loss=2.2433, acc=0.5137
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5137)
+
+[Train] Epoch 140/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.3383 | soft_acc 0.697 | lr 2.10e-05
+[Epoch 140] Train loss=1.9389, soft_acc=0.6886
+[Epoch 140] Val   loss=2.2397, acc=0.5152
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5152)
+
+[Train] Epoch 141/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 0.9998 | soft_acc 0.709 | lr 1.99e-05
+[Epoch 141] Train loss=1.8273, soft_acc=0.7074
+[Epoch 141] Val   loss=2.2390, acc=0.5164
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5164)
+
+[Train] Epoch 142/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2931 | soft_acc 0.707 | lr 1.89e-05
+[Epoch 142] Train loss=1.7760, soft_acc=0.7278
+[Epoch 142] Val   loss=2.2412, acc=0.5159
+
+[Train] Epoch 143/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.3241 | soft_acc 0.695 | lr 1.80e-05
+[Epoch 143] Train loss=1.9820, soft_acc=0.6765
+[Epoch 143] Val   loss=2.2389, acc=0.5169
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5169)
+
+[Train] Epoch 144/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.2831 | soft_acc 0.698 | lr 1.72e-05
+[Epoch 144] Train loss=1.9019, soft_acc=0.6967
+[Epoch 144] Val   loss=2.2359, acc=0.5199
+  🌟 New best saved: ./outputs_lstm5_stage1/W2_sub150_img192_dim192_d12_ema_best.pth (acc=0.5199)
+
+[Train] Epoch 145/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.3975 | soft_acc 0.670 | lr 1.66e-05
+[Epoch 145] Train loss=1.9664, soft_acc=0.6799
+[Epoch 145] Val   loss=2.2410, acc=0.5157
+
+[Train] Epoch 146/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 3.0735 | soft_acc 0.681 | lr 1.60e-05
+[Epoch 146] Train loss=1.9093, soft_acc=0.6923
+[Epoch 146] Val   loss=2.2498, acc=0.5119
+
+[Train] Epoch 147/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.0746 | soft_acc 0.672 | lr 1.56e-05
+[Epoch 147] Train loss=1.9947, soft_acc=0.6781
+[Epoch 147] Val   loss=2.2506, acc=0.5128
+
+[Train] Epoch 148/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 1.1519 | soft_acc 0.721 | lr 1.53e-05
+[Epoch 148] Train loss=1.8157, soft_acc=0.7103
+[Epoch 148] Val   loss=2.2461, acc=0.5144
+
+[Train] Epoch 149/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.1091 | soft_acc 0.700 | lr 1.51e-05
+[Epoch 149] Train loss=1.8471, soft_acc=0.7126
+[Epoch 149] Val   loss=2.2363, acc=0.5187
+
+[Train] Epoch 150/150 | branch_alpha=1.000e-02
+  iter   100/118 | loss 2.5860 | soft_acc 0.660 | lr 1.50e-05
+[Epoch 150] Train loss=2.0189, soft_acc=0.6590
+[Epoch 150] Val   loss=2.2368, acc=0.5184

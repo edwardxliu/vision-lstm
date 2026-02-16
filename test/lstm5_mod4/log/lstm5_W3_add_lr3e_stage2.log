@@ -1,0 +1,623 @@
+WARNING:__main__:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[W127 22:10:27.846544475 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.849637522 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.850057309 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.869833931 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.873220394 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.879356977 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.889603904 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W127 22:10:27.894699964 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[Data] train=1281167 val=50000 classes=1000
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+/home/omnisky/Public/edward/workspace/ViCxLSTM/lstm5_stage1_pretrain_192_sample_ablation.py:645: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(resume_ckpt, map_location=map_location)
+[Resume] outputs_lstm5_stage1/W3_sub0_img192_dim192_d12_ema_best.pth missing=0 unexpected=0
+[Config] ablation=W3 baseline=A0 | img=224 | epochs=10 warmup=1 per_gpu_bs=32 global_bs=256 accum=1
+[Model] dim=192 depth=12 feat_ch=[32, 64, 64] | patch_base=16 stride_base=16 auto_patch_dwt=True
+        use_stem=True use_dwt=False pre_patch_dwt=False | pooling=bilateral_flatten | disable_branch=True gated=True
+[Opt] base_lr=3.00e-05 wd=0.05 clip=1.0 ema=0.9997 amp=bf16
+
+[Train] Epoch 1/10 | branch_alpha=0.000e+00
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [384, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [384, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  iter   100/5005 | loss 0.2260 | soft_acc 0.908 | lr 3.54e-06
+  iter   200/5005 | loss 0.1987 | soft_acc 0.905 | lr 4.08e-06
+  iter   300/5005 | loss 0.3588 | soft_acc 0.908 | lr 4.62e-06
+  iter   400/5005 | loss 0.4075 | soft_acc 0.907 | lr 5.16e-06
+  iter   500/5005 | loss 0.4278 | soft_acc 0.907 | lr 5.70e-06
+  iter   600/5005 | loss 0.3906 | soft_acc 0.908 | lr 6.24e-06
+  iter   700/5005 | loss 0.1852 | soft_acc 0.907 | lr 6.78e-06
+  iter   800/5005 | loss 0.1666 | soft_acc 0.907 | lr 7.32e-06
+  iter   900/5005 | loss 0.2258 | soft_acc 0.906 | lr 7.86e-06
+  iter  1000/5005 | loss 0.5054 | soft_acc 0.907 | lr 8.39e-06
+  iter  1100/5005 | loss 0.3474 | soft_acc 0.907 | lr 8.93e-06
+  iter  1200/5005 | loss 0.3620 | soft_acc 0.906 | lr 9.47e-06
+  iter  1300/5005 | loss 0.2387 | soft_acc 0.907 | lr 1.00e-05
+  iter  1400/5005 | loss 0.5274 | soft_acc 0.907 | lr 1.06e-05
+  iter  1500/5005 | loss 0.2694 | soft_acc 0.907 | lr 1.11e-05
+  iter  1600/5005 | loss 0.1236 | soft_acc 0.907 | lr 1.16e-05
+  iter  1700/5005 | loss 0.2418 | soft_acc 0.907 | lr 1.22e-05
+  iter  1800/5005 | loss 0.4869 | soft_acc 0.907 | lr 1.27e-05
+  iter  1900/5005 | loss 0.9417 | soft_acc 0.907 | lr 1.32e-05
+  iter  2000/5005 | loss 0.1677 | soft_acc 0.907 | lr 1.38e-05
+  iter  2100/5005 | loss 0.3542 | soft_acc 0.907 | lr 1.43e-05
+  iter  2200/5005 | loss 0.4000 | soft_acc 0.907 | lr 1.49e-05
+  iter  2300/5005 | loss 0.4235 | soft_acc 0.907 | lr 1.54e-05
+  iter  2400/5005 | loss 0.3377 | soft_acc 0.907 | lr 1.59e-05
+  iter  2500/5005 | loss 0.3085 | soft_acc 0.907 | lr 1.65e-05
+  iter  2600/5005 | loss 0.1550 | soft_acc 0.907 | lr 1.70e-05
+  iter  2700/5005 | loss 0.3657 | soft_acc 0.907 | lr 1.76e-05
+  iter  2800/5005 | loss 0.5380 | soft_acc 0.907 | lr 1.81e-05
+  iter  2900/5005 | loss 0.1716 | soft_acc 0.907 | lr 1.86e-05
+  iter  3000/5005 | loss 0.2948 | soft_acc 0.907 | lr 1.92e-05
+  iter  3100/5005 | loss 0.3702 | soft_acc 0.907 | lr 1.97e-05
+  iter  3200/5005 | loss 0.1445 | soft_acc 0.907 | lr 2.03e-05
+  iter  3300/5005 | loss 0.1165 | soft_acc 0.908 | lr 2.08e-05
+  iter  3400/5005 | loss 0.4242 | soft_acc 0.908 | lr 2.13e-05
+  iter  3500/5005 | loss 0.3584 | soft_acc 0.908 | lr 2.19e-05
+  iter  3600/5005 | loss 0.4340 | soft_acc 0.908 | lr 2.24e-05
+  iter  3700/5005 | loss 0.5964 | soft_acc 0.908 | lr 2.30e-05
+  iter  3800/5005 | loss 0.1662 | soft_acc 0.907 | lr 2.35e-05
+  iter  3900/5005 | loss 0.2323 | soft_acc 0.908 | lr 2.40e-05
+  iter  4000/5005 | loss 0.1136 | soft_acc 0.907 | lr 2.46e-05
+  iter  4100/5005 | loss 0.3712 | soft_acc 0.907 | lr 2.51e-05
+  iter  4200/5005 | loss 0.3644 | soft_acc 0.908 | lr 2.57e-05
+  iter  4300/5005 | loss 0.3819 | soft_acc 0.908 | lr 2.62e-05
+  iter  4400/5005 | loss 0.2619 | soft_acc 0.907 | lr 2.67e-05
+  iter  4500/5005 | loss 0.1803 | soft_acc 0.907 | lr 2.73e-05
+  iter  4600/5005 | loss 0.5587 | soft_acc 0.907 | lr 2.78e-05
+  iter  4700/5005 | loss 0.7049 | soft_acc 0.907 | lr 2.84e-05
+  iter  4800/5005 | loss 0.2393 | soft_acc 0.908 | lr 2.89e-05
+  iter  4900/5005 | loss 0.6732 | soft_acc 0.907 | lr 2.94e-05
+  iter  5000/5005 | loss 0.4910 | soft_acc 0.908 | lr 3.00e-05
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[Epoch 1] Train loss=0.3336, soft_acc=0.9075
+[Epoch 1] Val   loss=0.8884, acc=0.7829
+  🌟 New best saved: ./outputs_lstm5_stage2/W3_ft224_ema_best.pth (acc=0.7829)
+
+[Train] Epoch 2/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.4027 | soft_acc 0.911 | lr 3.00e-05
+  iter   200/5005 | loss 0.4682 | soft_acc 0.914 | lr 3.00e-05
+  iter   300/5005 | loss 0.2388 | soft_acc 0.914 | lr 3.00e-05
+  iter   400/5005 | loss 0.3622 | soft_acc 0.916 | lr 3.00e-05
+  iter   500/5005 | loss 0.2244 | soft_acc 0.914 | lr 3.00e-05
+  iter   600/5005 | loss 0.2403 | soft_acc 0.914 | lr 3.00e-05
+  iter   700/5005 | loss 0.2500 | soft_acc 0.915 | lr 3.00e-05
+  iter   800/5005 | loss 0.2763 | soft_acc 0.915 | lr 3.00e-05
+  iter   900/5005 | loss 0.4604 | soft_acc 0.915 | lr 3.00e-05
+  iter  1000/5005 | loss 0.2422 | soft_acc 0.914 | lr 3.00e-05
+  iter  1100/5005 | loss 0.6139 | soft_acc 0.913 | lr 3.00e-05
+  iter  1200/5005 | loss 0.2208 | soft_acc 0.913 | lr 2.99e-05
+  iter  1300/5005 | loss 0.1099 | soft_acc 0.913 | lr 2.99e-05
+  iter  1400/5005 | loss 0.5356 | soft_acc 0.913 | lr 2.99e-05
+  iter  1500/5005 | loss 0.2583 | soft_acc 0.913 | lr 2.99e-05
+  iter  1600/5005 | loss 0.2456 | soft_acc 0.912 | lr 2.99e-05
+  iter  1700/5005 | loss 0.4867 | soft_acc 0.912 | lr 2.99e-05
+  iter  1800/5005 | loss 0.3103 | soft_acc 0.912 | lr 2.99e-05
+  iter  1900/5005 | loss 0.1229 | soft_acc 0.912 | lr 2.99e-05
+  iter  2000/5005 | loss 0.4491 | soft_acc 0.912 | lr 2.99e-05
+  iter  2100/5005 | loss 0.5669 | soft_acc 0.912 | lr 2.98e-05
+  iter  2200/5005 | loss 0.5722 | soft_acc 0.912 | lr 2.98e-05
+  iter  2300/5005 | loss 0.3304 | soft_acc 0.912 | lr 2.98e-05
+  iter  2400/5005 | loss 0.2237 | soft_acc 0.912 | lr 2.98e-05
+  iter  2500/5005 | loss 0.3779 | soft_acc 0.912 | lr 2.98e-05
+  iter  2600/5005 | loss 0.1695 | soft_acc 0.912 | lr 2.98e-05
+  iter  2700/5005 | loss 0.2347 | soft_acc 0.912 | lr 2.97e-05
+  iter  2800/5005 | loss 0.2856 | soft_acc 0.912 | lr 2.97e-05
+  iter  2900/5005 | loss 0.2170 | soft_acc 0.912 | lr 2.97e-05
+  iter  3000/5005 | loss 0.2392 | soft_acc 0.911 | lr 2.97e-05
+  iter  3100/5005 | loss 0.2372 | soft_acc 0.911 | lr 2.97e-05
+  iter  3200/5005 | loss 0.1580 | soft_acc 0.912 | lr 2.96e-05
+  iter  3300/5005 | loss 0.4672 | soft_acc 0.911 | lr 2.96e-05
+  iter  3400/5005 | loss 0.5032 | soft_acc 0.911 | lr 2.96e-05
+  iter  3500/5005 | loss 0.2574 | soft_acc 0.912 | lr 2.96e-05
+  iter  3600/5005 | loss 0.2485 | soft_acc 0.911 | lr 2.95e-05
+  iter  3700/5005 | loss 0.9436 | soft_acc 0.911 | lr 2.95e-05
+  iter  3800/5005 | loss 0.0527 | soft_acc 0.911 | lr 2.95e-05
+  iter  3900/5005 | loss 0.1878 | soft_acc 0.911 | lr 2.95e-05
+  iter  4000/5005 | loss 0.2006 | soft_acc 0.911 | lr 2.94e-05
+  iter  4100/5005 | loss 0.2537 | soft_acc 0.911 | lr 2.94e-05
+  iter  4200/5005 | loss 0.3188 | soft_acc 0.911 | lr 2.94e-05
+  iter  4300/5005 | loss 0.4366 | soft_acc 0.911 | lr 2.94e-05
+  iter  4400/5005 | loss 0.4841 | soft_acc 0.911 | lr 2.93e-05
+  iter  4500/5005 | loss 0.1965 | soft_acc 0.911 | lr 2.93e-05
+  iter  4600/5005 | loss 0.5073 | soft_acc 0.911 | lr 2.93e-05
+  iter  4700/5005 | loss 0.2224 | soft_acc 0.911 | lr 2.92e-05
+  iter  4800/5005 | loss 0.5009 | soft_acc 0.911 | lr 2.92e-05
+  iter  4900/5005 | loss 0.3316 | soft_acc 0.911 | lr 2.92e-05
+  iter  5000/5005 | loss 0.3979 | soft_acc 0.911 | lr 2.91e-05
+[Epoch 2] Train loss=0.3133, soft_acc=0.9105
+[Epoch 2] Val   loss=0.9045, acc=0.7798
+
+[Train] Epoch 3/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.5919 | soft_acc 0.929 | lr 2.91e-05
+  iter   200/5005 | loss 0.1139 | soft_acc 0.923 | lr 2.91e-05
+  iter   300/5005 | loss 0.3723 | soft_acc 0.922 | lr 2.90e-05
+  iter   400/5005 | loss 0.3447 | soft_acc 0.922 | lr 2.90e-05
+  iter   500/5005 | loss 0.4368 | soft_acc 0.923 | lr 2.89e-05
+  iter   600/5005 | loss 0.1180 | soft_acc 0.923 | lr 2.89e-05
+  iter   700/5005 | loss 0.1845 | soft_acc 0.920 | lr 2.89e-05
+  iter   800/5005 | loss 0.3627 | soft_acc 0.920 | lr 2.88e-05
+  iter   900/5005 | loss 0.4168 | soft_acc 0.921 | lr 2.88e-05
+  iter  1000/5005 | loss 0.1687 | soft_acc 0.921 | lr 2.87e-05
+  iter  1100/5005 | loss 0.4713 | soft_acc 0.920 | lr 2.87e-05
+  iter  1200/5005 | loss 0.0745 | soft_acc 0.920 | lr 2.87e-05
+  iter  1300/5005 | loss 0.2571 | soft_acc 0.919 | lr 2.86e-05
+  iter  1400/5005 | loss 0.0837 | soft_acc 0.919 | lr 2.86e-05
+  iter  1500/5005 | loss 0.4838 | soft_acc 0.919 | lr 2.85e-05
+  iter  1600/5005 | loss 0.2679 | soft_acc 0.918 | lr 2.85e-05
+  iter  1700/5005 | loss 0.3468 | soft_acc 0.918 | lr 2.84e-05
+  iter  1800/5005 | loss 0.3366 | soft_acc 0.918 | lr 2.84e-05
+  iter  1900/5005 | loss 0.3736 | soft_acc 0.918 | lr 2.83e-05
+  iter  2000/5005 | loss 0.6541 | soft_acc 0.918 | lr 2.83e-05
+  iter  2100/5005 | loss 0.4577 | soft_acc 0.918 | lr 2.82e-05
+  iter  2200/5005 | loss 0.2307 | soft_acc 0.918 | lr 2.82e-05
+  iter  2300/5005 | loss 0.3531 | soft_acc 0.918 | lr 2.82e-05
+  iter  2400/5005 | loss 0.5322 | soft_acc 0.919 | lr 2.81e-05
+  iter  2500/5005 | loss 0.1032 | soft_acc 0.919 | lr 2.81e-05
+  iter  2600/5005 | loss 0.2441 | soft_acc 0.919 | lr 2.80e-05
+  iter  2700/5005 | loss 0.2042 | soft_acc 0.919 | lr 2.79e-05
+  iter  2800/5005 | loss 0.2089 | soft_acc 0.919 | lr 2.79e-05
+  iter  2900/5005 | loss 0.4580 | soft_acc 0.919 | lr 2.78e-05
+  iter  3000/5005 | loss 0.2006 | soft_acc 0.919 | lr 2.78e-05
+  iter  3100/5005 | loss 0.0826 | soft_acc 0.919 | lr 2.77e-05
+  iter  3200/5005 | loss 0.1644 | soft_acc 0.919 | lr 2.77e-05
+  iter  3300/5005 | loss 0.0992 | soft_acc 0.919 | lr 2.76e-05
+  iter  3400/5005 | loss 0.2719 | soft_acc 0.919 | lr 2.76e-05
+  iter  3500/5005 | loss 0.1788 | soft_acc 0.919 | lr 2.75e-05
+  iter  3600/5005 | loss 0.2462 | soft_acc 0.919 | lr 2.75e-05
+  iter  3700/5005 | loss 0.4643 | soft_acc 0.919 | lr 2.74e-05
+  iter  3800/5005 | loss 0.3558 | soft_acc 0.919 | lr 2.73e-05
+  iter  3900/5005 | loss 0.4590 | soft_acc 0.919 | lr 2.73e-05
+  iter  4000/5005 | loss 0.2209 | soft_acc 0.919 | lr 2.72e-05
+  iter  4100/5005 | loss 0.6476 | soft_acc 0.919 | lr 2.72e-05
+  iter  4200/5005 | loss 0.2506 | soft_acc 0.919 | lr 2.71e-05
+  iter  4300/5005 | loss 0.3853 | soft_acc 0.919 | lr 2.70e-05
+  iter  4400/5005 | loss 0.3475 | soft_acc 0.919 | lr 2.70e-05
+  iter  4500/5005 | loss 0.2258 | soft_acc 0.919 | lr 2.69e-05
+  iter  4600/5005 | loss 0.1583 | soft_acc 0.918 | lr 2.69e-05
+  iter  4700/5005 | loss 0.3595 | soft_acc 0.918 | lr 2.68e-05
+  iter  4800/5005 | loss 0.2079 | soft_acc 0.918 | lr 2.67e-05
+  iter  4900/5005 | loss 0.3599 | soft_acc 0.918 | lr 2.67e-05
+  iter  5000/5005 | loss 0.1709 | soft_acc 0.918 | lr 2.66e-05
+[Epoch 3] Train loss=0.2860, soft_acc=0.9181
+[Epoch 3] Val   loss=0.9255, acc=0.7786
+
+[Train] Epoch 4/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.1413 | soft_acc 0.931 | lr 2.65e-05
+  iter   200/5005 | loss 0.4238 | soft_acc 0.932 | lr 2.65e-05
+  iter   300/5005 | loss 0.1264 | soft_acc 0.930 | lr 2.64e-05
+  iter   400/5005 | loss 0.0602 | soft_acc 0.925 | lr 2.63e-05
+  iter   500/5005 | loss 0.1697 | soft_acc 0.925 | lr 2.63e-05
+  iter   600/5005 | loss 0.0549 | soft_acc 0.926 | lr 2.62e-05
+  iter   700/5005 | loss 0.1689 | soft_acc 0.925 | lr 2.61e-05
+  iter   800/5005 | loss 0.3798 | soft_acc 0.927 | lr 2.61e-05
+  iter   900/5005 | loss 0.1573 | soft_acc 0.926 | lr 2.60e-05
+  iter  1000/5005 | loss 0.2227 | soft_acc 0.927 | lr 2.59e-05
+  iter  1100/5005 | loss 0.5071 | soft_acc 0.926 | lr 2.58e-05
+  iter  1200/5005 | loss 0.5012 | soft_acc 0.926 | lr 2.58e-05
+  iter  1300/5005 | loss 0.1478 | soft_acc 0.926 | lr 2.57e-05
+  iter  1400/5005 | loss 0.2136 | soft_acc 0.926 | lr 2.56e-05
+  iter  1500/5005 | loss 0.1263 | soft_acc 0.926 | lr 2.56e-05
+  iter  1600/5005 | loss 0.2885 | soft_acc 0.926 | lr 2.55e-05
+  iter  1700/5005 | loss 0.1500 | soft_acc 0.926 | lr 2.54e-05
+  iter  1800/5005 | loss 0.1870 | soft_acc 0.926 | lr 2.53e-05
+  iter  1900/5005 | loss 0.1173 | soft_acc 0.926 | lr 2.53e-05
+  iter  2000/5005 | loss 0.0908 | soft_acc 0.926 | lr 2.52e-05
+  iter  2100/5005 | loss 0.1739 | soft_acc 0.925 | lr 2.51e-05
+  iter  2200/5005 | loss 0.2800 | soft_acc 0.925 | lr 2.50e-05
+  iter  2300/5005 | loss 0.1640 | soft_acc 0.925 | lr 2.50e-05
+  iter  2400/5005 | loss 0.2990 | soft_acc 0.925 | lr 2.49e-05
+  iter  2500/5005 | loss 0.1772 | soft_acc 0.925 | lr 2.48e-05
+  iter  2600/5005 | loss 0.4325 | soft_acc 0.925 | lr 2.47e-05
+  iter  2700/5005 | loss 0.2721 | soft_acc 0.925 | lr 2.46e-05
+  iter  2800/5005 | loss 0.3424 | soft_acc 0.925 | lr 2.46e-05
+  iter  2900/5005 | loss 0.0700 | soft_acc 0.925 | lr 2.45e-05
+  iter  3000/5005 | loss 0.5402 | soft_acc 0.925 | lr 2.44e-05
+  iter  3100/5005 | loss 0.1592 | soft_acc 0.925 | lr 2.43e-05
+  iter  3200/5005 | loss 0.1112 | soft_acc 0.925 | lr 2.42e-05
+  iter  3300/5005 | loss 0.4334 | soft_acc 0.925 | lr 2.42e-05
+  iter  3400/5005 | loss 0.1849 | soft_acc 0.925 | lr 2.41e-05
+  iter  3500/5005 | loss 0.6368 | soft_acc 0.925 | lr 2.40e-05
+  iter  3600/5005 | loss 0.7632 | soft_acc 0.925 | lr 2.39e-05
+  iter  3700/5005 | loss 0.4961 | soft_acc 0.925 | lr 2.38e-05
+  iter  3800/5005 | loss 0.1186 | soft_acc 0.925 | lr 2.38e-05
+  iter  3900/5005 | loss 0.5352 | soft_acc 0.925 | lr 2.37e-05
+  iter  4000/5005 | loss 0.3315 | soft_acc 0.925 | lr 2.36e-05
+  iter  4100/5005 | loss 0.1109 | soft_acc 0.925 | lr 2.35e-05
+  iter  4200/5005 | loss 0.5594 | soft_acc 0.925 | lr 2.34e-05
+  iter  4300/5005 | loss 0.1544 | soft_acc 0.925 | lr 2.33e-05
+  iter  4400/5005 | loss 0.2982 | soft_acc 0.925 | lr 2.33e-05
+  iter  4500/5005 | loss 0.3235 | soft_acc 0.925 | lr 2.32e-05
+  iter  4600/5005 | loss 0.5873 | soft_acc 0.925 | lr 2.31e-05
+  iter  4700/5005 | loss 0.1860 | soft_acc 0.925 | lr 2.30e-05
+  iter  4800/5005 | loss 0.2019 | soft_acc 0.925 | lr 2.29e-05
+  iter  4900/5005 | loss 0.1234 | soft_acc 0.925 | lr 2.28e-05
+  iter  5000/5005 | loss 0.5109 | soft_acc 0.925 | lr 2.27e-05
+[Epoch 4] Train loss=0.2599, soft_acc=0.9248
+[Epoch 4] Val   loss=0.9450, acc=0.7771
+
+[Train] Epoch 5/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.2534 | soft_acc 0.933 | lr 2.26e-05
+  iter   200/5005 | loss 0.1836 | soft_acc 0.931 | lr 2.25e-05
+  iter   300/5005 | loss 0.1627 | soft_acc 0.934 | lr 2.25e-05
+  iter   400/5005 | loss 0.1254 | soft_acc 0.932 | lr 2.24e-05
+  iter   500/5005 | loss 0.1630 | soft_acc 0.932 | lr 2.23e-05
+  iter   600/5005 | loss 0.5065 | soft_acc 0.932 | lr 2.22e-05
+  iter   700/5005 | loss 0.5380 | soft_acc 0.932 | lr 2.21e-05
+  iter   800/5005 | loss 0.2030 | soft_acc 0.932 | lr 2.20e-05
+  iter   900/5005 | loss 0.0745 | soft_acc 0.932 | lr 2.19e-05
+  iter  1000/5005 | loss 0.0821 | soft_acc 0.932 | lr 2.18e-05
+  iter  1100/5005 | loss 0.2666 | soft_acc 0.931 | lr 2.17e-05
+  iter  1200/5005 | loss 0.2444 | soft_acc 0.931 | lr 2.16e-05
+  iter  1300/5005 | loss 0.1493 | soft_acc 0.931 | lr 2.16e-05
+  iter  1400/5005 | loss 0.1563 | soft_acc 0.931 | lr 2.15e-05
+  iter  1500/5005 | loss 0.2616 | soft_acc 0.932 | lr 2.14e-05
+  iter  1600/5005 | loss 0.0884 | soft_acc 0.932 | lr 2.13e-05
+  iter  1700/5005 | loss 0.4476 | soft_acc 0.931 | lr 2.12e-05
+  iter  1800/5005 | loss 0.2743 | soft_acc 0.932 | lr 2.11e-05
+  iter  1900/5005 | loss 0.3625 | soft_acc 0.931 | lr 2.10e-05
+  iter  2000/5005 | loss 0.3586 | soft_acc 0.931 | lr 2.09e-05
+  iter  2100/5005 | loss 0.2901 | soft_acc 0.931 | lr 2.08e-05
+  iter  2200/5005 | loss 0.2121 | soft_acc 0.931 | lr 2.07e-05
+  iter  2300/5005 | loss 0.4768 | soft_acc 0.931 | lr 2.06e-05
+  iter  2400/5005 | loss 0.2756 | soft_acc 0.931 | lr 2.05e-05
+  iter  2500/5005 | loss 0.3293 | soft_acc 0.931 | lr 2.04e-05
+  iter  2600/5005 | loss 0.0695 | soft_acc 0.930 | lr 2.03e-05
+  iter  2700/5005 | loss 0.1699 | soft_acc 0.930 | lr 2.02e-05
+  iter  2800/5005 | loss 0.1552 | soft_acc 0.931 | lr 2.01e-05
+  iter  2900/5005 | loss 0.3249 | soft_acc 0.931 | lr 2.00e-05
+  iter  3000/5005 | loss 0.2943 | soft_acc 0.931 | lr 1.99e-05
+  iter  3100/5005 | loss 0.1704 | soft_acc 0.931 | lr 1.99e-05
+  iter  3200/5005 | loss 0.5475 | soft_acc 0.931 | lr 1.98e-05
+  iter  3300/5005 | loss 0.2287 | soft_acc 0.930 | lr 1.97e-05
+  iter  3400/5005 | loss 0.2033 | soft_acc 0.930 | lr 1.96e-05
+  iter  3500/5005 | loss 0.4555 | soft_acc 0.930 | lr 1.95e-05
+  iter  3600/5005 | loss 0.3933 | soft_acc 0.930 | lr 1.94e-05
+  iter  3700/5005 | loss 0.0752 | soft_acc 0.930 | lr 1.93e-05
+  iter  3800/5005 | loss 0.4298 | soft_acc 0.930 | lr 1.92e-05
+  iter  3900/5005 | loss 0.2220 | soft_acc 0.930 | lr 1.91e-05
+  iter  4000/5005 | loss 0.0930 | soft_acc 0.930 | lr 1.90e-05
+  iter  4100/5005 | loss 0.1643 | soft_acc 0.930 | lr 1.89e-05
+  iter  4200/5005 | loss 0.1406 | soft_acc 0.930 | lr 1.88e-05
+  iter  4300/5005 | loss 0.2495 | soft_acc 0.930 | lr 1.87e-05
+  iter  4400/5005 | loss 0.1333 | soft_acc 0.930 | lr 1.86e-05
+  iter  4500/5005 | loss 0.1155 | soft_acc 0.930 | lr 1.85e-05
+  iter  4600/5005 | loss 0.1123 | soft_acc 0.930 | lr 1.84e-05
+  iter  4700/5005 | loss 0.0856 | soft_acc 0.930 | lr 1.83e-05
+  iter  4800/5005 | loss 0.3651 | soft_acc 0.930 | lr 1.82e-05
+  iter  4900/5005 | loss 0.3846 | soft_acc 0.930 | lr 1.81e-05
+  iter  5000/5005 | loss 0.3652 | soft_acc 0.930 | lr 1.80e-05
+[Epoch 5] Train loss=0.2422, soft_acc=0.9299
+[Epoch 5] Val   loss=0.9618, acc=0.7757
+
+[Train] Epoch 6/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.3715 | soft_acc 0.929 | lr 1.79e-05
+  iter   200/5005 | loss 0.3094 | soft_acc 0.936 | lr 1.78e-05
+  iter   300/5005 | loss 0.0901 | soft_acc 0.938 | lr 1.77e-05
+  iter   400/5005 | loss 0.0726 | soft_acc 0.938 | lr 1.76e-05
+  iter   500/5005 | loss 0.0779 | soft_acc 0.939 | lr 1.75e-05
+  iter   600/5005 | loss 0.3481 | soft_acc 0.939 | lr 1.74e-05
+  iter   700/5005 | loss 0.3522 | soft_acc 0.939 | lr 1.73e-05
+  iter   800/5005 | loss 0.1500 | soft_acc 0.939 | lr 1.72e-05
+  iter   900/5005 | loss 0.0717 | soft_acc 0.939 | lr 1.71e-05
+  iter  1000/5005 | loss 0.1417 | soft_acc 0.939 | lr 1.70e-05
+  iter  1100/5005 | loss 0.2968 | soft_acc 0.938 | lr 1.69e-05
+  iter  1200/5005 | loss 0.3383 | soft_acc 0.938 | lr 1.68e-05
+  iter  1300/5005 | loss 0.3442 | soft_acc 0.938 | lr 1.67e-05
+  iter  1400/5005 | loss 0.1127 | soft_acc 0.938 | lr 1.66e-05
+  iter  1500/5005 | loss 0.1944 | soft_acc 0.938 | lr 1.65e-05
+  iter  1600/5005 | loss 0.1004 | soft_acc 0.938 | lr 1.64e-05
+  iter  1700/5005 | loss 0.4710 | soft_acc 0.938 | lr 1.63e-05
+  iter  1800/5005 | loss 0.0540 | soft_acc 0.938 | lr 1.62e-05
+  iter  1900/5005 | loss 0.4408 | soft_acc 0.938 | lr 1.61e-05
+  iter  2000/5005 | loss 0.2325 | soft_acc 0.937 | lr 1.60e-05
+  iter  2100/5005 | loss 0.2329 | soft_acc 0.938 | lr 1.59e-05
+  iter  2200/5005 | loss 0.1574 | soft_acc 0.937 | lr 1.58e-05
+  iter  2300/5005 | loss 0.3478 | soft_acc 0.937 | lr 1.57e-05
+  iter  2400/5005 | loss 0.1271 | soft_acc 0.937 | lr 1.56e-05
+  iter  2500/5005 | loss 0.0650 | soft_acc 0.937 | lr 1.55e-05
+  iter  2600/5005 | loss 0.1272 | soft_acc 0.937 | lr 1.54e-05
+  iter  2700/5005 | loss 0.1729 | soft_acc 0.937 | lr 1.52e-05
+  iter  2800/5005 | loss 0.1418 | soft_acc 0.937 | lr 1.51e-05
+  iter  2900/5005 | loss 0.1396 | soft_acc 0.937 | lr 1.50e-05
+  iter  3000/5005 | loss 0.2017 | soft_acc 0.938 | lr 1.49e-05
+  iter  3100/5005 | loss 0.4295 | soft_acc 0.937 | lr 1.48e-05
+  iter  3200/5005 | loss 0.1757 | soft_acc 0.937 | lr 1.47e-05
+  iter  3300/5005 | loss 0.2719 | soft_acc 0.937 | lr 1.46e-05
+  iter  3400/5005 | loss 0.1657 | soft_acc 0.937 | lr 1.45e-05
+  iter  3500/5005 | loss 0.1816 | soft_acc 0.937 | lr 1.44e-05
+  iter  3600/5005 | loss 0.2199 | soft_acc 0.937 | lr 1.43e-05
+  iter  3700/5005 | loss 0.0635 | soft_acc 0.937 | lr 1.42e-05
+  iter  3800/5005 | loss 0.2970 | soft_acc 0.937 | lr 1.41e-05
+  iter  3900/5005 | loss 0.0541 | soft_acc 0.937 | lr 1.40e-05
+  iter  4000/5005 | loss 0.1082 | soft_acc 0.937 | lr 1.39e-05
+  iter  4100/5005 | loss 0.2411 | soft_acc 0.937 | lr 1.38e-05
+  iter  4200/5005 | loss 0.2845 | soft_acc 0.937 | lr 1.37e-05
+  iter  4300/5005 | loss 0.1312 | soft_acc 0.937 | lr 1.36e-05
+  iter  4400/5005 | loss 0.2825 | soft_acc 0.937 | lr 1.35e-05
+  iter  4500/5005 | loss 0.0835 | soft_acc 0.937 | lr 1.34e-05
+  iter  4600/5005 | loss 0.4795 | soft_acc 0.937 | lr 1.33e-05
+  iter  4700/5005 | loss 0.2189 | soft_acc 0.937 | lr 1.32e-05
+  iter  4800/5005 | loss 0.1257 | soft_acc 0.937 | lr 1.31e-05
+  iter  4900/5005 | loss 0.0923 | soft_acc 0.937 | lr 1.30e-05
+  iter  5000/5005 | loss 0.2378 | soft_acc 0.937 | lr 1.29e-05
+[Epoch 6] Train loss=0.2203, soft_acc=0.9366
+[Epoch 6] Val   loss=0.9763, acc=0.7740
+
+[Train] Epoch 7/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.0983 | soft_acc 0.948 | lr 1.28e-05
+  iter   200/5005 | loss 0.3102 | soft_acc 0.944 | lr 1.27e-05
+  iter   300/5005 | loss 0.2050 | soft_acc 0.944 | lr 1.26e-05
+  iter   400/5005 | loss 0.2821 | soft_acc 0.945 | lr 1.25e-05
+  iter   500/5005 | loss 0.2304 | soft_acc 0.944 | lr 1.24e-05
+  iter   600/5005 | loss 0.0792 | soft_acc 0.945 | lr 1.23e-05
+  iter   700/5005 | loss 0.1695 | soft_acc 0.944 | lr 1.22e-05
+  iter   800/5005 | loss 0.2545 | soft_acc 0.943 | lr 1.21e-05
+  iter   900/5005 | loss 0.1792 | soft_acc 0.943 | lr 1.20e-05
+  iter  1000/5005 | loss 0.2481 | soft_acc 0.942 | lr 1.19e-05
+  iter  1100/5005 | loss 0.1815 | soft_acc 0.942 | lr 1.18e-05
+  iter  1200/5005 | loss 0.3194 | soft_acc 0.942 | lr 1.17e-05
+  iter  1300/5005 | loss 0.1942 | soft_acc 0.942 | lr 1.16e-05
+  iter  1400/5005 | loss 0.2246 | soft_acc 0.943 | lr 1.15e-05
+  iter  1500/5005 | loss 0.5037 | soft_acc 0.942 | lr 1.14e-05
+  iter  1600/5005 | loss 0.1975 | soft_acc 0.942 | lr 1.13e-05
+  iter  1700/5005 | loss 0.2687 | soft_acc 0.942 | lr 1.12e-05
+  iter  1800/5005 | loss 0.1996 | soft_acc 0.942 | lr 1.11e-05
+  iter  1900/5005 | loss 0.2233 | soft_acc 0.942 | lr 1.11e-05
+  iter  2000/5005 | loss 0.0862 | soft_acc 0.942 | lr 1.10e-05
+  iter  2100/5005 | loss 0.3669 | soft_acc 0.942 | lr 1.09e-05
+  iter  2200/5005 | loss 0.1358 | soft_acc 0.942 | lr 1.08e-05
+  iter  2300/5005 | loss 0.0431 | soft_acc 0.943 | lr 1.07e-05
+  iter  2400/5005 | loss 0.3213 | soft_acc 0.942 | lr 1.06e-05
+  iter  2500/5005 | loss 0.2269 | soft_acc 0.942 | lr 1.05e-05
+  iter  2600/5005 | loss 0.1813 | soft_acc 0.942 | lr 1.04e-05
+  iter  2700/5005 | loss 0.3312 | soft_acc 0.942 | lr 1.03e-05
+  iter  2800/5005 | loss 0.2821 | soft_acc 0.942 | lr 1.02e-05
+  iter  2900/5005 | loss 0.0929 | soft_acc 0.942 | lr 1.01e-05
+  iter  3000/5005 | loss 0.2556 | soft_acc 0.942 | lr 1.00e-05
+  iter  3100/5005 | loss 0.2958 | soft_acc 0.942 | lr 9.91e-06
+  iter  3200/5005 | loss 0.1309 | soft_acc 0.942 | lr 9.81e-06
+  iter  3300/5005 | loss 0.1320 | soft_acc 0.942 | lr 9.72e-06
+  iter  3400/5005 | loss 0.2656 | soft_acc 0.942 | lr 9.63e-06
+  iter  3500/5005 | loss 0.3728 | soft_acc 0.942 | lr 9.54e-06
+  iter  3600/5005 | loss 0.2459 | soft_acc 0.942 | lr 9.44e-06
+  iter  3700/5005 | loss 0.3465 | soft_acc 0.942 | lr 9.35e-06
+  iter  3800/5005 | loss 0.6921 | soft_acc 0.942 | lr 9.26e-06
+  iter  3900/5005 | loss 0.1575 | soft_acc 0.942 | lr 9.17e-06
+  iter  4000/5005 | loss 0.1548 | soft_acc 0.942 | lr 9.08e-06
+  iter  4100/5005 | loss 0.2916 | soft_acc 0.941 | lr 8.98e-06
+  iter  4200/5005 | loss 0.1414 | soft_acc 0.941 | lr 8.89e-06
+  iter  4300/5005 | loss 0.2866 | soft_acc 0.941 | lr 8.80e-06
+  iter  4400/5005 | loss 0.2504 | soft_acc 0.942 | lr 8.71e-06
+  iter  4500/5005 | loss 0.3593 | soft_acc 0.942 | lr 8.62e-06
+  iter  4600/5005 | loss 0.1542 | soft_acc 0.941 | lr 8.53e-06
+  iter  4700/5005 | loss 0.4660 | soft_acc 0.941 | lr 8.44e-06
+  iter  4800/5005 | loss 0.1240 | soft_acc 0.941 | lr 8.36e-06
+  iter  4900/5005 | loss 0.1104 | soft_acc 0.941 | lr 8.27e-06
+  iter  5000/5005 | loss 0.1728 | soft_acc 0.941 | lr 8.18e-06
+[Epoch 7] Train loss=0.2047, soft_acc=0.9411
+[Epoch 7] Val   loss=0.9905, acc=0.7724
+
+[Train] Epoch 8/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.1489 | soft_acc 0.943 | lr 8.09e-06
+  iter   200/5005 | loss 0.1739 | soft_acc 0.944 | lr 8.00e-06
+  iter   300/5005 | loss 0.1957 | soft_acc 0.943 | lr 7.91e-06
+  iter   400/5005 | loss 0.1428 | soft_acc 0.945 | lr 7.83e-06
+  iter   500/5005 | loss 0.1247 | soft_acc 0.948 | lr 7.74e-06
+  iter   600/5005 | loss 0.0925 | soft_acc 0.947 | lr 7.65e-06
+  iter   700/5005 | loss 0.5111 | soft_acc 0.946 | lr 7.57e-06
+  iter   800/5005 | loss 0.2710 | soft_acc 0.946 | lr 7.48e-06
+  iter   900/5005 | loss 0.2286 | soft_acc 0.946 | lr 7.40e-06
+  iter  1000/5005 | loss 0.1038 | soft_acc 0.945 | lr 7.31e-06
+  iter  1100/5005 | loss 0.1877 | soft_acc 0.945 | lr 7.23e-06
+  iter  1200/5005 | loss 0.1567 | soft_acc 0.945 | lr 7.15e-06
+  iter  1300/5005 | loss 0.1571 | soft_acc 0.945 | lr 7.06e-06
+  iter  1400/5005 | loss 0.0737 | soft_acc 0.945 | lr 6.98e-06
+  iter  1500/5005 | loss 0.2851 | soft_acc 0.945 | lr 6.90e-06
+  iter  1600/5005 | loss 0.2106 | soft_acc 0.945 | lr 6.82e-06
+  iter  1700/5005 | loss 0.1881 | soft_acc 0.945 | lr 6.74e-06
+  iter  1800/5005 | loss 0.2279 | soft_acc 0.945 | lr 6.65e-06
+  iter  1900/5005 | loss 0.2202 | soft_acc 0.945 | lr 6.57e-06
+  iter  2000/5005 | loss 0.0401 | soft_acc 0.945 | lr 6.49e-06
+  iter  2100/5005 | loss 0.3806 | soft_acc 0.945 | lr 6.41e-06
+  iter  2200/5005 | loss 0.2204 | soft_acc 0.945 | lr 6.33e-06
+  iter  2300/5005 | loss 0.1747 | soft_acc 0.945 | lr 6.26e-06
+  iter  2400/5005 | loss 0.2127 | soft_acc 0.945 | lr 6.18e-06
+  iter  2500/5005 | loss 0.0693 | soft_acc 0.945 | lr 6.10e-06
+  iter  2600/5005 | loss 0.0760 | soft_acc 0.945 | lr 6.02e-06
+  iter  2700/5005 | loss 0.1346 | soft_acc 0.945 | lr 5.94e-06
+  iter  2800/5005 | loss 0.2628 | soft_acc 0.945 | lr 5.87e-06
+  iter  2900/5005 | loss 0.4671 | soft_acc 0.945 | lr 5.79e-06
+  iter  3000/5005 | loss 0.3070 | soft_acc 0.945 | lr 5.72e-06
+  iter  3100/5005 | loss 0.1374 | soft_acc 0.945 | lr 5.64e-06
+  iter  3200/5005 | loss 0.2796 | soft_acc 0.945 | lr 5.57e-06
+  iter  3300/5005 | loss 0.0599 | soft_acc 0.945 | lr 5.49e-06
+  iter  3400/5005 | loss 0.3629 | soft_acc 0.945 | lr 5.42e-06
+  iter  3500/5005 | loss 0.0675 | soft_acc 0.945 | lr 5.35e-06
+  iter  3600/5005 | loss 0.4514 | soft_acc 0.945 | lr 5.27e-06
+  iter  3700/5005 | loss 0.0395 | soft_acc 0.945 | lr 5.20e-06
+  iter  3800/5005 | loss 0.0321 | soft_acc 0.945 | lr 5.13e-06
+  iter  3900/5005 | loss 0.1100 | soft_acc 0.945 | lr 5.06e-06
+  iter  4000/5005 | loss 0.1874 | soft_acc 0.944 | lr 4.99e-06
+  iter  4100/5005 | loss 0.3001 | soft_acc 0.944 | lr 4.92e-06
+  iter  4200/5005 | loss 0.3512 | soft_acc 0.944 | lr 4.85e-06
+  iter  4300/5005 | loss 0.0924 | soft_acc 0.945 | lr 4.78e-06
+  iter  4400/5005 | loss 0.2618 | soft_acc 0.945 | lr 4.71e-06
+  iter  4500/5005 | loss 0.2809 | soft_acc 0.945 | lr 4.64e-06
+  iter  4600/5005 | loss 0.0614 | soft_acc 0.945 | lr 4.57e-06
+  iter  4700/5005 | loss 0.1417 | soft_acc 0.945 | lr 4.51e-06
+  iter  4800/5005 | loss 0.1758 | soft_acc 0.945 | lr 4.44e-06
+  iter  4900/5005 | loss 0.2350 | soft_acc 0.945 | lr 4.37e-06
+  iter  5000/5005 | loss 0.0738 | soft_acc 0.945 | lr 4.31e-06
+[Epoch 8] Train loss=0.1946, soft_acc=0.9446
+[Epoch 8] Val   loss=0.9988, acc=0.7722
+
+[Train] Epoch 9/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.2303 | soft_acc 0.948 | lr 4.24e-06
+  iter   200/5005 | loss 0.1139 | soft_acc 0.949 | lr 4.17e-06
+  iter   300/5005 | loss 0.4258 | soft_acc 0.949 | lr 4.11e-06
+  iter   400/5005 | loss 0.0924 | soft_acc 0.950 | lr 4.05e-06
+  iter   500/5005 | loss 0.5599 | soft_acc 0.950 | lr 3.98e-06
+  iter   600/5005 | loss 0.5363 | soft_acc 0.948 | lr 3.92e-06
+  iter   700/5005 | loss 0.1411 | soft_acc 0.949 | lr 3.86e-06
+  iter   800/5005 | loss 0.2175 | soft_acc 0.948 | lr 3.80e-06
+  iter   900/5005 | loss 0.0795 | soft_acc 0.948 | lr 3.74e-06
+  iter  1000/5005 | loss 0.2400 | soft_acc 0.948 | lr 3.68e-06
+  iter  1100/5005 | loss 0.3629 | soft_acc 0.948 | lr 3.62e-06
+  iter  1200/5005 | loss 0.2457 | soft_acc 0.948 | lr 3.56e-06
+  iter  1300/5005 | loss 0.1200 | soft_acc 0.948 | lr 3.50e-06
+  iter  1400/5005 | loss 0.0711 | soft_acc 0.947 | lr 3.45e-06
+  iter  1500/5005 | loss 0.0965 | soft_acc 0.947 | lr 3.39e-06
+  iter  1600/5005 | loss 0.3466 | soft_acc 0.947 | lr 3.33e-06
+  iter  1700/5005 | loss 0.2909 | soft_acc 0.947 | lr 3.28e-06
+  iter  1800/5005 | loss 0.2545 | soft_acc 0.947 | lr 3.22e-06
+  iter  1900/5005 | loss 0.1080 | soft_acc 0.947 | lr 3.17e-06
+  iter  2000/5005 | loss 0.1236 | soft_acc 0.947 | lr 3.11e-06
+  iter  2100/5005 | loss 0.2039 | soft_acc 0.947 | lr 3.06e-06
+  iter  2200/5005 | loss 0.1338 | soft_acc 0.947 | lr 3.01e-06
+  iter  2300/5005 | loss 0.2337 | soft_acc 0.947 | lr 2.95e-06
+  iter  2400/5005 | loss 0.1718 | soft_acc 0.947 | lr 2.90e-06
+  iter  2500/5005 | loss 0.0622 | soft_acc 0.947 | lr 2.85e-06
+  iter  2600/5005 | loss 0.1246 | soft_acc 0.947 | lr 2.80e-06
+  iter  2700/5005 | loss 0.1183 | soft_acc 0.947 | lr 2.75e-06
+  iter  2800/5005 | loss 0.1513 | soft_acc 0.947 | lr 2.70e-06
+  iter  2900/5005 | loss 0.1630 | soft_acc 0.947 | lr 2.65e-06
+  iter  3000/5005 | loss 0.3146 | soft_acc 0.947 | lr 2.60e-06
+  iter  3100/5005 | loss 0.0491 | soft_acc 0.947 | lr 2.56e-06
+  iter  3200/5005 | loss 0.1255 | soft_acc 0.947 | lr 2.51e-06
+  iter  3300/5005 | loss 0.1774 | soft_acc 0.947 | lr 2.46e-06
+  iter  3400/5005 | loss 0.4033 | soft_acc 0.947 | lr 2.42e-06
+  iter  3500/5005 | loss 0.1188 | soft_acc 0.947 | lr 2.37e-06
+  iter  3600/5005 | loss 0.3809 | soft_acc 0.947 | lr 2.33e-06
+  iter  3700/5005 | loss 0.1947 | soft_acc 0.947 | lr 2.29e-06
+  iter  3800/5005 | loss 0.1820 | soft_acc 0.947 | lr 2.24e-06
+  iter  3900/5005 | loss 0.1856 | soft_acc 0.947 | lr 2.20e-06
+  iter  4000/5005 | loss 0.0916 | soft_acc 0.947 | lr 2.16e-06
+  iter  4100/5005 | loss 0.1914 | soft_acc 0.947 | lr 2.12e-06
+  iter  4200/5005 | loss 0.0546 | soft_acc 0.947 | lr 2.08e-06
+  iter  4300/5005 | loss 0.0660 | soft_acc 0.947 | lr 2.04e-06
+  iter  4400/5005 | loss 0.3298 | soft_acc 0.947 | lr 2.00e-06
+  iter  4500/5005 | loss 0.4066 | soft_acc 0.947 | lr 1.96e-06
+  iter  4600/5005 | loss 0.0989 | soft_acc 0.947 | lr 1.92e-06
+  iter  4700/5005 | loss 0.2451 | soft_acc 0.947 | lr 1.89e-06
+  iter  4800/5005 | loss 0.3302 | soft_acc 0.947 | lr 1.85e-06
+  iter  4900/5005 | loss 0.2335 | soft_acc 0.947 | lr 1.81e-06
+  iter  5000/5005 | loss 0.3941 | soft_acc 0.947 | lr 1.78e-06
+[Epoch 9] Train loss=0.1870, soft_acc=0.9467
+[Epoch 9] Val   loss=1.0047, acc=0.7713
+
+[Train] Epoch 10/10 | branch_alpha=0.000e+00
+  iter   100/5005 | loss 0.3837 | soft_acc 0.946 | lr 1.74e-06
+  iter   200/5005 | loss 0.6011 | soft_acc 0.946 | lr 1.71e-06
+  iter   300/5005 | loss 0.3134 | soft_acc 0.946 | lr 1.68e-06
+  iter   400/5005 | loss 0.2786 | soft_acc 0.947 | lr 1.64e-06
+  iter   500/5005 | loss 0.0913 | soft_acc 0.947 | lr 1.61e-06
+  iter   600/5005 | loss 0.1551 | soft_acc 0.947 | lr 1.58e-06
+  iter   700/5005 | loss 0.1618 | soft_acc 0.948 | lr 1.55e-06
+  iter   800/5005 | loss 0.1033 | soft_acc 0.948 | lr 1.52e-06
+  iter   900/5005 | loss 0.2204 | soft_acc 0.948 | lr 1.49e-06
+  iter  1000/5005 | loss 0.2592 | soft_acc 0.947 | lr 1.46e-06
+  iter  1100/5005 | loss 0.1549 | soft_acc 0.948 | lr 1.44e-06
+  iter  1200/5005 | loss 0.0869 | soft_acc 0.947 | lr 1.41e-06
+  iter  1300/5005 | loss 0.1497 | soft_acc 0.947 | lr 1.38e-06
+  iter  1400/5005 | loss 0.0950 | soft_acc 0.947 | lr 1.36e-06
+  iter  1500/5005 | loss 0.1926 | soft_acc 0.947 | lr 1.33e-06
+  iter  1600/5005 | loss 0.1220 | soft_acc 0.947 | lr 1.31e-06
+  iter  1700/5005 | loss 0.1692 | soft_acc 0.947 | lr 1.28e-06
+  iter  1800/5005 | loss 0.2117 | soft_acc 0.947 | lr 1.26e-06
+  iter  1900/5005 | loss 0.1058 | soft_acc 0.948 | lr 1.24e-06
+  iter  2000/5005 | loss 0.2180 | soft_acc 0.948 | lr 1.22e-06
+  iter  2100/5005 | loss 0.1306 | soft_acc 0.948 | lr 1.20e-06
+  iter  2200/5005 | loss 0.1513 | soft_acc 0.948 | lr 1.18e-06
+  iter  2300/5005 | loss 0.1544 | soft_acc 0.948 | lr 1.16e-06
+  iter  2400/5005 | loss 0.2215 | soft_acc 0.948 | lr 1.14e-06
+  iter  2500/5005 | loss 0.1669 | soft_acc 0.948 | lr 1.12e-06
+  iter  2600/5005 | loss 0.2110 | soft_acc 0.948 | lr 1.10e-06
+  iter  2700/5005 | loss 0.1938 | soft_acc 0.948 | lr 1.09e-06
+  iter  2800/5005 | loss 0.1636 | soft_acc 0.948 | lr 1.07e-06
+  iter  2900/5005 | loss 0.3646 | soft_acc 0.948 | lr 1.06e-06
+  iter  3000/5005 | loss 0.3052 | soft_acc 0.948 | lr 1.04e-06
+  iter  3100/5005 | loss 0.1877 | soft_acc 0.948 | lr 1.03e-06
+  iter  3200/5005 | loss 0.1104 | soft_acc 0.948 | lr 1.02e-06
+  iter  3300/5005 | loss 0.3020 | soft_acc 0.948 | lr 1.00e-06
+  iter  3400/5005 | loss 0.1977 | soft_acc 0.948 | lr 9.91e-07
+  iter  3500/5005 | loss 0.2246 | soft_acc 0.948 | lr 9.80e-07
+  iter  3600/5005 | loss 0.1756 | soft_acc 0.948 | lr 9.70e-07
+  iter  3700/5005 | loss 0.2401 | soft_acc 0.948 | lr 9.60e-07
+  iter  3800/5005 | loss 0.1019 | soft_acc 0.948 | lr 9.51e-07
+  iter  3900/5005 | loss 0.5557 | soft_acc 0.948 | lr 9.43e-07
+  iter  4000/5005 | loss 0.2919 | soft_acc 0.948 | lr 9.36e-07
+  iter  4100/5005 | loss 0.0633 | soft_acc 0.948 | lr 9.29e-07
+  iter  4200/5005 | loss 0.1590 | soft_acc 0.948 | lr 9.23e-07
+  iter  4300/5005 | loss 0.1768 | soft_acc 0.948 | lr 9.18e-07
+  iter  4400/5005 | loss 0.1733 | soft_acc 0.948 | lr 9.13e-07
+  iter  4500/5005 | loss 0.1669 | soft_acc 0.948 | lr 9.09e-07
+  iter  4600/5005 | loss 0.0721 | soft_acc 0.948 | lr 9.06e-07
+  iter  4700/5005 | loss 0.1509 | soft_acc 0.948 | lr 9.03e-07
+  iter  4800/5005 | loss 0.0376 | soft_acc 0.948 | lr 9.01e-07
+  iter  4900/5005 | loss 0.1964 | soft_acc 0.947 | lr 9.00e-07
+  iter  5000/5005 | loss 0.3115 | soft_acc 0.948 | lr 9.00e-07
+[Epoch 10] Train loss=0.1829, soft_acc=0.9476
+[Epoch 10] Val   loss=1.0077, acc=0.7715

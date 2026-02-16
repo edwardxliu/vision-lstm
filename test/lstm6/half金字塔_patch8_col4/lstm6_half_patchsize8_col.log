@@ -1,0 +1,1057 @@
+W0112 01:03:11.664015 32274 site-packages/torch/distributed/run.py:793] 
+W0112 01:03:11.664015 32274 site-packages/torch/distributed/run.py:793] *****************************************
+W0112 01:03:11.664015 32274 site-packages/torch/distributed/run.py:793] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0112 01:03:11.664015 32274 site-packages/torch/distributed/run.py:793] *****************************************
+[W112 01:03:14.244159885 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.248936886 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.257117257 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.268363435 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.271949645 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.282194789 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.288650444 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W112 01:03:14.293357297 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[Stage1] Data → train: 1281167, val: 50000
+[Subset] enabled: keep 150/1000 classes, seed=1234 | train=193045 val=7500
+[Stage1] Train from scratch
+[Stage1 Config] classes=150, epochs=150, warmup_epochs=7, per_gpu_bs=128, global_bs=1024, accum=1, base_lr=5.000e-04, weight_decay=0.05, clip_grad=1.0, mixup=0.2, cutmix=0.8, prob=0.8, label_smooth=0.1, ema_decay=0.9995, amp=bf16
+[ModelCfg] patch=8, stride=8, use_dwt=False | pyramid=half, fusion=parallel_gated, col_every=4, gamma_init=0.0001, mixer_every=9999
+[MergeCfg] merge_kind=patch, last_merge_kind=patch
+
+[Stage1-Train] Epoch 1/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/autograd/graph.py:825: UserWarning: Grad strides do not match bucket view strides. This may indicate grad was not created according to the gradient layout contract, or that the param's strides changed since DDP was constructed.  This is not an error, but may impair performance.
+grad.sizes() = [768, 1, 3, 3], strides() = [9, 1, 3, 1]
+bucket_view.sizes() = [768, 1, 3, 3], strides() = [9, 9, 3, 1] (Triggered internally at ../torch/csrc/distributed/c10d/reducer.cpp:327.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  iter   100/189 | loss 4.8701 | soft_acc 0.022 | lr 8.40e-05
+[Stage1 Epoch 1] Train loss=4.9091, soft_acc=0.0242
+[Stage1 Epoch 1] Val   loss=4.9943, acc=0.0307, lr=1.14e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0307)
+
+[Stage1-Train] Epoch 2/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.8636 | soft_acc 0.044 | lr 1.48e-04
+[Stage1 Epoch 2] Train loss=4.6759, soft_acc=0.0516
+[Stage1 Epoch 2] Val   loss=4.9589, acc=0.0331, lr=1.79e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0331)
+
+[Stage1-Train] Epoch 3/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.2355 | soft_acc 0.090 | lr 2.13e-04
+[Stage1 Epoch 3] Train loss=4.3607, soft_acc=0.0996
+[Stage1 Epoch 3] Val   loss=4.9141, acc=0.0305, lr=2.43e-04
+
+[Stage1-Train] Epoch 4/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.8568 | soft_acc 0.137 | lr 2.77e-04
+[Stage1 Epoch 4] Train loss=4.1232, soft_acc=0.1421
+[Stage1 Epoch 4] Val   loss=4.8707, acc=0.0292, lr=3.07e-04
+
+[Stage1-Train] Epoch 5/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.5408 | soft_acc 0.173 | lr 3.41e-04
+[Stage1 Epoch 5] Train loss=3.9257, soft_acc=0.1805
+[Stage1 Epoch 5] Val   loss=4.8308, acc=0.0304, lr=3.71e-04
+
+[Stage1-Train] Epoch 6/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.0730 | soft_acc 0.210 | lr 4.05e-04
+[Stage1 Epoch 6] Train loss=3.7299, soft_acc=0.2215
+[Stage1 Epoch 6] Val   loss=4.7897, acc=0.0333, lr=4.36e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0333)
+
+[Stage1-Train] Epoch 7/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.5969 | soft_acc 0.235 | lr 4.70e-04
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+/home/omnisky/anaconda3/envs/d2l/lib/python3.9/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[Stage1 Epoch 7] Train loss=3.6285, soft_acc=0.2407
+[Stage1 Epoch 7] Val   loss=4.7415, acc=0.0387, lr=5.00e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0387)
+
+[Stage1-Train] Epoch 8/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.2133 | soft_acc 0.262 | lr 5.00e-04
+[Stage1 Epoch 8] Train loss=3.5489, soft_acc=0.2640
+[Stage1 Epoch 8] Val   loss=4.6799, acc=0.0455, lr=5.00e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0455)
+
+[Stage1-Train] Epoch 9/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 4.3932 | soft_acc 0.303 | lr 5.00e-04
+[Stage1 Epoch 9] Train loss=3.3669, soft_acc=0.3001
+[Stage1 Epoch 9] Val   loss=4.6020, acc=0.0544, lr=5.00e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0544)
+
+[Stage1-Train] Epoch 10/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.6286 | soft_acc 0.327 | lr 5.00e-04
+[Stage1 Epoch 10] Train loss=3.1839, soft_acc=0.3423
+[Stage1 Epoch 10] Val   loss=4.5047, acc=0.0661, lr=4.99e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0661)
+
+[Stage1-Train] Epoch 11/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5108 | soft_acc 0.361 | lr 4.99e-04
+[Stage1 Epoch 11] Train loss=3.1702, soft_acc=0.3515
+[Stage1 Epoch 11] Val   loss=4.3899, acc=0.0797, lr=4.99e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0797)
+
+[Stage1-Train] Epoch 12/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.1922 | soft_acc 0.368 | lr 4.99e-04
+[Stage1 Epoch 12] Train loss=3.0953, soft_acc=0.3693
+[Stage1 Epoch 12] Val   loss=4.2627, acc=0.0995, lr=4.99e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.0995)
+
+[Stage1-Train] Epoch 13/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4024 | soft_acc 0.386 | lr 4.98e-04
+[Stage1 Epoch 13] Train loss=3.0150, soft_acc=0.3829
+[Stage1 Epoch 13] Val   loss=4.1315, acc=0.1169, lr=4.98e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1169)
+
+[Stage1-Train] Epoch 14/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.2257 | soft_acc 0.438 | lr 4.98e-04
+[Stage1 Epoch 14] Train loss=2.7701, soft_acc=0.4371
+[Stage1 Epoch 14] Val   loss=4.0085, acc=0.1380, lr=4.97e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1380)
+
+[Stage1-Train] Epoch 15/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.0613 | soft_acc 0.423 | lr 4.97e-04
+[Stage1 Epoch 15] Train loss=2.8526, soft_acc=0.4269
+[Stage1 Epoch 15] Val   loss=3.9040, acc=0.1547, lr=4.96e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1547)
+
+[Stage1-Train] Epoch 16/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.8277 | soft_acc 0.443 | lr 4.96e-04
+[Stage1 Epoch 16] Train loss=2.7768, soft_acc=0.4426
+[Stage1 Epoch 16] Val   loss=3.8157, acc=0.1711, lr=4.95e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1711)
+
+[Stage1-Train] Epoch 17/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.1939 | soft_acc 0.450 | lr 4.95e-04
+[Stage1 Epoch 17] Train loss=2.8018, soft_acc=0.4406
+[Stage1 Epoch 17] Val   loss=3.7409, acc=0.1873, lr=4.94e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1873)
+
+[Stage1-Train] Epoch 18/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.9370 | soft_acc 0.489 | lr 4.94e-04
+[Stage1 Epoch 18] Train loss=2.6065, soft_acc=0.4858
+[Stage1 Epoch 18] Val   loss=3.6751, acc=0.1989, lr=4.93e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.1989)
+
+[Stage1-Train] Epoch 19/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.9272 | soft_acc 0.474 | lr 4.92e-04
+[Stage1 Epoch 19] Train loss=2.7580, soft_acc=0.4524
+[Stage1 Epoch 19] Val   loss=3.6110, acc=0.2103, lr=4.92e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.2103)
+
+[Stage1-Train] Epoch 20/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.6698 | soft_acc 0.503 | lr 4.91e-04
+[Stage1 Epoch 20] Train loss=2.6104, soft_acc=0.4837
+[Stage1 Epoch 20] Val   loss=3.5389, acc=0.2248, lr=4.90e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.2248)
+
+[Stage1-Train] Epoch 21/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8804 | soft_acc 0.509 | lr 4.89e-04
+[Stage1 Epoch 21] Train loss=2.4802, soft_acc=0.5183
+[Stage1 Epoch 21] Val   loss=3.4590, acc=0.2415, lr=4.89e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.2415)
+
+[Stage1-Train] Epoch 22/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8474 | soft_acc 0.496 | lr 4.88e-04
+[Stage1 Epoch 22] Train loss=2.5226, soft_acc=0.5078
+[Stage1 Epoch 22] Val   loss=3.3653, acc=0.2600, lr=4.87e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.2600)
+
+[Stage1-Train] Epoch 23/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.4395 | soft_acc 0.521 | lr 4.86e-04
+[Stage1 Epoch 23] Train loss=2.4444, soft_acc=0.5247
+[Stage1 Epoch 23] Val   loss=3.2653, acc=0.2783, lr=4.85e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.2783)
+
+[Stage1-Train] Epoch 24/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.7740 | soft_acc 0.489 | lr 4.84e-04
+[Stage1 Epoch 24] Train loss=2.5295, soft_acc=0.5096
+[Stage1 Epoch 24] Val   loss=3.1547, acc=0.3013, lr=4.83e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.3013)
+
+[Stage1-Train] Epoch 25/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.8183 | soft_acc 0.503 | lr 4.82e-04
+[Stage1 Epoch 25] Train loss=2.4573, soft_acc=0.5213
+[Stage1 Epoch 25] Val   loss=3.0361, acc=0.3197, lr=4.81e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.3197)
+
+[Stage1-Train] Epoch 26/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.5045 | soft_acc 0.536 | lr 4.80e-04
+[Stage1 Epoch 26] Train loss=2.4010, soft_acc=0.5374
+[Stage1 Epoch 26] Val   loss=2.9086, acc=0.3427, lr=4.79e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.3427)
+
+[Stage1-Train] Epoch 27/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8266 | soft_acc 0.534 | lr 4.78e-04
+[Stage1 Epoch 27] Train loss=2.3968, soft_acc=0.5340
+[Stage1 Epoch 27] Val   loss=2.7700, acc=0.3673, lr=4.77e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.3673)
+
+[Stage1-Train] Epoch 28/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.6494 | soft_acc 0.549 | lr 4.76e-04
+[Stage1 Epoch 28] Train loss=2.2956, soft_acc=0.5580
+[Stage1 Epoch 28] Val   loss=2.6236, acc=0.3961, lr=4.75e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.3961)
+
+[Stage1-Train] Epoch 29/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.6675 | soft_acc 0.539 | lr 4.73e-04
+[Stage1 Epoch 29] Train loss=2.3769, soft_acc=0.5503
+[Stage1 Epoch 29] Val   loss=2.4793, acc=0.4264, lr=4.72e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.4264)
+
+[Stage1-Train] Epoch 30/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.7760 | soft_acc 0.592 | lr 4.71e-04
+[Stage1 Epoch 30] Train loss=2.2479, soft_acc=0.5734
+[Stage1 Epoch 30] Val   loss=2.3430, acc=0.4553, lr=4.70e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.4553)
+
+[Stage1-Train] Epoch 31/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.4300 | soft_acc 0.578 | lr 4.68e-04
+[Stage1 Epoch 31] Train loss=2.1951, soft_acc=0.5818
+[Stage1 Epoch 31] Val   loss=2.2062, acc=0.4832, lr=4.67e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.4832)
+
+[Stage1-Train] Epoch 32/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.4936 | soft_acc 0.564 | lr 4.66e-04
+[Stage1 Epoch 32] Train loss=2.1901, soft_acc=0.5904
+[Stage1 Epoch 32] Val   loss=2.0792, acc=0.5092, lr=4.64e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.5092)
+
+[Stage1-Train] Epoch 33/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.4203 | soft_acc 0.600 | lr 4.63e-04
+[Stage1 Epoch 33] Train loss=2.1131, soft_acc=0.6042
+[Stage1 Epoch 33] Val   loss=1.9620, acc=0.5359, lr=4.62e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.5359)
+
+[Stage1-Train] Epoch 34/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4587 | soft_acc 0.556 | lr 4.60e-04
+[Stage1 Epoch 34] Train loss=2.3145, soft_acc=0.5605
+[Stage1 Epoch 34] Val   loss=1.8533, acc=0.5569, lr=4.59e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.5569)
+
+[Stage1-Train] Epoch 35/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.5682 | soft_acc 0.597 | lr 4.57e-04
+[Stage1 Epoch 35] Train loss=2.1072, soft_acc=0.6061
+[Stage1 Epoch 35] Val   loss=1.7560, acc=0.5767, lr=4.56e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.5767)
+
+[Stage1-Train] Epoch 36/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4753 | soft_acc 0.603 | lr 4.54e-04
+[Stage1 Epoch 36] Train loss=2.1046, soft_acc=0.6054
+[Stage1 Epoch 36] Val   loss=1.6682, acc=0.5971, lr=4.52e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.5971)
+
+[Stage1-Train] Epoch 37/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.4262 | soft_acc 0.604 | lr 4.51e-04
+[Stage1 Epoch 37] Train loss=2.1100, soft_acc=0.6077
+[Stage1 Epoch 37] Val   loss=1.5873, acc=0.6176, lr=4.49e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6176)
+
+[Stage1-Train] Epoch 38/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.8208 | soft_acc 0.615 | lr 4.47e-04
+[Stage1 Epoch 38] Train loss=2.0771, soft_acc=0.6175
+[Stage1 Epoch 38] Val   loss=1.5189, acc=0.6337, lr=4.46e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6337)
+
+[Stage1-Train] Epoch 39/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4020 | soft_acc 0.610 | lr 4.44e-04
+[Stage1 Epoch 39] Train loss=2.1004, soft_acc=0.6109
+[Stage1 Epoch 39] Val   loss=1.4565, acc=0.6460, lr=4.43e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6460)
+
+[Stage1-Train] Epoch 40/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.1473 | soft_acc 0.614 | lr 4.41e-04
+[Stage1 Epoch 40] Train loss=2.1886, soft_acc=0.5916
+[Stage1 Epoch 40] Val   loss=1.3993, acc=0.6592, lr=4.39e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6592)
+
+[Stage1-Train] Epoch 41/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.0437 | soft_acc 0.617 | lr 4.37e-04
+[Stage1 Epoch 41] Train loss=2.1466, soft_acc=0.6022
+[Stage1 Epoch 41] Val   loss=1.3508, acc=0.6716, lr=4.35e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6716)
+
+[Stage1-Train] Epoch 42/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.5087 | soft_acc 0.601 | lr 4.34e-04
+[Stage1 Epoch 42] Train loss=2.1043, soft_acc=0.6142
+[Stage1 Epoch 42] Val   loss=1.3074, acc=0.6819, lr=4.32e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6819)
+
+[Stage1-Train] Epoch 43/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.2726 | soft_acc 0.641 | lr 4.30e-04
+[Stage1 Epoch 43] Train loss=1.9799, soft_acc=0.6435
+[Stage1 Epoch 43] Val   loss=1.2671, acc=0.6911, lr=4.28e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.6911)
+
+[Stage1-Train] Epoch 44/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.8657 | soft_acc 0.631 | lr 4.26e-04
+[Stage1 Epoch 44] Train loss=1.9847, soft_acc=0.6424
+[Stage1 Epoch 44] Val   loss=1.2315, acc=0.7011, lr=4.24e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7011)
+
+[Stage1-Train] Epoch 45/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.1483 | soft_acc 0.627 | lr 4.22e-04
+[Stage1 Epoch 45] Train loss=2.0101, soft_acc=0.6344
+[Stage1 Epoch 45] Val   loss=1.2009, acc=0.7097, lr=4.20e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7097)
+
+[Stage1-Train] Epoch 46/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.2940 | soft_acc 0.634 | lr 4.18e-04
+[Stage1 Epoch 46] Train loss=1.9816, soft_acc=0.6418
+[Stage1 Epoch 46] Val   loss=1.1707, acc=0.7176, lr=4.16e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7176)
+
+[Stage1-Train] Epoch 47/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5214 | soft_acc 0.665 | lr 4.14e-04
+[Stage1 Epoch 47] Train loss=1.9591, soft_acc=0.6547
+[Stage1 Epoch 47] Val   loss=1.1446, acc=0.7244, lr=4.12e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7244)
+
+[Stage1-Train] Epoch 48/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.2494 | soft_acc 0.636 | lr 4.10e-04
+[Stage1 Epoch 48] Train loss=1.9937, soft_acc=0.6395
+[Stage1 Epoch 48] Val   loss=1.1201, acc=0.7304, lr=4.08e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7304)
+
+[Stage1-Train] Epoch 49/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.2580 | soft_acc 0.635 | lr 4.06e-04
+[Stage1 Epoch 49] Train loss=1.9371, soft_acc=0.6459
+[Stage1 Epoch 49] Val   loss=1.0976, acc=0.7372, lr=4.04e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7372)
+
+[Stage1-Train] Epoch 50/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.9151 | soft_acc 0.657 | lr 4.02e-04
+[Stage1 Epoch 50] Train loss=1.9394, soft_acc=0.6476
+[Stage1 Epoch 50] Val   loss=1.0772, acc=0.7415, lr=4.00e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7415)
+
+[Stage1-Train] Epoch 51/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0818 | soft_acc 0.624 | lr 3.97e-04
+[Stage1 Epoch 51] Train loss=1.9709, soft_acc=0.6472
+[Stage1 Epoch 51] Val   loss=1.0572, acc=0.7452, lr=3.95e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7452)
+
+[Stage1-Train] Epoch 52/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.1520 | soft_acc 0.637 | lr 3.93e-04
+[Stage1 Epoch 52] Train loss=1.9290, soft_acc=0.6473
+[Stage1 Epoch 52] Val   loss=1.0388, acc=0.7519, lr=3.91e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7519)
+
+[Stage1-Train] Epoch 53/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.0855 | soft_acc 0.665 | lr 3.88e-04
+[Stage1 Epoch 53] Train loss=1.9232, soft_acc=0.6496
+[Stage1 Epoch 53] Val   loss=1.0237, acc=0.7561, lr=3.86e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7561)
+
+[Stage1-Train] Epoch 54/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5811 | soft_acc 0.639 | lr 3.84e-04
+[Stage1 Epoch 54] Train loss=1.9455, soft_acc=0.6484
+[Stage1 Epoch 54] Val   loss=1.0072, acc=0.7617, lr=3.82e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7617)
+
+[Stage1-Train] Epoch 55/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.2303 | soft_acc 0.662 | lr 3.79e-04
+[Stage1 Epoch 55] Train loss=1.9227, soft_acc=0.6570
+[Stage1 Epoch 55] Val   loss=0.9940, acc=0.7657, lr=3.77e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7657)
+
+[Stage1-Train] Epoch 56/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.7693 | soft_acc 0.692 | lr 3.75e-04
+[Stage1 Epoch 56] Train loss=1.8088, soft_acc=0.6832
+[Stage1 Epoch 56] Val   loss=0.9808, acc=0.7703, lr=3.73e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7703)
+
+[Stage1-Train] Epoch 57/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.1916 | soft_acc 0.690 | lr 3.70e-04
+[Stage1 Epoch 57] Train loss=1.9040, soft_acc=0.6622
+[Stage1 Epoch 57] Val   loss=0.9695, acc=0.7732, lr=3.68e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7732)
+
+[Stage1-Train] Epoch 58/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5719 | soft_acc 0.641 | lr 3.65e-04
+[Stage1 Epoch 58] Train loss=1.9180, soft_acc=0.6566
+[Stage1 Epoch 58] Val   loss=0.9592, acc=0.7764, lr=3.63e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7764)
+
+[Stage1-Train] Epoch 59/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.1668 | soft_acc 0.660 | lr 3.61e-04
+[Stage1 Epoch 59] Train loss=1.8613, soft_acc=0.6696
+[Stage1 Epoch 59] Val   loss=0.9500, acc=0.7781, lr=3.58e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7781)
+
+[Stage1-Train] Epoch 60/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.3876 | soft_acc 0.702 | lr 3.56e-04
+[Stage1 Epoch 60] Train loss=1.8472, soft_acc=0.6767
+[Stage1 Epoch 60] Val   loss=0.9407, acc=0.7812, lr=3.53e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7812)
+
+[Stage1-Train] Epoch 61/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.7751 | soft_acc 0.671 | lr 3.51e-04
+[Stage1 Epoch 61] Train loss=1.8741, soft_acc=0.6642
+[Stage1 Epoch 61] Val   loss=0.9331, acc=0.7829, lr=3.48e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7829)
+
+[Stage1-Train] Epoch 62/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0593 | soft_acc 0.679 | lr 3.46e-04
+[Stage1 Epoch 62] Train loss=1.7567, soft_acc=0.6921
+[Stage1 Epoch 62] Val   loss=0.9257, acc=0.7841, lr=3.43e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7841)
+
+[Stage1-Train] Epoch 63/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.4419 | soft_acc 0.654 | lr 3.41e-04
+[Stage1 Epoch 63] Train loss=1.8933, soft_acc=0.6586
+[Stage1 Epoch 63] Val   loss=0.9187, acc=0.7853, lr=3.38e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7853)
+
+[Stage1-Train] Epoch 64/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0165 | soft_acc 0.697 | lr 3.36e-04
+[Stage1 Epoch 64] Train loss=1.7663, soft_acc=0.6938
+[Stage1 Epoch 64] Val   loss=0.9120, acc=0.7881, lr=3.33e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7881)
+
+[Stage1-Train] Epoch 65/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0181 | soft_acc 0.674 | lr 3.31e-04
+[Stage1 Epoch 65] Train loss=1.8319, soft_acc=0.6796
+[Stage1 Epoch 65] Val   loss=0.9060, acc=0.7907, lr=3.28e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7907)
+
+[Stage1-Train] Epoch 66/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.1583 | soft_acc 0.684 | lr 3.26e-04
+[Stage1 Epoch 66] Train loss=1.8229, soft_acc=0.6784
+[Stage1 Epoch 66] Val   loss=0.9011, acc=0.7925, lr=3.23e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7925)
+
+[Stage1-Train] Epoch 67/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0436 | soft_acc 0.697 | lr 3.21e-04
+[Stage1 Epoch 67] Train loss=1.7536, soft_acc=0.6900
+[Stage1 Epoch 67] Val   loss=0.8967, acc=0.7945, lr=3.18e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7945)
+
+[Stage1-Train] Epoch 68/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.3303 | soft_acc 0.702 | lr 3.15e-04
+[Stage1 Epoch 68] Train loss=1.7772, soft_acc=0.6898
+[Stage1 Epoch 68] Val   loss=0.8922, acc=0.7961, lr=3.13e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7961)
+
+[Stage1-Train] Epoch 69/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.3162 | soft_acc 0.649 | lr 3.10e-04
+[Stage1 Epoch 69] Train loss=1.9111, soft_acc=0.6519
+[Stage1 Epoch 69] Val   loss=0.8875, acc=0.7988, lr=3.08e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7988)
+
+[Stage1-Train] Epoch 70/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.6574 | soft_acc 0.662 | lr 3.05e-04
+[Stage1 Epoch 70] Train loss=1.8370, soft_acc=0.6736
+[Stage1 Epoch 70] Val   loss=0.8828, acc=0.7993, lr=3.03e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.7993)
+
+[Stage1-Train] Epoch 71/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.7270 | soft_acc 0.671 | lr 3.00e-04
+[Stage1 Epoch 71] Train loss=1.7728, soft_acc=0.6842
+[Stage1 Epoch 71] Val   loss=0.8800, acc=0.8005, lr=2.97e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8005)
+
+[Stage1-Train] Epoch 72/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0662 | soft_acc 0.700 | lr 2.94e-04
+[Stage1 Epoch 72] Train loss=1.7461, soft_acc=0.6953
+[Stage1 Epoch 72] Val   loss=0.8760, acc=0.8017, lr=2.92e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8017)
+
+[Stage1-Train] Epoch 73/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0556 | soft_acc 0.703 | lr 2.89e-04
+[Stage1 Epoch 73] Train loss=1.7103, soft_acc=0.7025
+[Stage1 Epoch 73] Val   loss=0.8730, acc=0.8028, lr=2.87e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8028)
+
+[Stage1-Train] Epoch 74/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.9300 | soft_acc 0.695 | lr 2.84e-04
+[Stage1 Epoch 74] Train loss=1.7543, soft_acc=0.6922
+[Stage1 Epoch 74] Val   loss=0.8706, acc=0.8045, lr=2.81e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8045)
+
+[Stage1-Train] Epoch 75/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.7380 | soft_acc 0.690 | lr 2.79e-04
+[Stage1 Epoch 75] Train loss=1.7319, soft_acc=0.6970
+[Stage1 Epoch 75] Val   loss=0.8683, acc=0.8055, lr=2.76e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8055)
+
+[Stage1-Train] Epoch 76/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9430 | soft_acc 0.664 | lr 2.73e-04
+[Stage1 Epoch 76] Train loss=1.7706, soft_acc=0.6864
+[Stage1 Epoch 76] Val   loss=0.8652, acc=0.8073, lr=2.71e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8073)
+
+[Stage1-Train] Epoch 77/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.3147 | soft_acc 0.725 | lr 2.68e-04
+[Stage1 Epoch 77] Train loss=1.6783, soft_acc=0.7117
+[Stage1 Epoch 77] Val   loss=0.8642, acc=0.8088, lr=2.65e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8088)
+
+[Stage1-Train] Epoch 78/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.1151 | soft_acc 0.669 | lr 2.63e-04
+[Stage1 Epoch 78] Train loss=1.7504, soft_acc=0.6865
+[Stage1 Epoch 78] Val   loss=0.8626, acc=0.8103, lr=2.60e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8103)
+
+[Stage1-Train] Epoch 79/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.6449 | soft_acc 0.716 | lr 2.57e-04
+[Stage1 Epoch 79] Train loss=1.7143, soft_acc=0.7035
+[Stage1 Epoch 79] Val   loss=0.8608, acc=0.8116, lr=2.55e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8116)
+
+[Stage1-Train] Epoch 80/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8545 | soft_acc 0.674 | lr 2.52e-04
+[Stage1 Epoch 80] Train loss=1.7749, soft_acc=0.6887
+[Stage1 Epoch 80] Val   loss=0.8588, acc=0.8125, lr=2.50e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8125)
+
+[Stage1-Train] Epoch 81/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8977 | soft_acc 0.691 | lr 2.47e-04
+[Stage1 Epoch 81] Train loss=1.7837, soft_acc=0.6869
+[Stage1 Epoch 81] Val   loss=0.8585, acc=0.8145, lr=2.44e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8145)
+
+[Stage1-Train] Epoch 82/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5377 | soft_acc 0.680 | lr 2.41e-04
+[Stage1 Epoch 82] Train loss=1.7364, soft_acc=0.6911
+[Stage1 Epoch 82] Val   loss=0.8568, acc=0.8152, lr=2.39e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8152)
+
+[Stage1-Train] Epoch 83/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9640 | soft_acc 0.692 | lr 2.36e-04
+[Stage1 Epoch 83] Train loss=1.7336, soft_acc=0.6917
+[Stage1 Epoch 83] Val   loss=0.8550, acc=0.8145, lr=2.34e-04
+
+[Stage1-Train] Epoch 84/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9469 | soft_acc 0.666 | lr 2.31e-04
+[Stage1 Epoch 84] Train loss=1.7497, soft_acc=0.6933
+[Stage1 Epoch 84] Val   loss=0.8543, acc=0.8157, lr=2.28e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8157)
+
+[Stage1-Train] Epoch 85/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.4388 | soft_acc 0.717 | lr 2.25e-04
+[Stage1 Epoch 85] Train loss=1.7449, soft_acc=0.6974
+[Stage1 Epoch 85] Val   loss=0.8539, acc=0.8172, lr=2.23e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8172)
+
+[Stage1-Train] Epoch 86/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9343 | soft_acc 0.664 | lr 2.20e-04
+[Stage1 Epoch 86] Train loss=1.7068, soft_acc=0.6949
+[Stage1 Epoch 86] Val   loss=0.8533, acc=0.8173, lr=2.18e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8173)
+
+[Stage1-Train] Epoch 87/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.7508 | soft_acc 0.692 | lr 2.15e-04
+[Stage1 Epoch 87] Train loss=1.7472, soft_acc=0.6960
+[Stage1 Epoch 87] Val   loss=0.8530, acc=0.8175, lr=2.12e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8175)
+
+[Stage1-Train] Epoch 88/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.7147 | soft_acc 0.702 | lr 2.10e-04
+[Stage1 Epoch 88] Train loss=1.6658, soft_acc=0.7046
+[Stage1 Epoch 88] Val   loss=0.8528, acc=0.8175, lr=2.07e-04
+
+[Stage1-Train] Epoch 89/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.0650 | soft_acc 0.707 | lr 2.05e-04
+[Stage1 Epoch 89] Train loss=1.6376, soft_acc=0.7216
+[Stage1 Epoch 89] Val   loss=0.8518, acc=0.8169, lr=2.02e-04
+
+[Stage1-Train] Epoch 90/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.3598 | soft_acc 0.673 | lr 1.99e-04
+[Stage1 Epoch 90] Train loss=1.7530, soft_acc=0.6878
+[Stage1 Epoch 90] Val   loss=0.8517, acc=0.8188, lr=1.97e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8188)
+
+[Stage1-Train] Epoch 91/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.2874 | soft_acc 0.693 | lr 1.94e-04
+[Stage1 Epoch 91] Train loss=1.7492, soft_acc=0.6898
+[Stage1 Epoch 91] Val   loss=0.8510, acc=0.8183, lr=1.92e-04
+
+[Stage1-Train] Epoch 92/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9685 | soft_acc 0.710 | lr 1.89e-04
+[Stage1 Epoch 92] Train loss=1.7027, soft_acc=0.7032
+[Stage1 Epoch 92] Val   loss=0.8504, acc=0.8185, lr=1.87e-04
+
+[Stage1-Train] Epoch 93/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4819 | soft_acc 0.717 | lr 1.84e-04
+[Stage1 Epoch 93] Train loss=1.6448, soft_acc=0.7165
+[Stage1 Epoch 93] Val   loss=0.8500, acc=0.8187, lr=1.82e-04
+
+[Stage1-Train] Epoch 94/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.6395 | soft_acc 0.682 | lr 1.79e-04
+[Stage1 Epoch 94] Train loss=1.8160, soft_acc=0.6706
+[Stage1 Epoch 94] Val   loss=0.8502, acc=0.8181, lr=1.77e-04
+
+[Stage1-Train] Epoch 95/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.5347 | soft_acc 0.728 | lr 1.74e-04
+[Stage1 Epoch 95] Train loss=1.6976, soft_acc=0.7003
+[Stage1 Epoch 95] Val   loss=0.8509, acc=0.8179, lr=1.72e-04
+
+[Stage1-Train] Epoch 96/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4864 | soft_acc 0.699 | lr 1.69e-04
+[Stage1 Epoch 96] Train loss=1.6333, soft_acc=0.7135
+[Stage1 Epoch 96] Val   loss=0.8502, acc=0.8176, lr=1.67e-04
+
+[Stage1-Train] Epoch 97/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0705 | soft_acc 0.720 | lr 1.64e-04
+[Stage1 Epoch 97] Train loss=1.6295, soft_acc=0.7130
+[Stage1 Epoch 97] Val   loss=0.8486, acc=0.8188, lr=1.62e-04
+
+[Stage1-Train] Epoch 98/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9241 | soft_acc 0.729 | lr 1.59e-04
+[Stage1 Epoch 98] Train loss=1.6092, soft_acc=0.7248
+[Stage1 Epoch 98] Val   loss=0.8493, acc=0.8195, lr=1.57e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8195)
+
+[Stage1-Train] Epoch 99/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.2445 | soft_acc 0.722 | lr 1.54e-04
+[Stage1 Epoch 99] Train loss=1.5812, soft_acc=0.7297
+[Stage1 Epoch 99] Val   loss=0.8487, acc=0.8203, lr=1.52e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8203)
+
+[Stage1-Train] Epoch 100/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.6604 | soft_acc 0.712 | lr 1.49e-04
+[Stage1 Epoch 100] Train loss=1.5683, soft_acc=0.7340
+[Stage1 Epoch 100] Val   loss=0.8482, acc=0.8201, lr=1.47e-04
+
+[Stage1-Train] Epoch 101/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.6075 | soft_acc 0.721 | lr 1.45e-04
+[Stage1 Epoch 101] Train loss=1.6053, soft_acc=0.7208
+[Stage1 Epoch 101] Val   loss=0.8476, acc=0.8201, lr=1.42e-04
+
+[Stage1-Train] Epoch 102/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9256 | soft_acc 0.715 | lr 1.40e-04
+[Stage1 Epoch 102] Train loss=1.6496, soft_acc=0.7095
+[Stage1 Epoch 102] Val   loss=0.8480, acc=0.8201, lr=1.38e-04
+
+[Stage1-Train] Epoch 103/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9199 | soft_acc 0.719 | lr 1.35e-04
+[Stage1 Epoch 103] Train loss=1.6221, soft_acc=0.7174
+[Stage1 Epoch 103] Val   loss=0.8491, acc=0.8216, lr=1.33e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8216)
+
+[Stage1-Train] Epoch 104/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9365 | soft_acc 0.721 | lr 1.31e-04
+[Stage1 Epoch 104] Train loss=1.6264, soft_acc=0.7208
+[Stage1 Epoch 104] Val   loss=0.8477, acc=0.8221, lr=1.29e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8221)
+
+[Stage1-Train] Epoch 105/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9252 | soft_acc 0.725 | lr 1.26e-04
+[Stage1 Epoch 105] Train loss=1.6173, soft_acc=0.7229
+[Stage1 Epoch 105] Val   loss=0.8481, acc=0.8221, lr=1.24e-04
+
+[Stage1-Train] Epoch 106/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.1828 | soft_acc 0.724 | lr 1.22e-04
+[Stage1 Epoch 106] Train loss=1.5794, soft_acc=0.7243
+[Stage1 Epoch 106] Val   loss=0.8484, acc=0.8219, lr=1.20e-04
+
+[Stage1-Train] Epoch 107/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9236 | soft_acc 0.762 | lr 1.17e-04
+[Stage1 Epoch 107] Train loss=1.5686, soft_acc=0.7330
+[Stage1 Epoch 107] Val   loss=0.8484, acc=0.8216, lr=1.15e-04
+
+[Stage1-Train] Epoch 108/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0465 | soft_acc 0.748 | lr 1.13e-04
+[Stage1 Epoch 108] Train loss=1.5042, soft_acc=0.7521
+[Stage1 Epoch 108] Val   loss=0.8480, acc=0.8232, lr=1.11e-04
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8232)
+
+[Stage1-Train] Epoch 109/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.3326 | soft_acc 0.747 | lr 1.09e-04
+[Stage1 Epoch 109] Train loss=1.5249, soft_acc=0.7372
+[Stage1 Epoch 109] Val   loss=0.8490, acc=0.8227, lr=1.07e-04
+
+[Stage1-Train] Epoch 110/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9514 | soft_acc 0.741 | lr 1.05e-04
+[Stage1 Epoch 110] Train loss=1.5986, soft_acc=0.7234
+[Stage1 Epoch 110] Val   loss=0.8486, acc=0.8228, lr=1.03e-04
+
+[Stage1-Train] Epoch 111/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.0376 | soft_acc 0.704 | lr 1.01e-04
+[Stage1 Epoch 111] Train loss=1.6742, soft_acc=0.7046
+[Stage1 Epoch 111] Val   loss=0.8485, acc=0.8227, lr=9.87e-05
+
+[Stage1-Train] Epoch 112/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.1834 | soft_acc 0.757 | lr 9.66e-05
+[Stage1 Epoch 112] Train loss=1.5453, soft_acc=0.7390
+[Stage1 Epoch 112] Val   loss=0.8493, acc=0.8225, lr=9.47e-05
+
+[Stage1-Train] Epoch 113/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8785 | soft_acc 0.762 | lr 9.26e-05
+[Stage1 Epoch 113] Train loss=1.4881, soft_acc=0.7466
+[Stage1 Epoch 113] Val   loss=0.8501, acc=0.8223, lr=9.08e-05
+
+[Stage1-Train] Epoch 114/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8924 | soft_acc 0.733 | lr 8.88e-05
+[Stage1 Epoch 114] Train loss=1.6002, soft_acc=0.7230
+[Stage1 Epoch 114] Val   loss=0.8505, acc=0.8228, lr=8.70e-05
+
+[Stage1-Train] Epoch 115/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.3680 | soft_acc 0.736 | lr 8.50e-05
+[Stage1 Epoch 115] Train loss=1.5582, soft_acc=0.7310
+[Stage1 Epoch 115] Val   loss=0.8511, acc=0.8231, lr=8.32e-05
+
+[Stage1-Train] Epoch 116/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4504 | soft_acc 0.720 | lr 8.13e-05
+[Stage1 Epoch 116] Train loss=1.6364, soft_acc=0.7140
+[Stage1 Epoch 116] Val   loss=0.8515, acc=0.8224, lr=7.96e-05
+
+[Stage1-Train] Epoch 117/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.3731 | soft_acc 0.729 | lr 7.77e-05
+[Stage1 Epoch 117] Train loss=1.6155, soft_acc=0.7186
+[Stage1 Epoch 117] Val   loss=0.8524, acc=0.8229, lr=7.60e-05
+
+[Stage1-Train] Epoch 118/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.6200 | soft_acc 0.707 | lr 7.41e-05
+[Stage1 Epoch 118] Train loss=1.6834, soft_acc=0.6996
+[Stage1 Epoch 118] Val   loss=0.8526, acc=0.8236, lr=7.25e-05
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8236)
+
+[Stage1-Train] Epoch 119/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8874 | soft_acc 0.712 | lr 7.07e-05
+[Stage1 Epoch 119] Train loss=1.6823, soft_acc=0.6964
+[Stage1 Epoch 119] Val   loss=0.8539, acc=0.8219, lr=6.91e-05
+
+[Stage1-Train] Epoch 120/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8858 | soft_acc 0.749 | lr 6.73e-05
+[Stage1 Epoch 120] Train loss=1.5714, soft_acc=0.7301
+[Stage1 Epoch 120] Val   loss=0.8542, acc=0.8223, lr=6.58e-05
+
+[Stage1-Train] Epoch 121/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.9323 | soft_acc 0.695 | lr 6.41e-05
+[Stage1 Epoch 121] Train loss=1.7083, soft_acc=0.6915
+[Stage1 Epoch 121] Val   loss=0.8545, acc=0.8232, lr=6.26e-05
+
+[Stage1-Train] Epoch 122/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9025 | soft_acc 0.753 | lr 6.09e-05
+[Stage1 Epoch 122] Train loss=1.5088, soft_acc=0.7431
+[Stage1 Epoch 122] Val   loss=0.8551, acc=0.8229, lr=5.95e-05
+
+[Stage1-Train] Epoch 123/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.0769 | soft_acc 0.703 | lr 5.78e-05
+[Stage1 Epoch 123] Train loss=1.6670, soft_acc=0.7048
+[Stage1 Epoch 123] Val   loss=0.8574, acc=0.8220, lr=5.64e-05
+
+[Stage1-Train] Epoch 124/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9771 | soft_acc 0.747 | lr 5.49e-05
+[Stage1 Epoch 124] Train loss=1.4504, soft_acc=0.7570
+[Stage1 Epoch 124] Val   loss=0.8571, acc=0.8225, lr=5.35e-05
+
+[Stage1-Train] Epoch 125/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8885 | soft_acc 0.712 | lr 5.20e-05
+[Stage1 Epoch 125] Train loss=1.6177, soft_acc=0.7163
+[Stage1 Epoch 125] Val   loss=0.8577, acc=0.8221, lr=5.07e-05
+
+[Stage1-Train] Epoch 126/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9258 | soft_acc 0.711 | lr 4.92e-05
+[Stage1 Epoch 126] Train loss=1.5566, soft_acc=0.7292
+[Stage1 Epoch 126] Val   loss=0.8580, acc=0.8228, lr=4.79e-05
+
+[Stage1-Train] Epoch 127/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.5306 | soft_acc 0.719 | lr 4.65e-05
+[Stage1 Epoch 127] Train loss=1.5710, soft_acc=0.7239
+[Stage1 Epoch 127] Val   loss=0.8587, acc=0.8225, lr=4.53e-05
+
+[Stage1-Train] Epoch 128/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9962 | soft_acc 0.730 | lr 4.40e-05
+[Stage1 Epoch 128] Train loss=1.6429, soft_acc=0.7096
+[Stage1 Epoch 128] Val   loss=0.8582, acc=0.8227, lr=4.28e-05
+
+[Stage1-Train] Epoch 129/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.2366 | soft_acc 0.727 | lr 4.15e-05
+[Stage1 Epoch 129] Train loss=1.5326, soft_acc=0.7390
+[Stage1 Epoch 129] Val   loss=0.8584, acc=0.8241, lr=4.04e-05
+  🌟 Stage1 New best saved @ lstm6_half_patchsize8_col.pth (acc=0.8241)
+
+[Stage1-Train] Epoch 130/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.4721 | soft_acc 0.745 | lr 3.91e-05
+[Stage1 Epoch 130] Train loss=1.5676, soft_acc=0.7325
+[Stage1 Epoch 130] Val   loss=0.8589, acc=0.8239, lr=3.80e-05
+
+[Stage1-Train] Epoch 131/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0891 | soft_acc 0.712 | lr 3.68e-05
+[Stage1 Epoch 131] Train loss=1.6119, soft_acc=0.7144
+[Stage1 Epoch 131] Val   loss=0.8596, acc=0.8225, lr=3.58e-05
+
+[Stage1-Train] Epoch 132/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9506 | soft_acc 0.719 | lr 3.47e-05
+[Stage1 Epoch 132] Train loss=1.5836, soft_acc=0.7223
+[Stage1 Epoch 132] Val   loss=0.8596, acc=0.8224, lr=3.37e-05
+
+[Stage1-Train] Epoch 133/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.5127 | soft_acc 0.758 | lr 3.26e-05
+[Stage1 Epoch 133] Train loss=1.4635, soft_acc=0.7546
+[Stage1 Epoch 133] Val   loss=0.8606, acc=0.8225, lr=3.17e-05
+
+[Stage1-Train] Epoch 134/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9511 | soft_acc 0.741 | lr 3.07e-05
+[Stage1 Epoch 134] Train loss=1.5534, soft_acc=0.7324
+[Stage1 Epoch 134] Val   loss=0.8607, acc=0.8225, lr=2.98e-05
+
+[Stage1-Train] Epoch 135/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8806 | soft_acc 0.744 | lr 2.89e-05
+[Stage1 Epoch 135] Train loss=1.5253, soft_acc=0.7343
+[Stage1 Epoch 135] Val   loss=0.8608, acc=0.8228, lr=2.80e-05
+
+[Stage1-Train] Epoch 136/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.0440 | soft_acc 0.716 | lr 2.72e-05
+[Stage1 Epoch 136] Train loss=1.5707, soft_acc=0.7237
+[Stage1 Epoch 136] Val   loss=0.8610, acc=0.8227, lr=2.64e-05
+
+[Stage1-Train] Epoch 137/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.8059 | soft_acc 0.695 | lr 2.55e-05
+[Stage1 Epoch 137] Train loss=1.5983, soft_acc=0.7201
+[Stage1 Epoch 137] Val   loss=0.8605, acc=0.8233, lr=2.48e-05
+
+[Stage1-Train] Epoch 138/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.5394 | soft_acc 0.735 | lr 2.40e-05
+[Stage1 Epoch 138] Train loss=1.6087, soft_acc=0.7198
+[Stage1 Epoch 138] Val   loss=0.8612, acc=0.8235, lr=2.34e-05
+
+[Stage1-Train] Epoch 139/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9112 | soft_acc 0.717 | lr 2.27e-05
+[Stage1 Epoch 139] Train loss=1.6592, soft_acc=0.7001
+[Stage1 Epoch 139] Val   loss=0.8622, acc=0.8235, lr=2.20e-05
+
+[Stage1-Train] Epoch 140/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 2.3841 | soft_acc 0.730 | lr 2.14e-05
+[Stage1 Epoch 140] Train loss=1.5862, soft_acc=0.7213
+[Stage1 Epoch 140] Val   loss=0.8624, acc=0.8235, lr=2.08e-05
+
+[Stage1-Train] Epoch 141/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8615 | soft_acc 0.735 | lr 2.02e-05
+[Stage1 Epoch 141] Train loss=1.5701, soft_acc=0.7250
+[Stage1 Epoch 141] Val   loss=0.8621, acc=0.8237, lr=1.97e-05
+
+[Stage1-Train] Epoch 142/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.0792 | soft_acc 0.715 | lr 1.92e-05
+[Stage1 Epoch 142] Train loss=1.6418, soft_acc=0.7108
+[Stage1 Epoch 142] Val   loss=0.8630, acc=0.8231, lr=1.87e-05
+
+[Stage1-Train] Epoch 143/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8871 | soft_acc 0.717 | lr 1.83e-05
+[Stage1 Epoch 143] Train loss=1.5793, soft_acc=0.7241
+[Stage1 Epoch 143] Val   loss=0.8633, acc=0.8241, lr=1.79e-05
+
+[Stage1-Train] Epoch 144/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9326 | soft_acc 0.751 | lr 1.74e-05
+[Stage1 Epoch 144] Train loss=1.5137, soft_acc=0.7419
+[Stage1 Epoch 144] Val   loss=0.8641, acc=0.8236, lr=1.71e-05
+
+[Stage1-Train] Epoch 145/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9102 | soft_acc 0.716 | lr 1.67e-05
+[Stage1 Epoch 145] Train loss=1.5636, soft_acc=0.7264
+[Stage1 Epoch 145] Val   loss=0.8639, acc=0.8241, lr=1.65e-05
+
+[Stage1-Train] Epoch 146/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 1.1185 | soft_acc 0.737 | lr 1.62e-05
+[Stage1 Epoch 146] Train loss=1.5325, soft_acc=0.7316
+[Stage1 Epoch 146] Val   loss=0.8638, acc=0.8240, lr=1.59e-05
+
+[Stage1-Train] Epoch 147/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.8682 | soft_acc 0.718 | lr 1.57e-05
+[Stage1 Epoch 147] Train loss=1.5667, soft_acc=0.7247
+[Stage1 Epoch 147] Val   loss=0.8641, acc=0.8236, lr=1.55e-05
+
+[Stage1-Train] Epoch 148/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9015 | soft_acc 0.719 | lr 1.54e-05
+[Stage1 Epoch 148] Train loss=1.5575, soft_acc=0.7300
+[Stage1 Epoch 148] Val   loss=0.8639, acc=0.8236, lr=1.52e-05
+
+[Stage1-Train] Epoch 149/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 0.9328 | soft_acc 0.709 | lr 1.51e-05
+[Stage1 Epoch 149] Train loss=1.6512, soft_acc=0.7095
+[Stage1 Epoch 149] Val   loss=0.8642, acc=0.8235, lr=1.51e-05
+
+[Stage1-Train] Epoch 150/150
+[Branch] alpha=0.000e+00 (start=7, ramp=15, max=0.0)
+  iter   100/189 | loss 3.1625 | soft_acc 0.736 | lr 1.50e-05
+[Stage1 Epoch 150] Train loss=1.5328, soft_acc=0.7306
+[Stage1 Epoch 150] Val   loss=0.8645, acc=0.8232, lr=1.50e-05
