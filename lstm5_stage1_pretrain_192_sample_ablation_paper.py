@@ -93,6 +93,29 @@ def env_list_int(name: str, default: Optional[List[int]] = None, sep: str = ",")
     return [int(x.strip()) for x in str(v).split(sep) if x.strip()]
 
 
+# ----------------- Reproducibility -----------------
+def set_global_seed(seed: int):
+    """Set torch / numpy / random seeds for reproducibility. Call once after DDP init."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    # Avoid nondeterministic algorithms when reproducibility is needed (optional; can slow training)
+    # torch.use_deterministic_algorithms(True)
+
+
+def _worker_init_fn(worker_id: int, base_seed: int):
+    """Per-worker RNG seed so that augmentations (RandomCrop, etc.) are deterministic.
+    Call with base_seed = data_seed + get_rank() * 10000 so each rank's workers get distinct but reproducible seeds.
+    """
+    seed = base_seed + worker_id
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+
+
 # ----------------- DDP helpers -----------------
 def is_dist() -> bool:
     return dist.is_available() and dist.is_initialized()
@@ -503,8 +526,10 @@ def get_ablation_cfg(ablation_id: str, baseline_ablation: str = "A0") -> dict:
     Map an ABLATION id to VisionLSTM2 toggles.
     You can treat W3 as your "PSWF" mainline.
 
-    Adds:
-      - W3_POOL_ONLY: keep post-stem downsample path, but disable wavelet branch (dwt_fuse='none')
+    - W3_POOL_ONLY: post-stem downsample path only, no wavelet in token path, no head residual.
+    - W3_TOKENONLY: post-stem concat+1×1 mix (wavelet in tokens), head wavelet residual off.
+    - W3_RESIDUALONLY: main path pool-only, head wavelet residual on (DWT only for CLS modulation).
+    - W3_BOTH: both token wavelet and head residual (same as W3).
     """
     ablation_id = (ablation_id or "A0").strip().upper()
     baseline_ablation = (baseline_ablation or "A0").strip().upper()
@@ -517,16 +542,20 @@ def get_ablation_cfg(ablation_id: str, baseline_ablation: str = "A0") -> dict:
     }
 
     W = {
-        # W3: conv stem -> post-stem DWT + pooled conv concat -> 1x1 mix -> patchify
-        "W3": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True},
+        # W3: conv stem -> post-stem DWT + pooled conv concat -> 1x1 mix -> patchify + head wavelet residual（等价 W3_BOTH）
+        "W3": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True,
+               "wavelet_warmup_steps": 0, "wavelet_fuse_mode": "add", "head_wavelet_residual": True},
         "W4": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": False},
-        "W3_POOL_ONLY": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True, "pool_only": True},
-        # W3_IMPROVED: 改进版 - wavelet_scale 初始化为0 + 乘性融合 + 可选 warmup
-        "W3_IMPROVED": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True, 
-                        "wavelet_warmup_steps": 0, "wavelet_fuse_mode": "multiply"},
-        # W3_IMPROVED_WARMUP: 改进版 + warmup（前5000步）
+        "W3_POOL_ONLY": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True, "pool_only": True, "head_wavelet_residual": False},
+        # 解耦消融：只开 post-stem concat+1×1，关掉 head residual
+        "W3_TOKENONLY": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True,
+                         "wavelet_warmup_steps": 0, "wavelet_fuse_mode": "add", "head_wavelet_residual": False},
+        # 主路 pool-only，单独开 head wavelet residual（类似 ViT 的 W3_RESIDUAL）
+        "W3_RESIDUALONLY": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True,
+                            "pool_only": True, "head_wavelet_residual": True, "wavelet_warmup_steps": 0, "wavelet_fuse_mode": "add"},
+        # W3_IMPROVED_WARMUP: 改进版 + warmup（前5000步）+ 加性融合
         "W3_IMPROVED_WARMUP": {**A["A1"], "post_stem_dwt": True, "post_stem_merge": "concat", "disable_branch": True,
-                                "wavelet_warmup_steps": 5000, "wavelet_fuse_mode": "multiply"},
+                                "wavelet_warmup_steps": 5000, "wavelet_fuse_mode": "add", "head_wavelet_residual": True},
     }
 
     def resolve_base(base_id: str) -> dict:
@@ -541,6 +570,7 @@ def get_ablation_cfg(ablation_id: str, baseline_ablation: str = "A0") -> dict:
             cfg = dict(W[base_id])
             cfg.setdefault("head_inject_gated", True)
             cfg.setdefault("pool_only", cfg.get("pool_only", False))
+            cfg.setdefault("head_wavelet_residual", True)
             return cfg
         raise KeyError(f"Unknown baseline ablation: {base_id}")
 
@@ -719,6 +749,10 @@ def main():
         torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
     device = torch.device("cuda", int(os.environ.get("LOCAL_RANK", 0))) if torch.cuda.is_available() else torch.device("cpu")
 
+    # ----- Global seed (torch / numpy / random). DATA_SEED also used for subset/cap later. -----
+    data_seed = env_int("DATA_SEED", 1234)
+    set_global_seed(data_seed)
+
     # ----- Mode -----
     mode = env_str("MODE", "train").lower()
     dataset_name = env_str("DATASET", "imagenet").lower()
@@ -834,8 +868,7 @@ def main():
 
     num_classes = len(classes)
 
-    # ----- Subset class sampling -----
-    data_seed = env_int("DATA_SEED", 1234)
+    # ----- Subset class sampling (data_seed set above for global RNG) -----
     subset_k = env_int("SUBSET_CLASSES", 0)
     subset_seed = env_int("SUBSET_SEED", data_seed)
 
@@ -862,6 +895,10 @@ def main():
     train_sampler = DistributedSampler(train_dataset, shuffle=True) if is_dist() else None
     # 验证集不再使用 DistributedSampler，避免在仅 rank0 上评估时只看到 1/world_size 的子集
     val_sampler = None
+    # Per-worker seed for reproducible augmentations (base_seed per rank so workers are deterministic)
+    worker_seed_base = data_seed + (get_rank() * 10000) if is_dist() else data_seed
+    train_worker_init = lambda wid: _worker_init_fn(wid, worker_seed_base)
+    val_worker_init = lambda wid: _worker_init_fn(wid, worker_seed_base + 5000)  # distinct from train
 
     train_loader = DataLoader(
         train_dataset,
@@ -872,6 +909,7 @@ def main():
         pin_memory=True,
         drop_last=True,
         persistent_workers=(num_workers > 0),
+        worker_init_fn=train_worker_init if num_workers > 0 else None,
     )
     val_loader = DataLoader(
         val_dataset,
@@ -882,6 +920,7 @@ def main():
         pin_memory=True,
         drop_last=False,
         persistent_workers=(num_workers > 0),
+        worker_init_fn=val_worker_init if num_workers > 0 else None,
     )
 
     # ----- Build model -----
@@ -920,7 +959,8 @@ def main():
             auto_patch_dwt=auto_patch_dwt,
             dwt_fuse=dwt_fuse_eff,
             wavelet_warmup_steps=int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else cfg.get("wavelet_warmup_steps", 0),
-            wavelet_fuse_mode=cfg.get("wavelet_fuse_mode", "multiply"),  # 默认使用乘性融合
+            wavelet_fuse_mode=os.environ.get("WAVELET_FUSE_MODE") or cfg.get("wavelet_fuse_mode", "multiply"),  # 可用 WAVELET_FUSE_MODE=add|multiply 覆盖
+            head_wavelet_residual=cfg.get("head_wavelet_residual", True),
         )
     elif model_kind == "vit_tiny":
         ab_u = (ablation_id or "").strip().upper()
