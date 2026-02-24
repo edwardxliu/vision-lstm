@@ -919,7 +919,7 @@ def main():
             disable_branch=cfg.get("disable_branch", True),
             auto_patch_dwt=auto_patch_dwt,
             dwt_fuse=dwt_fuse_eff,
-            wavelet_warmup_steps=cfg.get("wavelet_warmup_steps", 0),
+            wavelet_warmup_steps=int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else cfg.get("wavelet_warmup_steps", 0),
             wavelet_fuse_mode=cfg.get("wavelet_fuse_mode", "multiply"),  # 默认使用乘性融合
         )
     elif model_kind == "vit_tiny":

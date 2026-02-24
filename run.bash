@@ -985,7 +985,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #==============================================
-# 第二阶段：ImageNet-1K 上做“主表最少点位”
+# 第二阶段：ImageNet-1K VIL 正则 PSWF 测试（A1 / W3_IMPROVED_WARMUP / W3_POOL_ONLY）
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -1018,7 +1018,7 @@ export WARMUP_EPOCHS=5
 export WEIGHT_DECAY=0.05
 export EMA_DECAY=0.9997
 
-# 为了让“时间对比”更干净，建议先关掉 mixup/ls
+# 正则化参数（与 ViT 正则实验一致）
 export LABEL_SMOOTH=0.1
 export MIXUP_PROB=1.0
 export CUTMIX_ALPHA=1.0
@@ -1029,47 +1029,41 @@ export DISABLE_BRANCH=1
 export OUT_DIR=./outputs_pswf_paper
 
 #=============================================
-# 3.1 Baseline（A1）
+# 3.1 VIL Baseline（A1）
 #=============================================
 export ABLATION=A1
 export DWT_FUSE=add
 export FEAT_CH=32
-export RUN_TAG=in1k192_vil_A1_ch32
+export RUN_TAG=in1k192_vil_A1_ch32_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_A1_ch32.log 2>&1
+    > /home/omnisky/in1k192_vil_A1_ch32_reg.log 2>&1
+
 
 #=============================================
-# 3.2 轻 PSWF（W3）
-#=============================================
-export ABLATION=W3
-export DWT_FUSE=add
-export FEAT_CH=32
-export RUN_TAG=in1k192_vil_W3_add_ch32
-
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_add_ch32.log 2>&1
-
-#=============================================
-# 3.3 pool-only（W3_POOL_ONLY）
+# 3.3 VIL + Pool Only（W3_POOL_ONLY）
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
 export FEAT_CH=32
-export RUN_TAG=in1k192_vil_W3_poolonly_ch32
+unset WAVELET_WARMUP_STEPS
+export RUN_TAG=in1k192_vil_W3_poolonly_ch32_reg
+
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_poolonly_ch32.log 2>&1
+    > /home/omnisky/in1k192_vil_W3_poolonly_ch32_reg.log 2>&1
 
 #=============================================
-# （可选但建议）重 PSWF（展示训练加速 knob）
+# 3.2 VIL + W3_IMPROVED_WARMUP（scale=0 + 乘性融合 + warmup）
 #=============================================
-export ABLATION=W3
+export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
-export FEAT_CH=32,64,64
-export RUN_TAG=in1k192_vil_W3_add_ch326464
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_add_ch326464.log 2>&1
+export FEAT_CH=32
+export WAVELET_WARMUP_STEPS=20000
+export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg
 
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vil_W3_improved_warmup_ch32_reg.log 2>&1
+    
 #=============================================
 # ImageNet-1K ViT 配置
 #=============================================
