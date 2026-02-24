@@ -1195,7 +1195,7 @@ class PostStemWaveletMerge(nn.Module):
 class VisionLSTM2(nn.Module):
     def __init__(self, dim, input_shape, patch_size, depth, output_shape, mode, pooling,
                  drop_path_rate, drop_path_decay, stride, legacy_norm, conv_kind,
-                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply"):
+                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply", head_wavelet_residual=True):
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -1262,6 +1262,7 @@ class VisionLSTM2(nn.Module):
             num_channels = pre_patch_channels
 
         # Optional post-stem Haar/DWT downsample (after conv stem, before patch embedding)
+        stem_out_channels = int(num_channels)  # 用于 W3_RESIDUALONLY 时单独建 dwt_for_residual
         if self.post_stem_dwt:
             if self.post_stem_merge == "replace":
                 self.post_stem = DWTPreprocessor(channels=num_channels, dwt_fuse=dwt_fuse)
@@ -1376,19 +1377,29 @@ class VisionLSTM2(nn.Module):
             )
 
         # 小波显式残差：从 stem 后 DWT 得到向量，在 head 前加 scale*tanh(vec)，梯度直通
-        if (self.post_stem_dwt and self.post_stem_merge == "concat" and
-                hasattr(self.post_stem, "dwt") and self.post_stem.dwt is not None and
-                getattr(self.post_stem.dwt, "out_channels", 0) > 0):
-            wav_ch = self.post_stem.dwt.out_channels
-            self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
-            # 改进1: 初始化为0，让梯度完全学习，避免一开始就定死"配角"强度
-            self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
-            self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
-            self.wavelet_fuse_mode = str(wavelet_fuse_mode)  # "add" or "multiply"
-            # 内部计数器用于 warmup（如果训练脚本不传入 global_step）
-            self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
-            # 用于存储外部传入的 global_step（训练脚本可通过 set_wavelet_global_step 设置）
-            self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+        # head_wavelet_residual=False => W3_TOKENONLY（只开 post-stem concat，关掉 head residual）
+        # pool_only + head_wavelet_residual => W3_RESIDUALONLY（主路 pool-only，单独开 head residual，需 dwt_for_residual）
+        self.dwt_for_residual = None
+        if bool(head_wavelet_residual) and self.post_stem_dwt and self.post_stem_merge == "concat":
+            wav_ch = getattr(self.post_stem.dwt, "out_channels", 0) if (hasattr(self.post_stem, "dwt") and self.post_stem.dwt is not None) else 0
+            if wav_ch > 0:
+                # 常规 W3：post_stem 带 DWT，直接用 post_stem.dwt 做 residual
+                self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
+                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+                self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+                self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+                self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+            else:
+                # W3_RESIDUALONLY：主路 pool-only（post_stem.dwt 为 none/0），单独建 DWT 只给 head residual 用
+                self.dwt_for_residual = DWTPreprocessor(channels=stem_out_channels, dwt_fuse="add")
+                wav_ch = self.dwt_for_residual.out_channels
+                self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
+                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+                self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+                self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+                self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
         else:
             self.wavelet_residual = None
             self.wavelet_scale = None
@@ -1468,7 +1479,7 @@ class VisionLSTM2(nn.Module):
 
         # 小波显式残差：仅用 DWT(stem_out) -> MLP -> 加在 head 前，不经过 LSTM
         if self.wavelet_residual is not None:
-            w = self.post_stem.dwt(stem_out)
+            w = self.dwt_for_residual(stem_out) if self.dwt_for_residual is not None else self.post_stem.dwt(stem_out)
             vec = self.wavelet_residual(w)
             
             # 改进1: Warmup - 如果设置了 warmup_steps，前 N 步内 scale 从 0 线性增长
