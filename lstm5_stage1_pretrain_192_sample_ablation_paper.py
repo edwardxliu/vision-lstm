@@ -961,6 +961,7 @@ def main():
             wavelet_warmup_steps=int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else cfg.get("wavelet_warmup_steps", 0),
             wavelet_fuse_mode=os.environ.get("WAVELET_FUSE_MODE") or cfg.get("wavelet_fuse_mode", "multiply"),  # 可用 WAVELET_FUSE_MODE=add|multiply 覆盖
             head_wavelet_residual=cfg.get("head_wavelet_residual", True),
+            wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),  # 非 0 时 add/multiply 才有实际差异，否则 effective_scale=0 两者等价
         )
     elif model_kind == "vit_tiny":
         ab_u = (ablation_id or "").strip().upper()

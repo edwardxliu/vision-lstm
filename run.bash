@@ -458,9 +458,11 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 #==============================================
 # (4) W3_IMPROVED_WARMUP + 小波融合模式对比(add vs multiply, 合并原4与4b, 去重)
+# 须设 WAVELET_SCALE_INIT 非 0，否则 effective_scale=0 时 add/multiply 完全等价、结果一致
 #==============================================
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
+export WAVELET_SCALE_INIT=0.1
 
 # 加性融合（主 RUN_TAG, 与原先 (4) 一致）
 export WAVELET_FUSE_MODE=add
@@ -481,6 +483,7 @@ export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 
 unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
 
 export RUN_TAG=tiny_vil_W3_tokenonly_ch32_patch8_reg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -493,6 +496,7 @@ export ABLATION=W3_RESIDUALONLY
 export DWT_FUSE=none
 
 unset WAVELET_WARMUP_STEPS
+unset WAVELET_SCALE_INIT
 
 export RUN_TAG=tiny_vil_W3_residualonly_ch32_patch8_reg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -648,6 +652,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #==============================================
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
+export WAVELET_SCALE_INIT=0.1
 
 export WAVELET_FUSE_MODE=add
 export RUN_TAG=tiny_vil_W3_improved_warmup_ch32_patch8_noreg
@@ -666,6 +671,7 @@ export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 
 unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
 
 export RUN_TAG=tiny_vil_W3_tokenonly_ch32_patch8_noreg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -678,6 +684,7 @@ export ABLATION=W3_RESIDUALONLY
 export DWT_FUSE=none
 
 unset WAVELET_WARMUP_STEPS
+unset WAVELET_SCALE_INIT
 
 export RUN_TAG=tiny_vil_W3_residualonly_ch32_patch8_noreg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -824,13 +831,14 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 #=============================================
 # 3.2b 小波融合模式对比(add vs multiply, 需单独跑两次对比)
-# 环境变量 WAVELET_FUSE_MODE=add(加性)或 multiply(乘性)
+# 须设 WAVELET_SCALE_INIT 非 0，否则 add/multiply 等价、结果一致
 #=============================================
 # 加性融合
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
 export FEAT_CH=32
 export WAVELET_WARMUP_STEPS=20000
+export WAVELET_SCALE_INIT=0.1
 export WAVELET_FUSE_MODE=add
 export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg_fuse_add
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -849,6 +857,7 @@ export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 export FEAT_CH=32
 unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
 export RUN_TAG=in1k192_vil_W3_tokenonly_ch32_reg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vil_W3_tokenonly_ch32_reg.log 2>&1
@@ -860,6 +869,7 @@ export ABLATION=W3_RESIDUALONLY
 export DWT_FUSE=none
 export FEAT_CH=32
 unset WAVELET_WARMUP_STEPS
+unset WAVELET_SCALE_INIT
 export RUN_TAG=in1k192_vil_W3_residualonly_ch32_reg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vil_W3_residualonly_ch32_reg.log 2>&1

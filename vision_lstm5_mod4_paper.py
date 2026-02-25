@@ -1126,12 +1126,6 @@ class DWTPreprocessor(nn.Module):
             gate_conv = self.hf_gate[0]
             nn.init.zeros_(gate_conv.weight)
             nn.init.constant_(gate_conv.bias, -2.0)
-            # safe init: suppress HF at start (z ≈ LL)
-            nn.init.zeros_(self.hf_reduce.weight)
-            nn.init.zeros_(self.hf_reduce.bias)
-            gate_conv = self.hf_gate[0]
-            nn.init.zeros_(gate_conv.weight)
-            nn.init.constant_(gate_conv.bias, -2.0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.dwt_fuse == "none":
@@ -1195,7 +1189,7 @@ class PostStemWaveletMerge(nn.Module):
 class VisionLSTM2(nn.Module):
     def __init__(self, dim, input_shape, patch_size, depth, output_shape, mode, pooling,
                  drop_path_rate, drop_path_decay, stride, legacy_norm, conv_kind,
-                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply", head_wavelet_residual=True):
+                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply", head_wavelet_residual=True, wavelet_scale_init=0.0):
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -1385,7 +1379,8 @@ class VisionLSTM2(nn.Module):
             if wav_ch > 0:
                 # 常规 W3：post_stem 带 DWT，直接用 post_stem.dwt 做 residual
                 self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
-                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                scale_init = float(wavelet_scale_init)
+                self.wavelet_scale = nn.Parameter(torch.tensor(scale_init))
                 self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
                 self.wavelet_fuse_mode = str(wavelet_fuse_mode)
                 self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
@@ -1395,7 +1390,8 @@ class VisionLSTM2(nn.Module):
                 self.dwt_for_residual = DWTPreprocessor(channels=stem_out_channels, dwt_fuse="add")
                 wav_ch = self.dwt_for_residual.out_channels
                 self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
-                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                scale_init = float(wavelet_scale_init)
+                self.wavelet_scale = nn.Parameter(torch.tensor(scale_init))
                 self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
                 self.wavelet_fuse_mode = str(wavelet_fuse_mode)
                 self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
