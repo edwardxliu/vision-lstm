@@ -874,6 +874,56 @@ class HeadResidualAdapter(nn.Module):
         return main_vec + (self.alpha * delta)
 
 
+class StemWithWaveletResidual(nn.Module):
+    """
+    主路径用 pool-only，小波路径单独：stem(x) -> (pool_only(feat), dwt(feat))。
+    用于 ViT 的「pool-only stem + 小波残差调制 CLS」。
+    """
+    def __init__(self, stem: nn.Module, post_pool_only: nn.Module, dwt_module: nn.Module):
+        super().__init__()
+        self.stem = stem
+        self.post_pool_only = post_pool_only
+        self.dwt_module = dwt_module
+
+    def forward(self, x: torch.Tensor):
+        feat = self.stem(x)
+        main_feat = self.post_pool_only(feat)
+        wav_feat = self.dwt_module(feat)
+        return (main_feat, wav_feat)
+
+
+class WaveletGlobalGate(nn.Module):
+    """
+    从 wavelet 特征图中提取一个全局向量，用于对主干 head 做轻量调制。
+    设计目标：
+      - 只依赖 (B, C, H, W) 的特征图，适配 ViT / ViL 等任意 backbone
+      - 参数量和 FLOPs 极小（典型是千级参数），满足“几乎不涨计算”的约束
+    """
+    def __init__(self, in_channels: int, dim: int, reduction: int = 4):
+        super().__init__()
+        in_channels = int(in_channels)
+        dim = int(dim)
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        hidden = max(8, in_channels // max(1, int(reduction)))
+        self.mlp = nn.Sequential(
+            nn.Flatten(),                # (B,C,1,1) -> (B,C)
+            nn.Linear(in_channels, hidden, bias=True),
+            nn.SiLU(),
+            nn.Linear(hidden, dim, bias=True),
+        )
+        # 安全初始化：末层输出先接近 0，避免一开始就强行改写 ViT head
+        nn.init.zeros_(self.mlp[-1].weight)
+        nn.init.zeros_(self.mlp[-1].bias)
+
+    def forward(self, feat: torch.Tensor) -> torch.Tensor:
+        """
+        feat: (B, C, H, W) 来自 wavelet/conv 分支
+        return: (B, dim) 全局 gate 向量
+        """
+        x = self.pool(feat)
+        return self.mlp(x)
+
+
 class AttnPool(nn.Module):
     """
     轻量注意力池化：用一个可学习 query 从 token 序列中“读出”全局向量。
@@ -1145,7 +1195,7 @@ class PostStemWaveletMerge(nn.Module):
 class VisionLSTM2(nn.Module):
     def __init__(self, dim, input_shape, patch_size, depth, output_shape, mode, pooling,
                  drop_path_rate, drop_path_decay, stride, legacy_norm, conv_kind,
-                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace"):
+                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply", head_wavelet_residual=True):
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -1212,6 +1262,7 @@ class VisionLSTM2(nn.Module):
             num_channels = pre_patch_channels
 
         # Optional post-stem Haar/DWT downsample (after conv stem, before patch embedding)
+        stem_out_channels = int(num_channels)  # 用于 W3_RESIDUALONLY 时单独建 dwt_for_residual
         if self.post_stem_dwt:
             if self.post_stem_merge == "replace":
                 self.post_stem = DWTPreprocessor(channels=num_channels, dwt_fuse=dwt_fuse)
@@ -1325,6 +1376,36 @@ class VisionLSTM2(nn.Module):
                 nn.Linear(384, dim)
             )
 
+        # 小波显式残差：从 stem 后 DWT 得到向量，在 head 前加 scale*tanh(vec)，梯度直通
+        # head_wavelet_residual=False => W3_TOKENONLY（只开 post-stem concat，关掉 head residual）
+        # pool_only + head_wavelet_residual => W3_RESIDUALONLY（主路 pool-only，单独开 head residual，需 dwt_for_residual）
+        self.dwt_for_residual = None
+        if bool(head_wavelet_residual) and self.post_stem_dwt and self.post_stem_merge == "concat":
+            wav_ch = getattr(self.post_stem.dwt, "out_channels", 0) if (hasattr(self.post_stem, "dwt") and self.post_stem.dwt is not None) else 0
+            if wav_ch > 0:
+                # 常规 W3：post_stem 带 DWT，直接用 post_stem.dwt 做 residual
+                self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
+                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+                self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+                self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+                self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+            else:
+                # W3_RESIDUALONLY：主路 pool-only（post_stem.dwt 为 none/0），单独建 DWT 只给 head residual 用
+                self.dwt_for_residual = DWTPreprocessor(channels=stem_out_channels, dwt_fuse="add")
+                wav_ch = self.dwt_for_residual.out_channels
+                self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
+                self.wavelet_scale = nn.Parameter(torch.tensor(0.0))
+                self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+                self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+                self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+                self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+        else:
+            self.wavelet_residual = None
+            self.wavelet_scale = None
+            self.wavelet_warmup_steps = 0
+            self.wavelet_fuse_mode = "add"
+
     
         g_h, g_w = self.patch_embed.seqlens   # e.g., 8x8 或 4x4
         assert g_h == g_w
@@ -1341,12 +1422,21 @@ class VisionLSTM2(nn.Module):
     @torch.jit.ignore
     def no_weight_decay(self):
         return {"pos_embed.embed"}
+    
+    def set_wavelet_global_step(self, global_step: int):
+        """设置当前的 global_step，用于 wavelet warmup。训练脚本应在每个 step 调用此方法。
+        
+        Args:
+            global_step: 当前的训练步数（从0开始）
+        """
+        if self.wavelet_residual is not None and self.wavelet_warmup_steps > 0:
+            self._current_global_step.fill_(global_step)
 
     def forward(self, x):
         # Main branch
         x0 = self.pre_patch(x)
-        feature_maps = self.feature_extractor(x0)
-        feature_maps = self.post_stem(feature_maps)
+        stem_out = self.feature_extractor(x0)
+        feature_maps = self.post_stem(stem_out)
         x_main = self.patch_embed(feature_maps)
         x_main = self.pos_embed(x_main)
         x_main = einops.rearrange(x_main, "b ... d -> b (...) d")
@@ -1386,6 +1476,33 @@ class VisionLSTM2(nn.Module):
             x_main = self.legacy_norm(x_main)
         else:
             raise NotImplementedError(f"pooling '{self.pooling}' is not implemented")
+
+        # 小波显式残差：仅用 DWT(stem_out) -> MLP -> 加在 head 前，不经过 LSTM
+        if self.wavelet_residual is not None:
+            w = self.dwt_for_residual(stem_out) if self.dwt_for_residual is not None else self.post_stem.dwt(stem_out)
+            vec = self.wavelet_residual(w)
+            
+            # 改进1: Warmup - 如果设置了 warmup_steps，前 N 步内 scale 从 0 线性增长
+            if self.wavelet_warmup_steps > 0:
+                # 优先使用外部传入的 global_step，否则使用内部计数器
+                if self._current_global_step.item() >= 0:
+                    global_step = self._current_global_step.item()
+                else:
+                    global_step = self._wavelet_step.item()
+                    self._wavelet_step += 1
+                
+                warmup_factor = min(1.0, max(0.0, float(global_step) / self.wavelet_warmup_steps))
+            else:
+                warmup_factor = 1.0
+            
+            effective_scale = self.wavelet_scale * warmup_factor
+            gate_vec = torch.tanh(vec.to(x_main.dtype))
+            
+            # 改进2: 乘性融合 - 让小波做"按维调制"而不是简单加
+            if self.wavelet_fuse_mode == "multiply":
+                x_main = x_main * (1.0 + effective_scale * gate_vec)
+            else:  # "add" - 保持向后兼容
+                x_main = x_main + effective_scale * gate_vec
     
         # Optional feature branch + residual injection
         if (self.feature_extractor_branch is not None) and (self.head_adapter is not None):

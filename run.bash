@@ -46,26 +46,26 @@ tmux new -s train -d \
  > /home/omnisky/edward_train_lstm6.log 2>&1"
 
 
-PATCH_SIZE=8 试验1：COL_EVERY=4
+PATCH_SIZE=8 试验1: COL_EVERY=4
 tmux new -s train -d \
 "PRETRAIN_CKPT=lstm6_half_patchsize8_col.pth SUBSET_CLASSES=500 PATCH_SIZE=8 STRIDE=8 EPOCHS=80 PYRAMID=half MERGE_KIND=patch USE_DWT=0 BRANCH_ALPHA_MAX=0 STAGE_DIMS=256,384 STAGE_DEPTHS=0,8 COL_EVERY=4 MIXER_EVERY=9999 \
 torchrun --nproc_per_node=8 lstm6_stage1_pretrain_192_sample.py \
  > /home/omnisky/lstm6_half_patchsize8_col.log 2>&1"
 
-PATCH_SIZE=8 试验2：COL_EVERY=4 + MIXER_EVERY=4
+PATCH_SIZE=8 试验2: COL_EVERY=4 + MIXER_EVERY=4
 tmux new -s train -d \
 "PRETRAIN_CKPT=lstm6_half_patchsize8_col_mixer.pth SUBSET_CLASSES=500 PATCH_SIZE=8 STRIDE=8 EPOCHS=80 PYRAMID=half MERGE_KIND=patch USE_DWT=0 BRANCH_ALPHA_MAX=0 STAGE_DIMS=256,384 STAGE_DEPTHS=0,8 COL_EVERY=4 MIXER_EVERY=4 \
 torchrun --nproc_per_node=8 lstm6_stage1_pretrain_192_sample.py \
  > /home/omnisky/lstm6_half_patchsize8_col_mixer.log 2>&1"
 
 
-PATCH_SIZE=8 试验3：COL_EVERY=4 + MIXER_EVERY=4 + BRANCH
+PATCH_SIZE=8 试验3: COL_EVERY=4 + MIXER_EVERY=4 + BRANCH
 tmux new -s train -d \
 "PRETRAIN_CKPT=lstm6_half_patchsize8_col_mixer_branch.pth SUBSET_CLASSES=500 PATCH_SIZE=8 STRIDE=8 EPOCHS=80 PYRAMID=half MERGE_KIND=patch USE_DWT=0 BRANCH_ALPHA_MAX=1e-3 BRANCH_START=25 BRANCH_RAMP=60 STAGE_DIMS=256,384 STAGE_DEPTHS=0,8 COL_EVERY=4 MIXER_EVERY=4 \
 torchrun --nproc_per_node=8 lstm6_stage1_pretrain_192_sample.py \
  > /home/omnisky/lstm6_half_patchsize8_col_mixer_branch.log 2>&1"
 
-试验A0：
+试验A0: 
 tmux new -s train -d \
 "PRETRAIN_CKPT=lstm5_a0.pth ABLATION=A0 SUBSET_CLASSES=500 PATCH_SIZE=16 STRIDE=16 EPOCHS=150 \
 torchrun --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation.py \
@@ -375,7 +375,7 @@ export STRIDE=16
 export AUTO_PATCH_DWT=1
 
 export ABLATION=A1
-export DWT_FUSE=add
+export DWT_FUSE=none
 export DISABLE_BRANCH=1
 
 export OUT_DIR=./outputs_pswf_paper
@@ -385,10 +385,8 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
     > /home/omnisky/smoke_tiny_A1.log 2>&1
 '"
 
-
-
 #==============================================
-# Baseline：A1（没有 PSWF）
+# 正则化测试:  Baseline: A1(没有 PSWF)测试
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -400,6 +398,7 @@ python -c \"import torch; print(torch.__version__, torch.__file__) \"
 which torchrun || true
 torchrun --version || true
 
+export DATA_SEED=1234
 export DATASET=tiny_imagenet
 export DATA_ROOT=../data/tiny-imagenet-200
 export MODEL_KIND=vil
@@ -416,96 +415,92 @@ export PATCH_SIZE=8
 export STRIDE=8
 export AUTO_PATCH_DWT=1
 
-export ABLATION=A1
-export DWT_FUSE=add
+export LABEL_SMOOTH=0.1
+export MIXUP_PROB=1.0
+export CUTMIX_ALPHA=1.0
+export MIXUP_ALPHA=0.0
+export SWITCH_PROB=1.0
 export DISABLE_BRANCH=1
 
 export OUT_DIR=./outputs_pswf_paper
-export RUN_TAG=tiny_vil_A1_ch32_patch8
+
+#==============================================
+# Baseline: A1
+#==============================================
+export ABLATION=A1
+export DWT_FUSE=none
+
+export RUN_TAG=tiny_vil_A1_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vil_A1_ch32_patch8.log 2>&1
-
-
-#==============================================
-# (2) PSWF 主线：W3 + add（先用轻量版本）
-#==============================================
-export ABLATION=W3
-export DWT_FUSE=add
-export FEAT_CH=32
-export PATCH_SIZE=8
-export STRIDE=8
-export AUTO_PATCH_DWT=1
-export RUN_TAG=tiny_vil_W3_add_ch32_patch8
-
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vil_W3_add_ch32_patch8.log 2>&1
+    > /home/omnisky/tiny_vil_A1_ch32_patch8_reg.log 2>&1
 
 #==============================================
-# (3) 关键消融：W3_POOL_ONLY（证明 wavelet 分支是否真的贡献）
+# (3) 关键消融: W3_POOL_ONLY(证明 wavelet 分支是否真的贡献)
 #==============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
-export FEAT_CH=32
-export PATCH_SIZE=8
-export STRIDE=8
-export AUTO_PATCH_DWT=1
-export RUN_TAG=tiny_vil_W3_poolonly_ch32_patch8
+export RUN_TAG=tiny_vil_W3_poolonly_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vil_W3_poolonly_ch32_patch8.log 2>&1
-
-
-#==============================================
-# add vs gated（第二优先级，但建议跑）
-#==============================================
-export DATASET=tiny_imagenet
-export DATA_ROOT=../data/tiny-imagenet-200
-export MODEL_KIND=vil
-export IMG_SIZE=64
-export EPOCHS=300
-export PER_GPU_BATCH=128
-export ACCUM_STEPS=1
-export AMP_DTYPE=bf16
-
-export DIM=192
-export DEPTH=12
-export FEAT_CH=32
-export PATCH_SIZE=8
-export STRIDE=8
-export AUTO_PATCH_DWT=1
-
-export ABLATION=W3
-export DWT_FUSE=gated
-export DISABLE_BRANCH=1
-
-export OUT_DIR=./outputs_pswf_paper
-export RUN_TAG=tiny_vil_W3_gated_ch32_patch8
-
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vil_W3_gated_ch32_patch8.log 2>&1
-
+    > /home/omnisky/tiny_vil_W3_poolonly_ch32_patch8_reg.log 2>&1
 
 #==============================================
-# “重/轻 PSWF 的 compute knob”
+# (2) PSWF 主线: W3(scale=0 + 加性融合, 与 W3_IMPROVED 一致, 只保留 W3)
 #==============================================
 export ABLATION=W3
-export PATCH_SIZE=8
-export STRIDE=8
 export DWT_FUSE=add
-export FEAT_CH=32,64,64
-export AUTO_PATCH_DWT=1
-export RUN_TAG=tiny_vil_W3_add_ch326464_patch8
+export RUN_TAG=tiny_vil_W3_add_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vil_W3_add_ch326464_patch8.log 2>&1
-
-
-
+    > /home/omnisky/tiny_vil_W3_add_ch32_patch8_reg.log 2>&1
 
 
 #==============================================
-# Plug-and-Play：ViT-Tiny（Tiny 上先跑两条就够）
+# (4) W3_IMPROVED_WARMUP + 小波融合模式对比(add vs multiply, 合并原4与4b, 去重)
+#==============================================
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+
+# 加性融合（主 RUN_TAG, 与原先 (4) 一致）
+export WAVELET_FUSE_MODE=add
+export RUN_TAG=tiny_vil_W3_improved_warmup_ch32_patch8_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_improved_warmup_ch32_patch8_reg.log 2>&1
+
+# 乘性融合
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=tiny_vil_W3_improved_warmup_ch32_patch8_reg_fuse_multiply
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_improved_warmup_ch32_patch8_reg_fuse_multiply.log 2>&1
+
+#==============================================
+# (4c) W3_TOKENONLY(只开 post-stem concat+1×1, 关掉 head residual)
+#==============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+
+unset WAVELET_FUSE_MODE
+
+export RUN_TAG=tiny_vil_W3_tokenonly_ch32_patch8_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_tokenonly_ch32_patch8_reg.log 2>&1
+
+#==============================================
+# (4d) W3_RESIDUALONLY(主路 pool-only, 单独开 head wavelet residual)
+#==============================================
+export ABLATION=W3_RESIDUALONLY
+export DWT_FUSE=none
+
+unset WAVELET_WARMUP_STEPS
+
+export RUN_TAG=tiny_vil_W3_residualonly_ch32_patch8_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_residualonly_ch32_patch8_reg.log 2>&1
+
+
+#==============================================
+# Plug-and-Play: ViT-Tiny(Tiny 上先跑两条就够)
 # ViT baseline
 #==============================================
 export DATASET=tiny_imagenet
@@ -524,54 +519,243 @@ export PATCH_SIZE=8
 export STRIDE=8
 export AUTO_PATCH_DWT=1
 
+export LABEL_SMOOTH=0.1
+export MIXUP_PROB=1.0
+export CUTMIX_ALPHA=1.0
+export MIXUP_ALPHA=0.0
+export SWITCH_PROB=1.0
+
 export ABLATION=A3
 export DWT_FUSE=add
 export DISABLE_BRANCH=1
 
 export OUT_DIR=./outputs_pswf_paper
-export RUN_TAG=tiny_vit_A3_ch32_patch8
+export RUN_TAG=tiny_vit_A3_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vit_A3_ch32_patch8.log 2>&1
-
-#==============================================
-# ViT + PSWF（只要把 ABLATION 改成 W3 即可启用 PSWF tokenizer）
-#==============================================
-export AUTO_PATCH_DWT=1
-export DISABLE_BRANCH=1
-export PATCH_SIZE=8
-export STRIDE=8
-
-export ABLATION=W3
-export DWT_FUSE=add
-
-export OUT_DIR=./outputs_pswf_paper
-export RUN_TAG=tiny_vit_pswf_W3_add_patch8
-
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vit_pswf_W3_add_patch8.log 2>&1
-
+    > /home/omnisky/tiny_vit_A3_ch32_patch8_reg.log 2>&1
 
 #==============================================
 # ViT + Pool Only
 #==============================================
-export AUTO_PATCH_DWT=1
-export DISABLE_BRANCH=1
-export PATCH_SIZE=8
-export STRIDE=8
-
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
 
 export OUT_DIR=./outputs_pswf_paper
-export RUN_TAG=tiny_vit_W3_poolonly_ch32_patch8
+export RUN_TAG=tiny_vit_W3_poolonly_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/tiny_vit_W3_poolonly_ch32_patch8.log 2>&1
+    > /home/omnisky/tiny_vit_W3_poolonly_ch32_patch8_reg.log 2>&1
+
+#==============================================
+# ViT + PSWF(只要把 ABLATION 改成 W3 即可启用 PSWF tokenizer)
+#==============================================
+
+export ABLATION=W3
+export DWT_FUSE=add
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_add_ch32_patch8_reg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_add_ch32_patch8_reg.log 2>&1
+
+#==============================================
+# ViT + W3_RESIDUAL(主路 pool-only, 小波单独残差调 CLS)
+#==============================================
+export ABLATION=W3_RESIDUAL
+export DWT_FUSE=add
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_residual_ch32_patch8_reg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_residual_ch32_patch8_reg.log 2>&1
 '"
 
 #==============================================
-# 第二阶段：ImageNet-1K 上做“主表最少点位”
+# Tiny-ImageNet 无正则 ABLATION（与有正则测试内容一致，仅关闭正则）
+#==============================================
+tmux new -s v5ab_tiny_noreg -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+echo ENV=$CONDA_DEFAULT_ENV
+which python
+python -c \"import torch; print(torch.__version__, torch.__file__) \"
+which torchrun || true
+torchrun --version || true
+
+export DATA_SEED=1234
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vil
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+# 无正则
+export LABEL_SMOOTH=0.0
+export MIXUP_PROB=0.0
+export CUTMIX_ALPHA=0.0
+export MIXUP_ALPHA=0.0
+export SWITCH_PROB=0.0
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+
+#==============================================
+# Baseline: A1
+#==============================================
+export ABLATION=A1
+export DWT_FUSE=none
+
+export RUN_TAG=tiny_vil_A1_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_A1_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# W3_POOL_ONLY
+#==============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export RUN_TAG=tiny_vil_W3_poolonly_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_poolonly_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# W3(scale=0 + 加性融合)
+#==============================================
+export ABLATION=W3
+export DWT_FUSE=add
+export RUN_TAG=tiny_vil_W3_add_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_add_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# W3_IMPROVED_WARMUP + 小波融合对比(add vs multiply)
+#==============================================
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+
+export WAVELET_FUSE_MODE=add
+export RUN_TAG=tiny_vil_W3_improved_warmup_ch32_patch8_noreg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_improved_warmup_ch32_patch8_noreg.log 2>&1
+
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=tiny_vil_W3_improved_warmup_ch32_patch8_noreg_fuse_multiply
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_improved_warmup_ch32_patch8_noreg_fuse_multiply.log 2>&1
+
+#==============================================
+# W3_TOKENONLY
+#==============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+
+unset WAVELET_FUSE_MODE
+
+export RUN_TAG=tiny_vil_W3_tokenonly_ch32_patch8_noreg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_tokenonly_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# W3_RESIDUALONLY
+#==============================================
+export ABLATION=W3_RESIDUALONLY
+export DWT_FUSE=none
+
+unset WAVELET_WARMUP_STEPS
+
+export RUN_TAG=tiny_vil_W3_residualonly_ch32_patch8_noreg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_residualonly_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# ViT-Tiny: 无正则，与有正则相同 ablations
+#==============================================
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vit_tiny
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+export LABEL_SMOOTH=0.0
+export MIXUP_PROB=0.0
+export CUTMIX_ALPHA=0.0
+export MIXUP_ALPHA=0.0
+export SWITCH_PROB=0.0
+
+export ABLATION=A3
+export DWT_FUSE=add
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_A3_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_A3_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# ViT + W3_POOL_ONLY
+#==============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_poolonly_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_poolonly_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# ViT + W3 (PSWF)
+#==============================================
+export ABLATION=W3
+export DWT_FUSE=add
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_add_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_add_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# ViT + W3_RESIDUAL
+#==============================================
+export ABLATION=W3_RESIDUAL
+export DWT_FUSE=add
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_residual_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_residual_ch32_patch8_noreg.log 2>&1
+'"
+
+#==============================================
+# 第二阶段: ImageNet-1K VIL 正则 PSWF 测试(A1 / W3_IMPROVED_WARMUP / W3_POOL_ONLY)
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -588,7 +772,7 @@ export DATA_ROOT=../data/imagenet_dataset
 export MODEL_KIND=vil
 
 export IMG_SIZE=192
-export EPOCHS=200
+export EPOCHS=100
 export PER_GPU_BATCH=32
 export ACCUM_STEPS=1
 export AMP_DTYPE=bf16
@@ -604,62 +788,125 @@ export WARMUP_EPOCHS=5
 export WEIGHT_DECAY=0.05
 export EMA_DECAY=0.9997
 
-# 为了让“时间对比”更干净，建议先关掉 mixup/ls
+# 正则化参数(与 ViT 正则实验一致)
+export LABEL_SMOOTH=0.1
+export MIXUP_PROB=1.0
+export CUTMIX_ALPHA=1.0
 export MIXUP_ALPHA=0.0
-export CUTMIX_ALPHA=0.0
-export MIXUP_PROB=0.0
-export LABEL_SMOOTH=0.0
+export SWITCH_PROB=1.0
 
 export DISABLE_BRANCH=1
 export OUT_DIR=./outputs_pswf_paper
 
 #=============================================
-# 3.1 Baseline（A1）
+# 3.1 VIL Baseline(A1)
 #=============================================
 export ABLATION=A1
-export DWT_FUSE=add
+export DWT_FUSE=none
 export FEAT_CH=32
-export RUN_TAG=in1k192_vil_A1_ch326464
+export RUN_TAG=in1k192_vil_A1_ch32_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_A1_ch326464.log 2>&1
+    > /home/omnisky/in1k192_vil_A1_ch32_reg.log 2>&1
+
 
 #=============================================
-# 3.2 轻 PSWF（W3）
-#=============================================
-export ABLATION=W3
-export DWT_FUSE=add
-export FEAT_CH=32
-export RUN_TAG=in1k192_vil_W3_add_ch32
-
-python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_add_ch32.log 2>&1
-
-#=============================================
-# 3.3 pool-only（W3_POOL_ONLY）
+# 3.3 VIL + Pool Only(W3_POOL_ONLY)
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
 export FEAT_CH=32
-export RUN_TAG=in1k192_vil_W3_poolonly_ch32
+unset WAVELET_WARMUP_STEPS
+export RUN_TAG=in1k192_vil_W3_poolonly_ch32_reg
+
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_poolonly_ch32.log 2>&1
+    > /home/omnisky/in1k192_vil_W3_poolonly_ch32_reg.log 2>&1
 
 #=============================================
-# （可选但建议）重 PSWF（展示训练加速 knob）
+# 3.2b 小波融合模式对比(add vs multiply, 需单独跑两次对比)
+# 环境变量 WAVELET_FUSE_MODE=add(加性)或 multiply(乘性)
 #=============================================
-export ABLATION=W3
+# 加性融合
+export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
-export FEAT_CH=32,64,64
-export RUN_TAG=in1k192_vil_W3_add_ch326464
+export FEAT_CH=32
+export WAVELET_WARMUP_STEPS=20000
+export WAVELET_FUSE_MODE=add
+export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg_fuse_add
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vil_W3_add_ch326464.log 2>&1
+    > /home/omnisky/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_add.log 2>&1
+
+# 乘性融合
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply.log 2>&1
+
+#=============================================
+# 3.2c VIL + W3_TOKENONLY(只开 post-stem concat+1×1, 关掉 head residual)
+#=============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+export FEAT_CH=32
+unset WAVELET_FUSE_MODE
+export RUN_TAG=in1k192_vil_W3_tokenonly_ch32_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vil_W3_tokenonly_ch32_reg.log 2>&1
+
+#=============================================
+# 3.2d VIL + W3_RESIDUALONLY(主路 pool-only, 单独开 head wavelet residual)
+#=============================================
+export ABLATION=W3_RESIDUALONLY
+export DWT_FUSE=none
+export FEAT_CH=32
+unset WAVELET_WARMUP_STEPS
+export RUN_TAG=in1k192_vil_W3_residualonly_ch32_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vil_W3_residualonly_ch32_reg.log 2>&1
+
+#=============================================
+# ImageNet-1K ViT 配置
+#=============================================
+export MODEL_KIND=vit_tiny
+
+#=============================================
+# 4.1 ViT Baseline(A3)
+#=============================================
+export ABLATION=A3
+export DWT_FUSE=add
+export FEAT_CH=32
+export RUN_TAG=in1k192_vit_A3_ch32
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_A3_ch32.log 2>&1
+
+#=============================================
+# 4.2 ViT + Pool Only(W3_POOL_ONLY)
+#=============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export FEAT_CH=32
+export RUN_TAG=in1k192_vit_W3_poolonly_ch32
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_W3_poolonly_ch32.log 2>&1
+
+#=============================================
+# 4.3 ViT + W3_RESIDUAL(主路 pool-only, 小波单独残差调 CLS)
+#=============================================
+export ABLATION=W3_RESIDUAL
+export DWT_FUSE=add
+export FEAT_CH=32
+export RUN_TAG=in1k192_vit_W3_residual_ch32
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_W3_residual_ch32.log 2>&1
 
 '"
 
 
 #==============================================
-# 第三阶段：Tiny-ImageNet-C VIL测试
+# 第三阶段: Tiny-ImageNet-C VIL测试
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -694,10 +941,10 @@ export DISABLE_BRANCH=1
 
 
 #=============================================
-# 评 Baseline：Tiny-ViL A1 ch32
+# 评 Baseline: Tiny-ViL A1 ch32
 #=============================================
 export ABLATION=A1
-export DWT_FUSE=add
+export DWT_FUSE=none
 export RUN_TAG=eval_tinyc_vil_A1_ch32
 export CKPT=outputs_pswf_paper/tiny_vil_A1_ch32/ema_best.pth
 
@@ -707,7 +954,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #=============================================
-# 评 PSWF：Tiny-ViL W3 add ch32
+# 评 PSWF: Tiny-ViL W3 add ch32
 #=============================================
 export ABLATION=W3
 export DWT_FUSE=add
@@ -720,7 +967,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #=============================================
-# 评 Pool-only：Tiny-ViL W3_poolonly ch32
+# 评 Pool-only: Tiny-ViL W3_poolonly ch32
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
@@ -735,7 +982,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #==============================================
-# 第三阶段：Tiny-ImageNet-C VIT测试
+# 第三阶段: Tiny-ImageNet-C VIT测试
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -770,7 +1017,7 @@ export DISABLE_BRANCH=1
 
 
 #=============================================
-# 评 Baseline：Tiny-ViT A3 ch32
+# 评 Baseline: Tiny-ViT A3 ch32
 #=============================================
 export ABLATION=A3
 export DWT_FUSE=add
@@ -782,7 +1029,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #=============================================
-# 评 PSWF：Tiny-ViL W3 add ch32
+# 评 PSWF: Tiny-ViL W3 add ch32
 #=============================================
 export ABLATION=W3
 export DWT_FUSE=add
@@ -795,7 +1042,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 
 
 #=============================================
-# 评 Pool-only：Tiny-ViL W3_poolonly ch32
+# 评 Pool-only: Tiny-ViL W3_poolonly ch32
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
@@ -809,7 +1056,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 '"
 
 #==============================================
-# Plug-and-Play：ViT-Tiny LL 训练
+# Plug-and-Play: ViT-Tiny LL 训练
 #==============================================
 tmux new -s v5ab -d "bash -lc '
 set -e
@@ -924,7 +1171,7 @@ export STRIDE=16
 export AUTO_PATCH_DWT=1
 
 #==============================================
-# (2) PSWF 主线：W3 + add（先用轻量版本）
+# (2) PSWF 主线: W3 + add(先用轻量版本)
 #==============================================
 export ABLATION=W3
 export DWT_FUSE=LL
@@ -971,7 +1218,7 @@ export AUTO_PATCH_DWT=1
 export DISABLE_BRANCH=1
 
 #=============================================
-# 评 PSWF：Tiny-ViL W3 add ch32
+# 评 PSWF: Tiny-ViL W3 add ch32
 #=============================================
 export ABLATION=W3
 export DWT_FUSE=LL
@@ -984,4 +1231,268 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 '"
 
 
-#### tiny image net 上训练 参数修改，patch_size=8; AUTO_PATCH_DWT=1; 另外还要补充label_smooth=0.1 + cutmix的试验。
+#### tiny image net 上训练 参数修改, patch_size=8; AUTO_PATCH_DWT=1; 另外还要补充label_smooth=0.1 + cutmix的试验。
+
+
+#==============================================
+# 第三阶段: PATCHSIZE 8 Tiny-ImageNet-C VIL测试
+#==============================================
+tmux new -s v5ab -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+echo ENV=$CONDA_DEFAULT_ENV
+which python
+python -c \"import torch; print(torch.__version__, torch.__file__) \"
+which torchrun || true
+torchrun --version || true
+
+
+export MODE=eval_imagenetc
+export DATASET=tiny_imagenet
+export DATA_ROOT=/home/omnisky/Public/edward/workspace/data/tiny-imagenet-200
+export IMAGENETC_ROOT=/home/omnisky/Public/edward/workspace/data/Tiny-ImageNet-C
+
+export IMG_SIZE=64
+export PER_GPU_BATCH=256
+export NUM_WORKERS=8
+export AMP_DTYPE=bf16
+export OUT_DIR=./outputs_pswf_paper
+
+export MODEL_KIND=vil
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+
+
+#=============================================
+# 评 Baseline: Tiny-ViL A1 ch32
+#=============================================
+export ABLATION=A1
+export DWT_FUSE=none
+export RUN_TAG=eval_tinyc_vil_A1_ch32_patch8_reg
+export CKPT=test/tiny_vil_A1_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vil_A1_ch32_patch8_reg.log 2>&1
+
+
+
+#=============================================
+# 评 PSWF: Tiny-ViL W3 add ch32
+#=============================================
+export ABLATION=W3
+export DWT_FUSE=add
+export FEAT_CH=32
+export RUN_TAG=eval_tinyc_vil_W3_add_ch32_patch8_reg
+export CKPT=test/tiny_vil_W3_add_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vil_W3_add_ch32_patch8_reg.log 2>&1
+
+
+#=============================================
+# 评 Pool-only: Tiny-ViL W3_poolonly ch32
+#=============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export FEAT_CH=32
+export RUN_TAG=eval_tinyc_vil_W3_poolonly_ch322_patch8_reg
+export CKPT=test/tiny_vil_W3_poolonly_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vil_W3_poolonly_ch322_patch8_reg.log 2>&1
+
+
+#==============================================
+# 第三阶段: Tiny-ImageNet-C VIT测试
+#==============================================
+export MODE=eval_imagenetc
+export DATASET=tiny_imagenet
+export DATA_ROOT=/home/omnisky/Public/edward/workspace/data/tiny-imagenet-200
+export IMAGENETC_ROOT=/home/omnisky/Public/edward/workspace/data/Tiny-ImageNet-C
+
+export IMG_SIZE=64
+export PER_GPU_BATCH=256
+export NUM_WORKERS=8
+export AMP_DTYPE=bf16
+export OUT_DIR=./outputs_pswf_paper
+
+export MODEL_KIND=vit_tiny
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+
+
+#=============================================
+# 评 Baseline: Tiny-ViT A3 ch32
+#=============================================
+export ABLATION=A3
+export DWT_FUSE=add
+export RUN_TAG=eval_tinyc_vit_A3_ch32_patch8_reg
+export CKPT=test/tiny_vit_A3_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vit_A3_ch32_patch8_reg.log 2>&1
+
+
+#=============================================
+# 评 PSWF: Tiny-ViL W3 add ch32
+#=============================================
+export ABLATION=W3
+export DWT_FUSE=add
+export FEAT_CH=32
+export RUN_TAG=eval_tinyc_vit_W3_add_ch32_patch8_reg
+export CKPT=test/tiny_vit_W3_add_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vit_W3_add_ch32_patch8_reg.log 2>&1
+
+
+#=============================================
+# 评 Pool-only: Tiny-ViL W3_poolonly ch32
+#=============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export FEAT_CH=32
+export RUN_TAG=eval_tinyc_vit_W3_poolonly_ch32_patch8_reg
+export CKPT=test/tiny_vit_W3_poolonly_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vit_W3_poolonly_ch32_patch8_reg.log 2>&1
+
+'"
+
+
+
+
+#==============================================
+# ch32,64,64测试
+#==============================================
+tmux new -s v5ab -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+echo ENV=$CONDA_DEFAULT_ENV
+which python
+python -c \"import torch; print(torch.__version__, torch.__file__) \"
+which torchrun || true
+torchrun --version || true
+
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vil
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+export ABLATION=A1
+export DWT_FUSE=none
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vil_A1_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_A1_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# (3) 关键消融: W3_POOL_ONLY(证明 wavelet 分支是否真的贡献)
+#==============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+export RUN_TAG=tiny_vil_W3_poolonly_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_poolonly_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# Plug-and-Play: ViT-Tiny(Tiny 上先跑两条就够)
+# ViT baseline
+#==============================================
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vit_tiny
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+export ABLATION=A3
+export DWT_FUSE=add
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_A3_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_A3_ch326464_patch8.log 2>&1
+
+#==============================================
+# ViT + PSWF(只要把 ABLATION 改成 W3 即可启用 PSWF tokenizer)
+#==============================================
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+export PATCH_SIZE=8
+export STRIDE=8
+
+export FEAT_CH=32,64,64
+export ABLATION=W3
+export DWT_FUSE=add
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_pswf_W3_add_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_pswf_W3_add_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# ViT + Pool Only
+#==============================================
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+export PATCH_SIZE=8
+export STRIDE=8
+
+export FEAT_CH=32,64,64
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_poolonly_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_poolonly_ch326464_patch8.log 2>&1
+'"
