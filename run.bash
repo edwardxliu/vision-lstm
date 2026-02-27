@@ -464,7 +464,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
 export WAVELET_SCALE_INIT=0.1
-export WAVELET_WARMUP_STEPS=20000
+export WAVELET_WARMUP_STEPS=10000
 
 # 加性融合（主 RUN_TAG, 与原先 (4) 一致）
 export WAVELET_FUSE_MODE=add
