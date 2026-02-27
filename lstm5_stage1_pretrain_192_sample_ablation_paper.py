@@ -457,7 +457,8 @@ class ViTTiny(nn.Module):
         self.pswf_embed = pswf_embed
         # 仅在 ViT + PSWF 下启用的轻量 gate，用 wavelet 特征对 cls token 做微调
         self.pswf_gate = pswf_gate
-        self.wavelet_scale = nn.Parameter(torch.tensor(0.1)) if pswf_gate is not None else None
+        # 与 VIL 保持一致：默认从 0 开始，由训练自适应学习有效 scale
+        self.wavelet_scale = nn.Parameter(torch.tensor(0.0)) if pswf_gate is not None else None
 
         if patch_embed is None:
             # standard patch embedding from RGB
@@ -977,6 +978,8 @@ def main():
             # stem 不做 DWT（避免误读：dwt_fuse 在 use_dwt=False 时无意义）
             stem = FeatureExtractor(input_channels=3, conv_channels=feat_ch, use_dwt=False, dwt_fuse="none")
 
+            # ViT 也支持 tokenization-only：仅改 tokenizer，不做 head-level modulation，便于写清「可插拔 tokenization」收益
+            token_only = "TOKENONLY" in ab_u or ab_u == "W3_TOKENONLY"
             # W3_RESIDUAL：主路径 pool-only，小波单独一路 -> gate 调制 CLS，梯度直通
             use_residual = ("RESIDUAL" in ab_u) or (ab_u == "W3_RESIDUAL")
             if use_residual:
@@ -984,14 +987,15 @@ def main():
                 dwt_module = DWTPreprocessor(channels=stem.final_channels, dwt_fuse="add")
                 pswf_embed = StemWithWaveletResidual(stem, post_pool_only, dwt_module)
                 main_ch = post_pool_only.out_channels
-                pswf_gate = WaveletGlobalGate(in_channels=dwt_module.out_channels, dim=dim)
+                pswf_gate = None if token_only else WaveletGlobalGate(in_channels=dwt_module.out_channels, dim=dim)
             else:
-                # W3_POOL_ONLY => 关闭 wavelet 分支，仅保留 pooled downsample 路径
+                # W3_POOL_ONLY => 关闭 wavelet 分支，仅保留 pooled downsample 路径；同时不再对 CLS 做 head-level gate
                 dwt_fuse_eff = "none" if pool_only else dwt_fuse
                 post = PostStemWaveletMerge(channels=stem.final_channels, dwt_fuse=dwt_fuse_eff, merge="concat")
                 pswf_embed = nn.Sequential(stem, post)
                 main_ch = post.out_channels
-                pswf_gate = WaveletGlobalGate(in_channels=main_ch, dim=dim)
+                # 对于 TOKENONLY 或 POOL_ONLY，都不创建 pswf_gate，保证其为「纯 tokenizer」配置
+                pswf_gate = None if (token_only or pool_only) else WaveletGlobalGate(in_channels=main_ch, dim=dim)
 
             pe_res = (img_size // 2, img_size // 2)
             if bool(auto_patch_dwt):
