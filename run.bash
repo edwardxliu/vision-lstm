@@ -777,12 +777,14 @@ python -c \"import torch; print(torch.__version__, torch.__file__) \"
 which torchrun || true
 torchrun --version || true
 
+export DATA_SEED=1234
 export DATASET=imagenet
 export DATA_ROOT=../data/imagenet_dataset
 export MODEL_KIND=vil
+export NUM_WORKERS=8
 
 export IMG_SIZE=192
-export EPOCHS=100
+export EPOCHS=50
 export PER_GPU_BATCH=32
 export ACCUM_STEPS=1
 export AMP_DTYPE=bf16
@@ -819,18 +821,29 @@ export RUN_TAG=in1k192_vil_A1_ch32_reg
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vil_A1_ch32_reg.log 2>&1
 
-
 #=============================================
 # 3.3 VIL + Pool Only(W3_POOL_ONLY)
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
-export FEAT_CH=32
 unset WAVELET_WARMUP_STEPS
 export RUN_TAG=in1k192_vil_W3_poolonly_ch32_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vil_W3_poolonly_ch32_reg.log 2>&1
+
+#=============================================
+# 3.2 VIL + W3 (PSWF add)
+#=============================================
+export ABLATION=W3
+export DWT_FUSE=add
+unset WAVELET_WARMUP_STEPS
+unset WAVELET_SCALE_INIT
+export RUN_TAG=in1k192_vil_W3_add_ch32_reg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vil_W3_add_ch32_reg.log 2>&1
+
 
 #=============================================
 # 3.2b 小波融合模式对比(add vs multiply, 需单独跑两次对比)
@@ -839,8 +852,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 # 加性融合
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
-export FEAT_CH=32
-export WAVELET_WARMUP_STEPS=20000
+export WAVELET_WARMUP_STEPS=40000
 export WAVELET_SCALE_INIT=0.1
 export WAVELET_FUSE_MODE=add
 export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg_fuse_add
@@ -858,7 +870,6 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
-export FEAT_CH=32
 unset WAVELET_FUSE_MODE
 unset WAVELET_SCALE_INIT
 export RUN_TAG=in1k192_vil_W3_tokenonly_ch32_reg
@@ -870,7 +881,6 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 export ABLATION=W3_RESIDUALONLY
 export DWT_FUSE=none
-export FEAT_CH=32
 unset WAVELET_WARMUP_STEPS
 unset WAVELET_SCALE_INIT
 export RUN_TAG=in1k192_vil_W3_residualonly_ch32_reg
@@ -881,6 +891,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 # ImageNet-1K ViT 配置
 #=============================================
 export MODEL_KIND=vit_tiny
+
 
 #=============================================
 # 4.1 ViT Baseline(A3)
@@ -893,8 +904,9 @@ export RUN_TAG=in1k192_vit_A3_ch32
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vit_A3_ch32.log 2>&1
 
+
 #=============================================
-# 4.2 ViT + Pool Only(W3_POOL_ONLY)
+# 4.3 ViT + Pool Only(W3_POOL_ONLY)
 #=============================================
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
@@ -904,8 +916,20 @@ export RUN_TAG=in1k192_vit_W3_poolonly_ch32
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vit_W3_poolonly_ch32.log 2>&1
 
+
 #=============================================
-# 4.3 ViT + W3_RESIDUAL(主路 pool-only, 小波单独残差调 CLS)
+# 4.2 ViT + W3 (PSWF add)
+#=============================================
+export ABLATION=W3
+export DWT_FUSE=add
+export RUN_TAG=in1k192_vit_W3_add_ch32
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_W3_add_ch32.log 2>&1
+
+
+#=============================================
+# 4.4 ViT + W3_RESIDUAL(主路 pool-only, 小波单独残差调 CLS)
 #=============================================
 export ABLATION=W3_RESIDUAL
 export DWT_FUSE=add
