@@ -484,6 +484,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 
+unset WAVELET_WARMUP_STEPS
 unset WAVELET_FUSE_MODE
 unset WAVELET_SCALE_INIT
 
@@ -564,6 +565,17 @@ export RUN_TAG=tiny_vit_W3_add_ch32_patch8_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/tiny_vit_W3_add_ch32_patch8_reg.log 2>&1
+
+#==============================================
+# ViT + W3_TOKENONLY(仅 tokenization, 无 head modulation，便于写清可插拔 tokenization 收益)
+#==============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_tokenonly_ch32_patch8_reg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_tokenonly_ch32_patch8_reg.log 2>&1
 
 #==============================================
 # ViT + W3_RESIDUAL(主路 pool-only, 小波单独残差调 CLS)
@@ -673,6 +685,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 
+unset WAVELET_WARMUP_STEPS
 unset WAVELET_FUSE_MODE
 unset WAVELET_SCALE_INIT
 
@@ -750,6 +763,17 @@ export RUN_TAG=tiny_vit_W3_add_ch32_patch8_noreg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/tiny_vit_W3_add_ch32_patch8_noreg.log 2>&1
+
+#==============================================
+# ViT + W3_TOKENONLY(仅 tokenization, 无 head modulation)
+#==============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_tokenonly_ch32_patch8_noreg
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_tokenonly_ch32_patch8_noreg.log 2>&1
 
 #==============================================
 # ViT + W3_RESIDUAL
@@ -870,6 +894,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
+unset WAVELET_WARMUP_STEPS
 unset WAVELET_FUSE_MODE
 unset WAVELET_SCALE_INIT
 export RUN_TAG=in1k192_vil_W3_tokenonly_ch32_reg
@@ -926,6 +951,18 @@ export RUN_TAG=in1k192_vit_W3_add_ch32
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vit_W3_add_ch32.log 2>&1
+
+
+#=============================================
+# 4.2b ViT + W3_TOKENONLY(仅 tokenization, 无 head modulation)
+#=============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+export FEAT_CH=32
+export RUN_TAG=in1k192_vit_W3_tokenonly_ch32
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_W3_tokenonly_ch32.log 2>&1
 
 
 #=============================================
@@ -1034,6 +1071,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 # VIL: W3_TOKENONLY
 #=============================================
+unset WAVELET_WARMUP_STEPS
 unset WAVELET_FUSE_MODE
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
@@ -1098,6 +1136,17 @@ export CKPT=outputs_pswf_paper/tiny_vit_W3_add_ch32_patch8_reg/ema_best.pth
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/eval_tinyc_vit_W3_add_ch32_patch8_reg.log 2>&1
+
+#=============================================
+# ViT: W3_TOKENONLY(仅 tokenization, 无 head modulation)
+#=============================================
+export ABLATION=W3_TOKENONLY
+export DWT_FUSE=add
+export RUN_TAG=eval_tinyc_vit_W3_tokenonly_ch32_patch8_reg
+export CKPT=outputs_pswf_paper/tiny_vit_W3_tokenonly_ch32_patch8_reg/ema_best.pth
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/eval_tinyc_vit_W3_tokenonly_ch32_patch8_reg.log 2>&1
 
 #=============================================
 # ViT: W3_POOL_ONLY

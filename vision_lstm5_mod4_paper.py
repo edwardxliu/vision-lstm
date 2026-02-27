@@ -1478,15 +1478,14 @@ class VisionLSTM2(nn.Module):
             w = self.dwt_for_residual(stem_out) if self.dwt_for_residual is not None else self.post_stem.dwt(stem_out)
             vec = self.wavelet_residual(w)
             
-            # 改进1: Warmup - 如果设置了 warmup_steps，前 N 步内 scale 从 0 线性增长
-            if self.wavelet_warmup_steps > 0:
+            # 改进1: Warmup - 仅训练时生效；eval 时固定 warmup_factor=1.0，避免评测随 batch 顺序变化
+            if self.wavelet_warmup_steps > 0 and self.training:
                 # 优先使用外部传入的 global_step，否则使用内部计数器
                 if self._current_global_step.item() >= 0:
                     global_step = self._current_global_step.item()
                 else:
                     global_step = self._wavelet_step.item()
                     self._wavelet_step += 1
-                
                 warmup_factor = min(1.0, max(0.0, float(global_step) / self.wavelet_warmup_steps))
             else:
                 warmup_factor = 1.0
