@@ -567,6 +567,33 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
     > /home/omnisky/tiny_vit_W3_add_ch32_patch8_reg.log 2>&1
 
 #==============================================
+# ViT + W3_IMPROVED_WARMUP (Tiny, 正则版, 加性 vs 乘性)
+# 与 VIL Tiny 正则部分保持一致：使用 W3_IMPROVED_WARMUP + WAVELET_WARMUP_STEPS=10000 + WAVELET_SCALE_INIT=0.1
+# 通过 WAVELET_FUSE_MODE=add/multiply 对比融合方式
+#==============================================
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export WAVELET_WARMUP_STEPS=10000
+export WAVELET_SCALE_INIT=0.1
+
+# 加性融合
+export WAVELET_FUSE_MODE=add
+export RUN_TAG=tiny_vit_W3_improved_warmup_ch32_patch8_reg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_improved_warmup_ch32_patch8_reg.log 2>&1
+
+# 乘性融合
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=tiny_vit_W3_improved_warmup_ch32_patch8_reg_fuse_multiply
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_improved_warmup_ch32_patch8_reg_fuse_multiply.log 2>&1
+
+# 清理 wavelet 相关环境变量，避免影响后续 TOKENONLY / RESIDUAL
+unset WAVELET_WARMUP_STEPS
+unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
+
+#==============================================
 # ViT + W3_TOKENONLY(仅 tokenization, 无 head modulation，便于写清可插拔 tokenization 收益)
 #==============================================
 export ABLATION=W3_TOKENONLY
@@ -664,7 +691,7 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #==============================================
 # W3_IMPROVED_WARMUP + 小波融合对比(add vs multiply)
 #==============================================
-export WAVELET_WARMUP_STEPS=20000
+export WAVELET_WARMUP_STEPS=10000
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
 export WAVELET_SCALE_INIT=0.1
@@ -765,6 +792,30 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
     > /home/omnisky/tiny_vit_W3_add_ch32_patch8_noreg.log 2>&1
 
 #==============================================
+# ViT + W3_IMPROVED_WARMUP (Tiny, 无正则版, 加性 vs 乘性)
+# 与 VIL Tiny 无正则部分保持一致：使用 W3_IMPROVED_WARMUP + WAVELET_WARMUP_STEPS=10000 + WAVELET_SCALE_INIT=0.1
+# 通过 WAVELET_FUSE_MODE=add/multiply 对比融合方式
+#==============================================
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export WAVELET_WARMUP_STEPS=10000
+export WAVELET_SCALE_INIT=0.1
+
+export WAVELET_FUSE_MODE=add
+export RUN_TAG=tiny_vit_W3_improved_warmup_ch32_patch8_noreg
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_improved_warmup_ch32_patch8_noreg.log 2>&1
+
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=tiny_vit_W3_improved_warmup_ch32_patch8_noreg_fuse_multiply
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_improved_warmup_ch32_patch8_noreg_fuse_multiply.log 2>&1
+
+unset WAVELET_WARMUP_STEPS
+unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
+
+#==============================================
 # ViT + W3_TOKENONLY(仅 tokenization, 无 head modulation)
 #==============================================
 export ABLATION=W3_TOKENONLY
@@ -812,6 +863,7 @@ export EPOCHS=50
 export PER_GPU_BATCH=32
 export ACCUM_STEPS=1
 export AMP_DTYPE=bf16
+export FEAT_CH=32
 
 export DIM=192
 export DEPTH=12
@@ -839,7 +891,6 @@ export OUT_DIR=./outputs_pswf_paper
 #=============================================
 export ABLATION=A1
 export DWT_FUSE=none
-export FEAT_CH=32
 export RUN_TAG=in1k192_vil_A1_ch32_reg
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -951,6 +1002,26 @@ export RUN_TAG=in1k192_vit_W3_add_ch32
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/in1k192_vit_W3_add_ch32.log 2>&1
+
+
+#=============================================
+# 4.2c ViT + W3_IMPROVED_WARMUP (PSWF multiply, 带 wavelet warmup)
+# 与 VIL 部分对齐：使用 W3_IMPROVED_WARMUP + WAVELET_WARMUP_STEPS=40000 + WAVELET_SCALE_INIT=0.1 + multiply 融合
+#=============================================
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export WAVELET_WARMUP_STEPS=40000
+export WAVELET_SCALE_INIT=0.1
+export WAVELET_FUSE_MODE=multiply
+export RUN_TAG=in1k192_vit_W3_improved_warmup_ch32_fuse_multiply
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/in1k192_vit_W3_improved_warmup_ch32_fuse_multiply.log 2>&1
+
+# 清理 wavelet 相关环境变量，避免影响后续 TOKENONLY / RESIDUAL
+unset WAVELET_WARMUP_STEPS
+unset WAVELET_FUSE_MODE
+unset WAVELET_SCALE_INIT
 
 
 #=============================================
