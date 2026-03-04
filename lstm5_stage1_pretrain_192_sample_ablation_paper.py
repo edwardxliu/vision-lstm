@@ -449,7 +449,10 @@ class ViTTiny(nn.Module):
                  drop: float = 0.0, attn_drop: float = 0.0,
                  pswf_embed: Optional[nn.Module] = None,
                  patch_embed: Optional[nn.Module] = None,
-                 pswf_gate: Optional[nn.Module] = None):
+                 pswf_gate: Optional[nn.Module] = None,
+                 wavelet_warmup_steps: int = 0,
+                 wavelet_fuse_mode: str = "add",
+                 wavelet_scale_init: float = 0.0):
         super().__init__()
         self.img_size = img_size
         self.patch_size = patch_size
@@ -457,8 +460,17 @@ class ViTTiny(nn.Module):
         self.pswf_embed = pswf_embed
         # 仅在 ViT + PSWF 下启用的轻量 gate，用 wavelet 特征对 cls token 做微调
         self.pswf_gate = pswf_gate
-        # 与 VIL 保持一致：默认从 0 开始，由训练自适应学习有效 scale
-        self.wavelet_scale = nn.Parameter(torch.tensor(0.0)) if pswf_gate is not None else None
+        # 与 VIL 保持一致：通过可学习的 scale 和可选 warmup 控制小波残差强度
+        if pswf_gate is not None:
+            self.wavelet_scale = nn.Parameter(torch.tensor(float(wavelet_scale_init)))
+            self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+            self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+            self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+            self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+        else:
+            self.wavelet_scale = None
+            self.wavelet_warmup_steps = 0
+            self.wavelet_fuse_mode = "add"
 
         if patch_embed is None:
             # standard patch embedding from RGB
@@ -486,6 +498,14 @@ class ViTTiny(nn.Module):
         self.blocks = nn.Sequential(*[ViTBlock(dim, heads, mlp_ratio=4.0, attn_drop=attn_drop, drop=drop) for _ in range(depth)])
         self.norm = nn.LayerNorm(dim)
         self.head = nn.Linear(dim, num_classes)
+
+    def set_wavelet_global_step(self, global_step: int):
+        """
+        为 ViT + PSWF 提供与 VIL 一致的接口，用于控制小波 warmup 的当前 global_step。
+        仅在启用了 pswf_gate 且 wavelet_warmup_steps>0 时生效。
+        """
+        if self.wavelet_scale is not None and self.wavelet_warmup_steps > 0:
+            self._current_global_step.fill_(global_step)
 
     def forward(self, x):
         gate_vec = None
@@ -515,9 +535,24 @@ class ViTTiny(nn.Module):
         x = self.blocks(x)
         x = self.norm(x)
         cls = x[:, 0]
-        # 轻量残差调制：cls' = cls + scale * tanh(gate)，scale 可学习
-        if gate_vec is not None:
-            cls = cls + self.wavelet_scale * torch.tanh(gate_vec.to(cls.dtype))
+        # 轻量小波调制：支持可选 warmup 与加性/乘性融合
+        if gate_vec is not None and self.wavelet_scale is not None:
+            if self.wavelet_warmup_steps > 0 and self.training:
+                if self._current_global_step.item() >= 0:
+                    global_step = self._current_global_step.item()
+                else:
+                    global_step = self._wavelet_step.item()
+                    self._wavelet_step += 1
+                warmup_factor = min(1.0, max(0.0, float(global_step) / self.wavelet_warmup_steps))
+            else:
+                warmup_factor = 1.0
+
+            effective_scale = self.wavelet_scale * warmup_factor
+            gate_vec_t = torch.tanh(gate_vec.to(cls.dtype))
+            if self.wavelet_fuse_mode == "multiply":
+                cls = cls * (1.0 + effective_scale * gate_vec_t)
+            else:
+                cls = cls + effective_scale * gate_vec_t
         return self.head(cls)
 
 
@@ -975,6 +1010,14 @@ def main():
                 StemWithWaveletResidual, DWTPreprocessor,
             )
 
+            # ViT 小波 warmup / 融合模式（仅在 W3_IMPROVED_WARMUP 等需要时启用）
+            vit_wavelet_warmup_steps = 0
+            vit_wavelet_fuse_mode = "add"
+            vit_wavelet_scale_init = env_float("WAVELET_SCALE_INIT", 0.0)
+            if ab_u == "W3_IMPROVED_WARMUP":
+                vit_wavelet_warmup_steps = int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else 5000
+                vit_wavelet_fuse_mode = os.environ.get("WAVELET_FUSE_MODE") or "multiply"
+
             # stem 不做 DWT（避免误读：dwt_fuse 在 use_dwt=False 时无意义）
             stem = FeatureExtractor(input_channels=3, conv_channels=feat_ch, use_dwt=False, dwt_fuse="none")
 
@@ -1013,7 +1056,10 @@ def main():
             model = ViTTiny(
                 img_size=img_size, patch_size=patch_size, num_classes=num_classes,
                 dim=dim, depth=depth, heads=max(1, dim // 64),
-                pswf_embed=pswf_embed, patch_embed=patch_embed, pswf_gate=pswf_gate
+                pswf_embed=pswf_embed, patch_embed=patch_embed, pswf_gate=pswf_gate,
+                wavelet_warmup_steps=vit_wavelet_warmup_steps,
+                wavelet_fuse_mode=vit_wavelet_fuse_mode,
+                wavelet_scale_init=vit_wavelet_scale_init,
             )
         else:
             if ab_u not in ("", "A3"):
