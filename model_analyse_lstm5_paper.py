@@ -147,21 +147,56 @@ def try_build_model_via_train_script(train_script: str) -> Optional[Tuple[torch.
     print(f"[build] Train-script imported but no known builder found in {train_script}")
     return None
 
-def resolve_ablation_flags(ablation: str) -> Dict[str, Any]:
+def resolve_ablation_flags(ablation: str, baseline_ablation: str = "A0") -> Dict[str, Any]:
+    """
+    与 run.bash / lstm5_stage1_pretrain_192_sample_ablation_paper.get_ablation_cfg 对齐的 ablation 映射。
+    - A0/A1/A2/A3：stem/DWT 路径（传统 baseline）
+    - W3 / W3_POOL_ONLY / W3_TOKENONLY / W3_RESIDUALONLY / W3_IMPROVED_WARMUP / W3_RESIDUAL：conv stem + post_stem_dwt
+    - C1：使用 BASELINE_ABLATION 的配置（与训练脚本一致）
+    """
     ab = (ablation or "").strip().upper()
+    base = (baseline_ablation or "A0").strip().upper()
+
+    if ab == "C1":
+        return resolve_ablation_flags(base, base)
+
     if ab == "A0":
-        return dict(use_conv_stem=True, use_dwt=True, pre_patch_dwt=False, post_stem_dwt=True)
+        return dict(use_conv_stem=True, use_dwt=True, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A1":
-        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False)
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A2":
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False)
+        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A3":
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False)
-    if ab in ("W3", "W3_POOL_ONLY"):
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False)
+        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+
+    if ab == "W3":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_POOL_ONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_TOKENONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_RESIDUALONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_RESIDUAL":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_IMPROVED_WARMUP":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=True, wavelet_warmup_steps=5000, wavelet_fuse_mode="add")
+
+    if base != ab:
+        return resolve_ablation_flags(base, base)
     return {}
 
-def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
+def build_vil_fallback(feat_ch_override: Optional[List[int]] = None) -> Tuple[torch.nn.Module, Dict[str, Any], str]:
     try:
         from vision_lstm5_mod4_paper import VisionLSTM2  # type: ignore
     except Exception as e:
@@ -176,10 +211,17 @@ def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
     depth = env_int("DEPTH", 12)
     patch = env_int("PATCH_SIZE", 16)
     stride = env_int("STRIDE", patch)
-    feat_ch = normalize_feat_ch(env_int_list("FEAT_CH", [32, 64, 64]))
+    if feat_ch_override is not None:
+        feat_ch = normalize_feat_ch(list(feat_ch_override))
+    else:
+        feat_ch = normalize_feat_ch(env_int_list("FEAT_CH", [32, 64, 64]))
 
+    dwt_fuse_env = env_str("DWT_FUSE", "add")
     ablation = env_str("ABLATION", "A1")
-    flags = resolve_ablation_flags(ablation)
+    baseline_ablation = env_str("BASELINE_ABLATION", "A0")
+    flags = resolve_ablation_flags(ablation, baseline_ablation)
+    pool_only = bool(flags.pop("pool_only", False))
+    dwt_fuse = "none" if pool_only else dwt_fuse_env
 
     cfg: Dict[str, Any] = dict(
         dim=dim,
@@ -198,7 +240,7 @@ def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
         proj_bias=env_bool("PROJ_BIAS", True),
         norm_bias=env_bool("NORM_BIAS", True),
         feature_extractor_channels=feat_ch,
-        dwt_fuse=env_str("DWT_FUSE", "add"),
+        dwt_fuse=dwt_fuse,
         auto_patch_dwt=env_bool("AUTO_PATCH_DWT", True),
         use_conv_stem=env_bool("USE_CONV_STEM", True),
         use_dwt=env_bool("USE_DWT", False),
@@ -221,13 +263,17 @@ def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
     model = VisionLSTM2(**cfg_f)
     return model, cfg_f, "fallback_vil"
 
-def build_model() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
+def build_model(feat_ch_override: Optional[List[int]] = None) -> Tuple[torch.nn.Module, Dict[str, Any], str]:
+    """feat_ch_override: 若提供则强制用于 vil fallback，避免 env 被其它进程/缓存覆盖。"""
+    mk = env_str("MODEL_KIND", "vil").strip().lower()
+    if feat_ch_override is not None and mk == "vil":
+        return build_vil_fallback(feat_ch_override=feat_ch_override)
+
     train_script = env_str("TRAIN_SCRIPT", "lstm5_stage1_pretrain_192_sample_ablation_paper.py")
     via = try_build_model_via_train_script(train_script)
     if via is not None:
         return via
 
-    mk = env_str("MODEL_KIND", "vil").strip().lower()
     if mk == "vil":
         return build_vil_fallback()
 
@@ -267,19 +313,90 @@ def count_module_params(m: Optional[torch.nn.Module]) -> int:
     return int(sum(int(p.numel()) for p in m.parameters()))
 
 
+def infer_feat_ch_from_state_dict(sd: Dict[str, torch.Tensor]) -> Optional[str]:
+    """从 checkpoint state_dict 推断 FEAT_CH：优先用 feature_extractor.conv_features 各层输出通道（与训练完全一致）。"""
+    # 1) 精确推断：feature_extractor.conv_features.N.conv2.weight 的 shape[0] 即该 block 输出通道
+    prefix = "feature_extractor.conv_features."
+    suffix = ".conv2.weight"
+    indices = []
+    for k in sd.keys():
+        if k.startswith(prefix) and k.endswith(suffix):
+            try:
+                mid = k[len(prefix) : -len(suffix)]  # e.g. "0" or "2"
+                idx = int(mid.split(".")[0])
+                indices.append(idx)
+            except (ValueError, IndexError):
+                pass
+    if indices:
+        indices = sorted(set(indices))
+        channels = []
+        for i in indices:
+            t = sd.get(f"{prefix}{i}.conv2.weight")
+            if t is not None and torch.is_tensor(t) and t.dim() >= 2:
+                channels.append(int(t.shape[0]))
+        if channels:
+            return ",".join(map(str, channels))
+
+    # 2) 回退：用 patch_embed.proj / post_stem.mix 的输入通道推断最后一层
+    for key in ("post_stem.mix.weight", "patch_embed.proj.weight"):
+        t = sd.get(key)
+        if t is not None and torch.is_tensor(t) and t.dim() >= 2:
+            ch = int(t.shape[1])
+            if ch == 32:
+                return "32"
+            if ch == 64:
+                return "32,64,64"
+            if ch == 128:
+                return "32,64,128"
+            return f"32,64,{ch}"
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", type=str, required=True, help="Path to .pth checkpoint")
     ap.add_argument("--prefer-ema", action="store_true", help="Prefer EMA weights if checkpoint contains them")
     ap.add_argument("--strict", action="store_true", help="Use strict=True when loading state_dict")
+    ap.add_argument("--feat-ch", type=str, default=None, help="FEAT_CH 与训练时一致，如 32 或 32,64,64（优先于环境变量）")
     args = ap.parse_args()
 
-    model, cfg, src = build_model()
+    if args.feat_ch is not None and args.feat_ch.strip() != "":
+        os.environ["FEAT_CH"] = args.feat_ch.strip()
 
-    ckpt_obj = torch.load(args.ckpt, map_location="cpu")
+    ckpt_obj = torch.load(args.ckpt, map_location="cpu", weights_only=True)
     sd, sd_src = extract_state_dict(ckpt_obj, prefer_ema=args.prefer_ema)
 
-    missing, unexpected = model.load_state_dict(sd, strict=bool(args.strict))
+    model, cfg, src = build_model()
+    try:
+        missing, unexpected = model.load_state_dict(sd, strict=bool(args.strict))
+    except RuntimeError as e:
+        if "size mismatch" in str(e) and ("post_stem" in str(e) or "patch_embed" in str(e) or "feature_extractor" in str(e)):
+            suggested = infer_feat_ch_from_state_dict(sd)
+            if suggested is not None:
+                # 解析为 list，用 feat_ch_override 直接建模型，避免 env 被覆盖或训练脚本缓存
+                try:
+                    feat_list = [int(x.strip()) for x in suggested.split(",") if x.strip()]
+                except ValueError:
+                    feat_list = None
+                if feat_list:
+                    print(f"\n[Auto] Checkpoint 通道与当前 FEAT_CH 不一致，按 checkpoint 推断 FEAT_CH={suggested} 并重试（直接传入构建，不依赖环境变量）。")
+                    model, cfg, src = build_model(feat_ch_override=feat_list)
+                    try:
+                        missing, unexpected = model.load_state_dict(sd, strict=bool(args.strict))
+                    except RuntimeError as e2:
+                        print("\n[Hint] 自动重试仍失败。请用 --feat-ch 显式指定: --feat-ch " + suggested)
+                        raise e2
+                    os.environ["FEAT_CH"] = suggested  # 便于 Build Info 显示
+                else:
+                    print("\n[Hint] 无法从 checkpoint 解析 FEAT_CH。请用 --feat-ch 32,64,64 重跑。")
+                    raise
+            else:
+                print("\n[Hint] Checkpoint 与当前模型通道数不一致，多为 FEAT_CH 与训练时不同。")
+                print("       请用 --feat-ch 32,64,64 指定（或 export FEAT_CH=32,64,64）")
+                print("       当前 env FEAT_CH:", env_str("FEAT_CH", "(未设置)"))
+                raise
+        else:
+            raise
 
     total_params = int(sum(int(p.numel()) for p in model.parameters()))
     trainable_params = int(sum(int(p.numel()) for p in model.parameters() if p.requires_grad))
@@ -289,6 +406,7 @@ def main():
     print(f"builder: {src}")
     print(f"MODEL_KIND: {env_str('MODEL_KIND','vil')}")
     print(f"ABLATION:   {env_str('ABLATION','')}")
+    print(f"BASELINE_ABLATION: {env_str('BASELINE_ABLATION','')}")
     print(f"DWT_FUSE:   {env_str('DWT_FUSE','')}")
     print(f"FEAT_CH:    {env_str('FEAT_CH','')}")
     print(f"TRAIN_SCRIPT: {env_str('TRAIN_SCRIPT','lstm5_stage1_pretrain_192_sample_ablation_paper.py')}")
