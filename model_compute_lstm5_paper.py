@@ -147,24 +147,57 @@ def try_build_model_via_train_script(train_script: str) -> Optional[Tuple[torch.
 
 # ------------------------- fallback builder: vil only -------------------------
 
-def resolve_ablation_flags(ablation: str) -> Dict[str, Any]:
+def resolve_ablation_flags(ablation: str, baseline_ablation: str = "A0") -> Dict[str, Any]:
     """
-    Minimal mapping that matches你命令里用到的关键 ablation：
+    与 run.bash / lstm5_stage1_pretrain_192_sample_ablation_paper.get_ablation_cfg 对齐的 ablation 映射。
     - A0/A1/A2/A3：stem/DWT 路径（传统 baseline）
-    - W3 / W3_POOL_ONLY：启用 pre_patch_dwt（PSWF tokenizer），stem 不用 post_stem_dwt
+    - W3 / W3_POOL_ONLY / W3_TOKENONLY / W3_RESIDUALONLY / W3_IMPROVED_WARMUP / W3_RESIDUAL：conv stem + post_stem_dwt
+    - C1：使用 BASELINE_ABLATION 的配置（与训练脚本一致）
     """
     ab = (ablation or "").strip().upper()
+    base = (baseline_ablation or "A0").strip().upper()
+
+    # C1 在训练脚本里等价于使用 baseline
+    if ab == "C1":
+        return resolve_ablation_flags(base, base)
+
+    # A 组：传统 baseline
     if ab == "A0":
-        return dict(use_conv_stem=True, use_dwt=True, pre_patch_dwt=False, post_stem_dwt=True)
+        return dict(use_conv_stem=True, use_dwt=True, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A1":
-        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False)
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A2":
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False)
+        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
     if ab == "A3":
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False)
-    if ab in ("W3", "W3_POOL_ONLY"):
-        # PSWF tokenizer uses pre_patch_dwt, which requires no conv stem in VisionLSTM2 paper code
-        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=True, post_stem_dwt=False)
+        return dict(use_conv_stem=False, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=False, post_stem_merge="replace",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+
+    # W 组：conv stem + post_stem_dwt（与 get_ablation_cfg 一致）
+    if ab == "W3":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_POOL_ONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_TOKENONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=False, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_RESIDUALONLY":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_RESIDUAL":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=True, head_wavelet_residual=True, wavelet_warmup_steps=0, wavelet_fuse_mode="add")
+    if ab == "W3_IMPROVED_WARMUP":
+        return dict(use_conv_stem=True, use_dwt=False, pre_patch_dwt=False, post_stem_dwt=True, post_stem_merge="concat",
+                    pool_only=False, head_wavelet_residual=True, wavelet_warmup_steps=5000, wavelet_fuse_mode="add")
+
+    # 未知 ablation：按 baseline 解析
+    if base != ab:
+        return resolve_ablation_flags(base, base)
     return {}
 
 def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
@@ -190,11 +223,15 @@ def build_vil_fallback() -> Tuple[torch.nn.Module, Dict[str, Any], str]:
     feat_raw = env_int_list("FEAT_CH", [32, 64, 64])
     feat_ch = normalize_feat_ch(feat_raw)
 
-    dwt_fuse = env_str("DWT_FUSE", "add")
+    dwt_fuse_env = env_str("DWT_FUSE", "add")
     auto_patch_dwt = env_bool("AUTO_PATCH_DWT", True)
 
     ablation = env_str("ABLATION", "A1")
-    flags = resolve_ablation_flags(ablation)
+    baseline_ablation = env_str("BASELINE_ABLATION", "A0")
+    flags = resolve_ablation_flags(ablation, baseline_ablation)
+    # pool_only 在 VisionLSTM2 中通过 dwt_fuse="none" 体现，不传入 __init__
+    pool_only = bool(flags.pop("pool_only", False))
+    dwt_fuse = "none" if pool_only else dwt_fuse_env
 
     cfg: Dict[str, Any] = dict(
         dim=dim,
@@ -304,6 +341,7 @@ def main():
     print(f"builder: {src}")
     print("env MODEL_KIND:", env_str("MODEL_KIND", "vil"))
     print("env ABLATION:", env_str("ABLATION", ""))
+    print("env BASELINE_ABLATION:", env_str("BASELINE_ABLATION", ""))
     print("env DWT_FUSE:", env_str("DWT_FUSE", ""))
     print("env FEAT_CH:", env_str("FEAT_CH", ""))
     print("effective cfg keys:", len(cfg))

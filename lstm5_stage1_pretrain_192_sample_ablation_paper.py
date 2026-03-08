@@ -449,7 +449,10 @@ class ViTTiny(nn.Module):
                  drop: float = 0.0, attn_drop: float = 0.0,
                  pswf_embed: Optional[nn.Module] = None,
                  patch_embed: Optional[nn.Module] = None,
-                 pswf_gate: Optional[nn.Module] = None):
+                 pswf_gate: Optional[nn.Module] = None,
+                 wavelet_warmup_steps: int = 0,
+                 wavelet_fuse_mode: str = "add",
+                 wavelet_scale_init: float = 0.0):
         super().__init__()
         self.img_size = img_size
         self.patch_size = patch_size
@@ -457,8 +460,17 @@ class ViTTiny(nn.Module):
         self.pswf_embed = pswf_embed
         # 仅在 ViT + PSWF 下启用的轻量 gate，用 wavelet 特征对 cls token 做微调
         self.pswf_gate = pswf_gate
-        # 与 VIL 保持一致：默认从 0 开始，由训练自适应学习有效 scale
-        self.wavelet_scale = nn.Parameter(torch.tensor(0.0)) if pswf_gate is not None else None
+        # 与 VIL 保持一致：通过可学习的 scale 和可选 warmup 控制小波残差强度
+        if pswf_gate is not None:
+            self.wavelet_scale = nn.Parameter(torch.tensor(float(wavelet_scale_init)))
+            self.wavelet_warmup_steps = int(wavelet_warmup_steps) if wavelet_warmup_steps > 0 else 0
+            self.wavelet_fuse_mode = str(wavelet_fuse_mode)
+            self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+            self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+        else:
+            self.wavelet_scale = None
+            self.wavelet_warmup_steps = 0
+            self.wavelet_fuse_mode = "add"
 
         if patch_embed is None:
             # standard patch embedding from RGB
@@ -486,6 +498,14 @@ class ViTTiny(nn.Module):
         self.blocks = nn.Sequential(*[ViTBlock(dim, heads, mlp_ratio=4.0, attn_drop=attn_drop, drop=drop) for _ in range(depth)])
         self.norm = nn.LayerNorm(dim)
         self.head = nn.Linear(dim, num_classes)
+
+    def set_wavelet_global_step(self, global_step: int):
+        """
+        为 ViT + PSWF 提供与 VIL 一致的接口，用于控制小波 warmup 的当前 global_step。
+        仅在启用了 pswf_gate 且 wavelet_warmup_steps>0 时生效。
+        """
+        if self.wavelet_scale is not None and self.wavelet_warmup_steps > 0:
+            self._current_global_step.fill_(global_step)
 
     def forward(self, x):
         gate_vec = None
@@ -515,9 +535,24 @@ class ViTTiny(nn.Module):
         x = self.blocks(x)
         x = self.norm(x)
         cls = x[:, 0]
-        # 轻量残差调制：cls' = cls + scale * tanh(gate)，scale 可学习
-        if gate_vec is not None:
-            cls = cls + self.wavelet_scale * torch.tanh(gate_vec.to(cls.dtype))
+        # 轻量小波调制：支持可选 warmup 与加性/乘性融合
+        if gate_vec is not None and self.wavelet_scale is not None:
+            if self.wavelet_warmup_steps > 0 and self.training:
+                if self._current_global_step.item() >= 0:
+                    global_step = self._current_global_step.item()
+                else:
+                    global_step = self._wavelet_step.item()
+                    self._wavelet_step += 1
+                warmup_factor = min(1.0, max(0.0, float(global_step) / self.wavelet_warmup_steps))
+            else:
+                warmup_factor = 1.0
+
+            effective_scale = self.wavelet_scale * warmup_factor
+            gate_vec_t = torch.tanh(gate_vec.to(cls.dtype))
+            if self.wavelet_fuse_mode == "multiply":
+                cls = cls * (1.0 + effective_scale * gate_vec_t)
+            else:
+                cls = cls + effective_scale * gate_vec_t
         return self.head(cls)
 
 
@@ -583,6 +618,157 @@ def get_ablation_cfg(ablation_id: str, baseline_ablation: str = "A0") -> dict:
 
     # Fallback: treat as baseline
     return resolve_base(baseline_ablation)
+
+
+def _infer_num_classes_for_builder() -> int:
+    """Infer num_classes from env when building without loading dataset (e.g. for model_compute_lstm5_paper)."""
+    v = os.environ.get("NUM_CLASSES")
+    if v is not None and str(v).strip() != "":
+        try:
+            return int(v)
+        except ValueError:
+            pass
+    v = os.environ.get("SUBSET_CLASSES")
+    if v is not None and str(v).strip() != "":
+        try:
+            k = int(v)
+            if k > 0:
+                return k
+        except ValueError:
+            pass
+    ds = (os.environ.get("DATASET") or "").strip().lower()
+    if ds in ("tiny_imagenet", "tiny-imagenet", "tinyimagenet", "tiny_imagenet_200"):
+        return 200
+    return 1000
+
+
+def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[int] = None):
+    """
+    Build model from env vars (no DDP, no data loaders). Used by model_compute_lstm5_paper.py
+    and model_analyse_lstm5_paper.py. Returns (model, cfg_dict); cfg_dict is a small dict
+    with keys like model_kind, ablation_id, img_size, num_classes for reporting.
+    """
+    model_kind = env_str("MODEL_KIND", "vil").lower()
+    _img_size = img_size if img_size is not None else env_int("IMG_SIZE", 192)
+    _num_classes = num_classes if num_classes is not None else _infer_num_classes_for_builder()
+    dim = env_int("DIM", 192)
+    depth = env_int("DEPTH", 12)
+    feat_ch = env_list_int("FEAT_CH", default=[32, 64, 64]) or [32, 64, 64]
+    patch_size = env_int("PATCH_SIZE", 16)
+    stride = env_int("STRIDE", patch_size)
+    auto_patch_dwt = env_bool("AUTO_PATCH_DWT", True)
+    ablation_id = env_str("ABLATION", "W3")
+    dwt_fuse = env_str("DWT_FUSE", "add")
+    disable_branch_env = env_bool("DISABLE_BRANCH", True)
+    drop_path = env_float("DROP_PATH", 0.0)
+    drop_path_decay = env_bool("DROP_PATH_DECAY", False)
+    legacy_norm = env_bool("LEGACY_NORM", False)
+    conv_kind = env_str("CONV_KIND", "2d")
+    conv_kernel = env_int("CONV_KERNEL", 3)
+    proj_bias = env_bool("PROJ_BIAS", True)
+    norm_bias = env_bool("NORM_BIAS", True)
+
+    cfg = dict(model_kind=model_kind, ablation_id=ablation_id, img_size=_img_size, num_classes=_num_classes)
+
+    if model_kind == "vil":
+        from vision_lstm5_mod4_paper import VisionLSTM2
+        abl_cfg = get_ablation_cfg(ablation_id)
+        if "DISABLE_BRANCH" in os.environ:
+            abl_cfg["disable_branch"] = bool(disable_branch_env)
+        pool_only = bool(abl_cfg.get("pool_only", False))
+        dwt_fuse_eff = "none" if pool_only else dwt_fuse
+        model = VisionLSTM2(
+            dim=dim,
+            depth=depth,
+            input_shape=(3, _img_size, _img_size),
+            output_shape=(_num_classes,),
+            mode="classifier",
+            pooling=abl_cfg.get("pooling", "bilateral_flatten"),
+            drop_path_rate=drop_path,
+            drop_path_decay=drop_path_decay,
+            legacy_norm=legacy_norm,
+            conv_kind=conv_kind,
+            conv_kernel_size=conv_kernel,
+            proj_bias=proj_bias,
+            norm_bias=norm_bias,
+            patch_size=patch_size,
+            stride=stride,
+            feature_extractor_channels=feat_ch,
+            use_conv_stem=abl_cfg.get("use_conv_stem", True),
+            use_dwt=abl_cfg.get("use_dwt", False),
+            pre_patch_dwt=abl_cfg.get("pre_patch_dwt", False),
+            post_stem_dwt=abl_cfg.get("post_stem_dwt", False),
+            post_stem_merge=abl_cfg.get("post_stem_merge", "replace"),
+            disable_branch=abl_cfg.get("disable_branch", True),
+            auto_patch_dwt=auto_patch_dwt,
+            dwt_fuse=dwt_fuse_eff,
+            wavelet_warmup_steps=int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else abl_cfg.get("wavelet_warmup_steps", 0),
+            wavelet_fuse_mode=os.environ.get("WAVELET_FUSE_MODE") or abl_cfg.get("wavelet_fuse_mode", "multiply"),
+            head_wavelet_residual=abl_cfg.get("head_wavelet_residual", True),
+            wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),
+        )
+        return model, cfg
+
+    if model_kind == "vit_tiny":
+        ab_u = (ablation_id or "").strip().upper()
+        use_pswf = ab_u.startswith("W3") or ab_u.startswith("W4")
+        pool_only = ("POOL_ONLY" in ab_u) or ("POOLONLY" in ab_u)
+        if use_pswf:
+            from vision_lstm5_mod4_paper import (
+                FeatureExtractor, PostStemWaveletMerge, VitPatchEmbed, WaveletGlobalGate,
+                StemWithWaveletResidual, DWTPreprocessor,
+            )
+            vit_wavelet_warmup_steps = 0
+            vit_wavelet_fuse_mode = "add"
+            vit_wavelet_scale_init = env_float("WAVELET_SCALE_INIT", 0.0)
+            if ab_u == "W3_IMPROVED_WARMUP":
+                vit_wavelet_warmup_steps = int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else 5000
+                vit_wavelet_fuse_mode = os.environ.get("WAVELET_FUSE_MODE") or "multiply"
+            stem = FeatureExtractor(input_channels=3, conv_channels=feat_ch, use_dwt=False, dwt_fuse="none")
+            token_only = "TOKENONLY" in ab_u or ab_u == "W3_TOKENONLY"
+            use_residual = ("RESIDUAL" in ab_u) or (ab_u == "W3_RESIDUAL")
+            if use_residual:
+                post_pool_only = PostStemWaveletMerge(channels=stem.final_channels, dwt_fuse="none", merge="concat")
+                dwt_module = DWTPreprocessor(channels=stem.final_channels, dwt_fuse="add")
+                pswf_embed = StemWithWaveletResidual(stem, post_pool_only, dwt_module)
+                main_ch = post_pool_only.out_channels
+                pswf_gate = None if token_only else WaveletGlobalGate(in_channels=dwt_module.out_channels, dim=dim)
+            else:
+                dwt_fuse_eff = "none" if pool_only else dwt_fuse
+                post = PostStemWaveletMerge(channels=stem.final_channels, dwt_fuse=dwt_fuse_eff, merge="concat")
+                pswf_embed = nn.Sequential(stem, post)
+                main_ch = post.out_channels
+                pswf_gate = None if (token_only or pool_only) else WaveletGlobalGate(in_channels=main_ch, dim=dim)
+            pe_res = (_img_size // 2, _img_size // 2)
+            if bool(auto_patch_dwt):
+                patch_eff = patch_size // 2
+                stride_eff = stride // 2
+            else:
+                patch_eff = patch_size
+                stride_eff = stride
+            patch_embed = VitPatchEmbed(
+                dim=dim, num_channels=main_ch, resolution=pe_res,
+                patch_size=(patch_eff, patch_eff), stride=(stride_eff, stride_eff),
+                init_weights="xavier_uniform",
+            )
+            model = ViTTiny(
+                img_size=_img_size, patch_size=patch_size, num_classes=_num_classes,
+                dim=dim, depth=depth, heads=max(1, dim // 64),
+                pswf_embed=pswf_embed, patch_embed=patch_embed, pswf_gate=pswf_gate,
+                wavelet_warmup_steps=vit_wavelet_warmup_steps,
+                wavelet_fuse_mode=vit_wavelet_fuse_mode,
+                wavelet_scale_init=vit_wavelet_scale_init,
+            )
+        else:
+            model = ViTTiny(
+                img_size=_img_size, patch_size=patch_size, num_classes=_num_classes,
+                dim=dim, depth=depth, heads=max(1, dim // 64),
+            )
+        return model, cfg
+
+    if model_kind == "mambavision":
+        raise RuntimeError("MODEL_KIND=mambavision is a stub. Provide a builder in-code or import your local implementation.")
+    raise ValueError("MODEL_KIND must be vil | vit_tiny | mambavision")
 
 
 # ----------------- Branch alpha (kept for backward compatibility) -----------------
@@ -975,6 +1161,14 @@ def main():
                 StemWithWaveletResidual, DWTPreprocessor,
             )
 
+            # ViT 小波 warmup / 融合模式（仅在 W3_IMPROVED_WARMUP 等需要时启用）
+            vit_wavelet_warmup_steps = 0
+            vit_wavelet_fuse_mode = "add"
+            vit_wavelet_scale_init = env_float("WAVELET_SCALE_INIT", 0.0)
+            if ab_u == "W3_IMPROVED_WARMUP":
+                vit_wavelet_warmup_steps = int(os.environ["WAVELET_WARMUP_STEPS"]) if os.environ.get("WAVELET_WARMUP_STEPS") else 5000
+                vit_wavelet_fuse_mode = os.environ.get("WAVELET_FUSE_MODE") or "multiply"
+
             # stem 不做 DWT（避免误读：dwt_fuse 在 use_dwt=False 时无意义）
             stem = FeatureExtractor(input_channels=3, conv_channels=feat_ch, use_dwt=False, dwt_fuse="none")
 
@@ -1013,7 +1207,10 @@ def main():
             model = ViTTiny(
                 img_size=img_size, patch_size=patch_size, num_classes=num_classes,
                 dim=dim, depth=depth, heads=max(1, dim // 64),
-                pswf_embed=pswf_embed, patch_embed=patch_embed, pswf_gate=pswf_gate
+                pswf_embed=pswf_embed, patch_embed=patch_embed, pswf_gate=pswf_gate,
+                wavelet_warmup_steps=vit_wavelet_warmup_steps,
+                wavelet_fuse_mode=vit_wavelet_fuse_mode,
+                wavelet_scale_init=vit_wavelet_scale_init,
             )
         else:
             if ab_u not in ("", "A3"):
@@ -1034,6 +1231,32 @@ def main():
     if is_main_process():
         n_params = sum(p.numel() for p in model.parameters())
         ddp_print(f"[Model] kind={model_kind} params={n_params/1e6:.3f}M | dwt_fuse={dwt_fuse} | ablation={ablation_id}")
+
+    # Optional: warm-start training from an existing checkpoint (weights only).
+    # 用法示例（继续训练 ImageNet-1K）：
+    #   export MODE=train EPOCHS=100
+    #   export RESUME_CKPT=outputs_pswf_paper/in1k192_vil_W3_poolonly_ch32_reg/ema_best.pth
+    #   torchrun --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py
+    #
+    # 注意：这里只加载权重到当前 model，不恢复 optimizer / scheduler / epoch 号，
+    # 相当于以 RESUME_CKPT 作为新的初始化再跑一套 schedule。
+    resume_ckpt = env_str("RESUME_CKPT", "").strip()
+    if mode == "train" and resume_ckpt:
+        if os.path.isfile(resume_ckpt):
+            ddp_print(f"[Resume] Loading weights from RESUME_CKPT={resume_ckpt}")
+            sd = torch.load(resume_ckpt, map_location="cpu")
+            # 兼容纯 state_dict 或 {model: state_dict} 这两种常见格式
+            if isinstance(sd, dict) and not any(torch.is_tensor(v) for v in sd.values()):
+                state = sd
+            elif isinstance(sd, dict) and any(torch.is_tensor(v) for v in sd.values()):
+                # 如果字典里本身就是 tensor map，当作 state_dict 用
+                state = sd
+            else:
+                state = sd
+            missing, unexpected = model.load_state_dict(state, strict=False)
+            ddp_print(f"[Resume] loaded with missing={len(missing)} unexpected={len(unexpected)}")
+        else:
+            ddp_print(f"[Resume] RESUME_CKPT not found: {resume_ckpt} (train from scratch)")
 
     # ----- Load checkpoint for eval modes (no training) -----
     if mode.startswith("eval"):
