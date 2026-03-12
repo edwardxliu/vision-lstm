@@ -1,0 +1,68 @@
+
+[Auto] Checkpoint 通道与当前 FEAT_CH 不一致，按 checkpoint 推断 FEAT_CH=32,64,64 并重试（直接传入构建，不依赖环境变量）。
+
+================ Build Info ================
+builder: fallback_vil
+MODEL_KIND: vil
+ABLATION:   W3_IMPROVED_WARMUP
+BASELINE_ABLATION: 
+DWT_FUSE:   add
+FEAT_CH:    32,64,64
+TRAIN_SCRIPT: lstm5_stage1_pretrain_192_sample_ablation_paper.py
+
+================ Model Config (effective kwargs) ================
+attn_pool_heads: 4
+auto_patch_dwt: True
+conv_kernel_size: 3
+conv_kind: 2d
+depth: 12
+dim: 192
+disable_branch: True
+drop_path_decay: False
+drop_path_rate: 0.0
+dwt_fuse: add
+feature_extractor_channels: [32, 64, 64]
+head_gate_hidden_ratio: 0.0
+head_gate_init_bias: -2.0
+head_inject_gated: True
+head_wavelet_residual: True
+input_shape: (3, 192, 192)
+legacy_norm: False
+mode: classifier
+norm_bias: True
+output_shape: (1000,)
+patch_size: 16
+pooling: bilateral_flatten
+post_stem_dwt: True
+post_stem_merge: concat
+pre_patch_dwt: False
+proj_bias: True
+stride: 16
+use_conv_stem: True
+use_dwt: False
+wavelet_fuse_mode: add
+wavelet_warmup_steps: 5000
+
+================ Checkpoint ================
+ckpt_path: outputs_pswf_paper/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply/ema_best.pth
+state_dict_source: (root)
+state_dict_tensor_params: 7,431,510  (7.432 M)
+
+================ Load Report ================
+strict: False
+Missing keys: 0
+Unexpected keys: 0
+
+================ Parameter Count (model instance) ================
+Total parameters:     7,429,960
+Trainable parameters: 7,429,960
+Total (Millions):     7.430 M
+
+================ Parameter Breakdown (top-level) ================
+       feature_extractor: 141,769  (0.142 M)
+             patch_embed: 786,624  (0.787 M)
+               pos_embed: 27,648  (0.028 M)
+                  blocks: 5,824,704  (5.825 M)
+                  mixers: 231,558  (0.232 M)
+                    norm: 384  (0.000 M)
+                    head: 385,000  (0.385 M)

@@ -1,0 +1,201 @@
+================ Build Info ================
+builder: build_model_from_env
+env MODEL_KIND: vit_tiny
+env ABLATION: W3_RESIDUAL
+env BASELINE_ABLATION: 
+env DWT_FUSE: add
+env FEAT_CH: 32
+effective cfg keys: 4
+ablation_id: W3_RESIDUAL
+img_size: 192
+model_kind: vit_tiny
+num_classes: 1000
+
+================ FLOPs Report ================
+Input: 1x3x192x192  device=cpu
+| name                             | #elements or shape   |
+|:---------------------------------|:---------------------|
+| model                            | 6.0M                 |
+|  wavelet_scale                   |  ()                  |
+|  cls                             |  (1, 1, 192)         |
+|  pos                             |  (1, 145, 192)       |
+|  pswf_embed                      |  15.4K               |
+|   pswf_embed.stem                |   10.2K              |
+|    pswf_embed.stem.conv_features |    10.2K             |
+|   pswf_embed.post_pool_only      |   1.1K               |
+|    pswf_embed.post_pool_only.mix |    1.1K              |
+|   pswf_embed.dwt_module          |   4.1K               |
+|    pswf_embed.dwt_module.reduce  |    4.1K              |
+|  pswf_gate                       |  2.0K                |
+|   pswf_gate.mlp                  |   2.0K               |
+|    pswf_gate.mlp.1               |    0.3K              |
+|    pswf_gate.mlp.3               |    1.7K              |
+|  patch_embed                     |  0.4M                |
+|   patch_embed.proj               |   0.4M               |
+|    patch_embed.proj.weight       |    (192, 32, 8, 8)   |
+|    patch_embed.proj.bias         |    (192,)            |
+|  blocks                          |  5.3M                |
+|   blocks.0                       |   0.4M               |
+|    blocks.0.norm1                |    0.4K              |
+|    blocks.0.attn                 |    0.1M              |
+|    blocks.0.norm2                |    0.4K              |
+|    blocks.0.mlp                  |    0.3M              |
+|   blocks.1                       |   0.4M               |
+|    blocks.1.norm1                |    0.4K              |
+|    blocks.1.attn                 |    0.1M              |
+|    blocks.1.norm2                |    0.4K              |
+|    blocks.1.mlp                  |    0.3M              |
+|   blocks.2                       |   0.4M               |
+|    blocks.2.norm1                |    0.4K              |
+|    blocks.2.attn                 |    0.1M              |
+|    blocks.2.norm2                |    0.4K              |
+|    blocks.2.mlp                  |    0.3M              |
+|   blocks.3                       |   0.4M               |
+|    blocks.3.norm1                |    0.4K              |
+|    blocks.3.attn                 |    0.1M              |
+|    blocks.3.norm2                |    0.4K              |
+|    blocks.3.mlp                  |    0.3M              |
+|   blocks.4                       |   0.4M               |
+|    blocks.4.norm1                |    0.4K              |
+|    blocks.4.attn                 |    0.1M              |
+|    blocks.4.norm2                |    0.4K              |
+|    blocks.4.mlp                  |    0.3M              |
+|   blocks.5                       |   0.4M               |
+|    blocks.5.norm1                |    0.4K              |
+|    blocks.5.attn                 |    0.1M              |
+|    blocks.5.norm2                |    0.4K              |
+|    blocks.5.mlp                  |    0.3M              |
+|   blocks.6                       |   0.4M               |
+|    blocks.6.norm1                |    0.4K              |
+|    blocks.6.attn                 |    0.1M              |
+|    blocks.6.norm2                |    0.4K              |
+|    blocks.6.mlp                  |    0.3M              |
+|   blocks.7                       |   0.4M               |
+|    blocks.7.norm1                |    0.4K              |
+|    blocks.7.attn                 |    0.1M              |
+|    blocks.7.norm2                |    0.4K              |
+|    blocks.7.mlp                  |    0.3M              |
+|   blocks.8                       |   0.4M               |
+|    blocks.8.norm1                |    0.4K              |
+|    blocks.8.attn                 |    0.1M              |
+|    blocks.8.norm2                |    0.4K              |
+|    blocks.8.mlp                  |    0.3M              |
+|   blocks.9                       |   0.4M               |
+|    blocks.9.norm1                |    0.4K              |
+|    blocks.9.attn                 |    0.1M              |
+|    blocks.9.norm2                |    0.4K              |
+|    blocks.9.mlp                  |    0.3M              |
+|   blocks.10                      |   0.4M               |
+|    blocks.10.norm1               |    0.4K              |
+|    blocks.10.attn                |    0.1M              |
+|    blocks.10.norm2               |    0.4K              |
+|    blocks.10.mlp                 |    0.3M              |
+|   blocks.11                      |   0.4M               |
+|    blocks.11.norm1               |    0.4K              |
+|    blocks.11.attn                |    0.1M              |
+|    blocks.11.norm2               |    0.4K              |
+|    blocks.11.mlp                 |    0.3M              |
+|  norm                            |  0.4K                |
+|   norm.weight                    |   (192,)             |
+|   norm.bias                      |   (192,)             |
+|  head                            |  0.2M                |
+|   head.weight                    |   (1000, 192)        |
+|   head.bias                      |   (1000,)            |
+| module                                   | #parameters or shape   | #flops     |
+|:-----------------------------------------|:-----------------------|:-----------|
+| model                                    | 5.971M                 | 1.263G     |
+|  wavelet_scale                           |  ()                    |            |
+|  cls                                     |  (1, 1, 192)           |            |
+|  pos                                     |  (1, 145, 192)         |            |
+|  pswf_embed                              |  15.431K               |  0.43G     |
+|   pswf_embed.stem.conv_features.0        |   10.247K              |   0.378G   |
+|    pswf_embed.stem.conv_features.0.gamma |    (1,)                |            |
+|    pswf_embed.stem.conv_features.0.bn1   |    6                   |    0.221M  |
+|    pswf_embed.stem.conv_features.0.conv1 |    0.864K              |    31.85M  |
+|    pswf_embed.stem.conv_features.0.bn2   |    64                  |    2.359M  |
+|    pswf_embed.stem.conv_features.0.conv2 |    9.216K              |    0.34G   |
+|    pswf_embed.stem.conv_features.0.short |    96                  |    3.539M  |
+|   pswf_embed.post_pool_only.mix          |   1.056K               |   9.437M   |
+|    pswf_embed.post_pool_only.mix.weight  |    (32, 32, 1, 1)      |            |
+|    pswf_embed.post_pool_only.mix.bias    |    (32,)               |            |
+|   pswf_embed.dwt_module                  |   4.128K               |   42.467M  |
+|    pswf_embed.dwt_module.reduce          |    4.128K              |    37.749M |
+|    pswf_embed.dwt_module.dwt             |                        |    4.719M  |
+|  pswf_gate                               |  1.992K                |  0.297M    |
+|   pswf_gate.mlp                          |   1.992K               |   1.792K   |
+|    pswf_gate.mlp.1                       |    0.264K              |    0.256K  |
+|    pswf_gate.mlp.3                       |    1.728K              |    1.536K  |
+|   pswf_gate.pool                         |                        |   0.295M   |
+|  patch_embed.proj                        |  0.393M                |  56.623M   |
+|   patch_embed.proj.weight                |   (192, 32, 8, 8)      |            |
+|   patch_embed.proj.bias                  |   (192,)               |            |
+|  blocks                                  |  5.338M                |  0.776G    |
+|   blocks.0                               |   0.445M               |   64.7M    |
+|    blocks.0.norm1                        |    0.384K              |    0.418M  |
+|    blocks.0.attn                         |    0.148M              |    21.381M |
+|    blocks.0.norm2                        |    0.384K              |    0.139M  |
+|    blocks.0.mlp                          |    0.296M              |    42.762M |
+|   blocks.1                               |   0.445M               |   64.7M    |
+|    blocks.1.norm1                        |    0.384K              |    0.418M  |
+|    blocks.1.attn                         |    0.148M              |    21.381M |
+|    blocks.1.norm2                        |    0.384K              |    0.139M  |
+|    blocks.1.mlp                          |    0.296M              |    42.762M |
+|   blocks.2                               |   0.445M               |   64.7M    |
+|    blocks.2.norm1                        |    0.384K              |    0.418M  |
+|    blocks.2.attn                         |    0.148M              |    21.381M |
+|    blocks.2.norm2                        |    0.384K              |    0.139M  |
+|    blocks.2.mlp                          |    0.296M              |    42.762M |
+|   blocks.3                               |   0.445M               |   64.7M    |
+|    blocks.3.norm1                        |    0.384K              |    0.418M  |
+|    blocks.3.attn                         |    0.148M              |    21.381M |
+|    blocks.3.norm2                        |    0.384K              |    0.139M  |
+|    blocks.3.mlp                          |    0.296M              |    42.762M |
+|   blocks.4                               |   0.445M               |   64.7M    |
+|    blocks.4.norm1                        |    0.384K              |    0.418M  |
+|    blocks.4.attn                         |    0.148M              |    21.381M |
+|    blocks.4.norm2                        |    0.384K              |    0.139M  |
+|    blocks.4.mlp                          |    0.296M              |    42.762M |
+|   blocks.5                               |   0.445M               |   64.7M    |
+|    blocks.5.norm1                        |    0.384K              |    0.418M  |
+|    blocks.5.attn                         |    0.148M              |    21.381M |
+|    blocks.5.norm2                        |    0.384K              |    0.139M  |
+|    blocks.5.mlp                          |    0.296M              |    42.762M |
+|   blocks.6                               |   0.445M               |   64.7M    |
+|    blocks.6.norm1                        |    0.384K              |    0.418M  |
+|    blocks.6.attn                         |    0.148M              |    21.381M |
+|    blocks.6.norm2                        |    0.384K              |    0.139M  |
+|    blocks.6.mlp                          |    0.296M              |    42.762M |
+|   blocks.7                               |   0.445M               |   64.7M    |
+|    blocks.7.norm1                        |    0.384K              |    0.418M  |
+|    blocks.7.attn                         |    0.148M              |    21.381M |
+|    blocks.7.norm2                        |    0.384K              |    0.139M  |
+|    blocks.7.mlp                          |    0.296M              |    42.762M |
+|   blocks.8                               |   0.445M               |   64.7M    |
+|    blocks.8.norm1                        |    0.384K              |    0.418M  |
+|    blocks.8.attn                         |    0.148M              |    21.381M |
+|    blocks.8.norm2                        |    0.384K              |    0.139M  |
+|    blocks.8.mlp                          |    0.296M              |    42.762M |
+|   blocks.9                               |   0.445M               |   64.7M    |
+|    blocks.9.norm1                        |    0.384K              |    0.418M  |
+|    blocks.9.attn                         |    0.148M              |    21.381M |
+|    blocks.9.norm2                        |    0.384K              |    0.139M  |
+|    blocks.9.mlp                          |    0.296M              |    42.762M |
+|   blocks.10                              |   0.445M               |   64.7M    |
+|    blocks.10.norm1                       |    0.384K              |    0.418M  |
+|    blocks.10.attn                        |    0.148M              |    21.381M |
+|    blocks.10.norm2                       |    0.384K              |    0.139M  |
+|    blocks.10.mlp                         |    0.296M              |    42.762M |
+|   blocks.11                              |   0.445M               |   64.7M    |
+|    blocks.11.norm1                       |    0.384K              |    0.418M  |
+|    blocks.11.attn                        |    0.148M              |    21.381M |
+|    blocks.11.norm2                       |    0.384K              |    0.139M  |
+|    blocks.11.mlp                         |    0.296M              |    42.762M |
+|  norm                                    |  0.384K                |  0.139M    |
+|   norm.weight                            |   (192,)               |            |
+|   norm.bias                              |   (192,)               |            |
+|  head                                    |  0.193M                |  0.192M    |
+|   head.weight                            |   (1000, 192)          |            |
+|   head.bias                              |   (1000,)              |            |
+Total (fvcore 'flops' ~= MACs): 1,263,265,984
+Total (G): 1.263
+Unsupported ops (not counted): Counter({'aten::mul': 51, 'aten::add': 28, 'aten::div': 12, 'aten::scaled_dot_product_attention': 12, 'aten::gelu': 12, 'aten::silu_': 2, 'aten::avg_pool2d': 1, 'aten::silu': 1, 'aten::tanh': 1})

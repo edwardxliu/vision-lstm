@@ -1,0 +1,195 @@
+================ Build Info ================
+builder: build_model_from_env
+env MODEL_KIND: vil
+env ABLATION: W3_POOL_ONLY
+env BASELINE_ABLATION: 
+env DWT_FUSE: none
+env FEAT_CH: 32
+effective cfg keys: 4
+ablation_id: W3_POOL_ONLY
+img_size: 192
+model_kind: vil
+num_classes: 1000
+
+================ FLOPs Report ================
+Input: 1x3x192x192  device=cpu
+| name                                 | #elements or shape   |
+|:-------------------------------------|:---------------------|
+| model                                | 6.9M                 |
+|  feature_extractor                   |  10.2K               |
+|   feature_extractor.conv_features    |   10.2K              |
+|    feature_extractor.conv_features.0 |    10.2K             |
+|  post_stem                           |  1.1K                |
+|   post_stem.mix                      |   1.1K               |
+|    post_stem.mix.weight              |    (32, 32, 1, 1)    |
+|    post_stem.mix.bias                |    (32,)             |
+|  patch_embed                         |  0.4M                |
+|   patch_embed.proj                   |   0.4M               |
+|    patch_embed.proj.weight           |    (192, 32, 8, 8)   |
+|    patch_embed.proj.bias             |    (192,)            |
+|  pos_embed                           |  27.6K               |
+|   pos_embed.embed                    |   (1, 12, 12, 192)   |
+|  blocks                              |  5.8M                |
+|   blocks.0                           |   0.5M               |
+|    blocks.0.rowwise_from_top_left    |    0.2M              |
+|    blocks.0.rowwise_from_bot_right   |    0.2M              |
+|   blocks.1                           |   0.5M               |
+|    blocks.1.rowwise_from_top_left    |    0.2M              |
+|    blocks.1.rowwise_from_bot_right   |    0.2M              |
+|   blocks.2                           |   0.5M               |
+|    blocks.2.rowwise_from_top_left    |    0.2M              |
+|    blocks.2.rowwise_from_bot_right   |    0.2M              |
+|   blocks.3                           |   0.5M               |
+|    blocks.3.rowwise_from_top_left    |    0.2M              |
+|    blocks.3.rowwise_from_bot_right   |    0.2M              |
+|   blocks.4                           |   0.5M               |
+|    blocks.4.rowwise_from_top_left    |    0.2M              |
+|    blocks.4.rowwise_from_bot_right   |    0.2M              |
+|   blocks.5                           |   0.5M               |
+|    blocks.5.rowwise_from_top_left    |    0.2M              |
+|    blocks.5.rowwise_from_bot_right   |    0.2M              |
+|   blocks.6                           |   0.5M               |
+|    blocks.6.rowwise_from_top_left    |    0.2M              |
+|    blocks.6.rowwise_from_bot_right   |    0.2M              |
+|   blocks.7                           |   0.5M               |
+|    blocks.7.rowwise_from_top_left    |    0.2M              |
+|    blocks.7.rowwise_from_bot_right   |    0.2M              |
+|   blocks.8                           |   0.5M               |
+|    blocks.8.rowwise_from_top_left    |    0.2M              |
+|    blocks.8.rowwise_from_bot_right   |    0.2M              |
+|   blocks.9                           |   0.5M               |
+|    blocks.9.rowwise_from_top_left    |    0.2M              |
+|    blocks.9.rowwise_from_bot_right   |    0.2M              |
+|   blocks.10                          |   0.5M               |
+|    blocks.10.rowwise_from_top_left   |    0.2M              |
+|    blocks.10.rowwise_from_bot_right  |    0.2M              |
+|   blocks.11                          |   0.5M               |
+|    blocks.11.rowwise_from_top_left   |    0.2M              |
+|    blocks.11.rowwise_from_bot_right  |    0.2M              |
+|  norm                                |  0.4K                |
+|   norm.weight                        |   (192,)             |
+|   norm.bias                          |   (192,)             |
+|  head                                |  0.4M                |
+|   head.weight                        |   (1000, 384)        |
+|   head.bias                          |   (1000,)            |
+|  mixers                              |  0.2M                |
+|   mixers.0                           |   38.6K              |
+|    mixers.0.gamma                    |    (1,)              |
+|    mixers.0.dw                       |    1.7K              |
+|    mixers.0.pw                       |    36.9K             |
+|   mixers.1                           |   38.6K              |
+|    mixers.1.gamma                    |    (1,)              |
+|    mixers.1.dw                       |    1.7K              |
+|    mixers.1.pw                       |    36.9K             |
+|   mixers.2                           |   38.6K              |
+|    mixers.2.gamma                    |    (1,)              |
+|    mixers.2.dw                       |    1.7K              |
+|    mixers.2.pw                       |    36.9K             |
+|   mixers.3                           |   38.6K              |
+|    mixers.3.gamma                    |    (1,)              |
+|    mixers.3.dw                       |    1.7K              |
+|    mixers.3.pw                       |    36.9K             |
+|   mixers.4                           |   38.6K              |
+|    mixers.4.gamma                    |    (1,)              |
+|    mixers.4.dw                       |    1.7K              |
+|    mixers.4.pw                       |    36.9K             |
+|   mixers.5                           |   38.6K              |
+|    mixers.5.gamma                    |    (1,)              |
+|    mixers.5.dw                       |    1.7K              |
+|    mixers.5.pw                       |    36.9K             |
+| module                                            | #parameters or shape   | #flops     |
+|:--------------------------------------------------|:-----------------------|:-----------|
+| model                                             | 6.874M                 | 1.694G     |
+|  feature_extractor.conv_features.0                |  10.247K               |  0.378G    |
+|   feature_extractor.conv_features.0.gamma         |   (1,)                 |            |
+|   feature_extractor.conv_features.0.bn1           |   6                    |   0.221M   |
+|    feature_extractor.conv_features.0.bn1.weight   |    (3,)                |            |
+|    feature_extractor.conv_features.0.bn1.bias     |    (3,)                |            |
+|   feature_extractor.conv_features.0.conv1         |   0.864K               |   31.85M   |
+|    feature_extractor.conv_features.0.conv1.weight |    (32, 3, 3, 3)       |            |
+|   feature_extractor.conv_features.0.bn2           |   64                   |   2.359M   |
+|    feature_extractor.conv_features.0.bn2.weight   |    (32,)               |            |
+|    feature_extractor.conv_features.0.bn2.bias     |    (32,)               |            |
+|   feature_extractor.conv_features.0.conv2         |   9.216K               |   0.34G    |
+|    feature_extractor.conv_features.0.conv2.weight |    (32, 32, 3, 3)      |            |
+|   feature_extractor.conv_features.0.short         |   96                   |   3.539M   |
+|    feature_extractor.conv_features.0.short.weight |    (32, 3, 1, 1)       |            |
+|  post_stem.mix                                    |  1.056K                |  9.437M    |
+|   post_stem.mix.weight                            |   (32, 32, 1, 1)       |            |
+|   post_stem.mix.bias                              |   (32,)                |            |
+|  patch_embed.proj                                 |  0.393M                |  56.623M   |
+|   patch_embed.proj.weight                         |   (192, 32, 8, 8)      |            |
+|   patch_embed.proj.bias                           |   (192,)               |            |
+|  pos_embed                                        |  27.648K               |  0         |
+|   pos_embed.embed                                 |   (1, 12, 12, 192)     |            |
+|  blocks                                           |  5.825M                |  1.216G    |
+|   blocks.0                                        |   0.485M               |   0.101G   |
+|    blocks.0.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.0.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.1                                        |   0.485M               |   0.101G   |
+|    blocks.1.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.1.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.2                                        |   0.485M               |   0.101G   |
+|    blocks.2.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.2.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.3                                        |   0.485M               |   0.101G   |
+|    blocks.3.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.3.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.4                                        |   0.485M               |   0.101G   |
+|    blocks.4.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.4.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.5                                        |   0.485M               |   0.101G   |
+|    blocks.5.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.5.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.6                                        |   0.485M               |   0.101G   |
+|    blocks.6.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.6.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.7                                        |   0.485M               |   0.101G   |
+|    blocks.7.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.7.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.8                                        |   0.485M               |   0.101G   |
+|    blocks.8.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.8.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.9                                        |   0.485M               |   0.101G   |
+|    blocks.9.rowwise_from_top_left                 |    0.243M              |    50.679M |
+|    blocks.9.rowwise_from_bot_right                |    0.243M              |    50.679M |
+|   blocks.10                                       |   0.485M               |   0.101G   |
+|    blocks.10.rowwise_from_top_left                |    0.243M              |    50.679M |
+|    blocks.10.rowwise_from_bot_right               |    0.243M              |    50.679M |
+|   blocks.11                                       |   0.485M               |   0.101G   |
+|    blocks.11.rowwise_from_top_left                |    0.243M              |    50.679M |
+|    blocks.11.rowwise_from_bot_right               |    0.243M              |    50.679M |
+|  norm                                             |  0.384K                |  0.138M    |
+|   norm.weight                                     |   (192,)               |            |
+|   norm.bias                                       |   (192,)               |            |
+|  head                                             |  0.385M                |  0.384M    |
+|   head.weight                                     |   (1000, 384)          |            |
+|   head.bias                                       |   (1000,)              |            |
+|  mixers                                           |  0.232M                |  33.343M   |
+|   mixers.0                                        |   38.593K              |   5.557M   |
+|    mixers.0.gamma                                 |    (1,)                |            |
+|    mixers.0.dw                                    |    1.728K              |    0.249M  |
+|    mixers.0.pw                                    |    36.864K             |    5.308M  |
+|   mixers.1                                        |   38.593K              |   5.557M   |
+|    mixers.1.gamma                                 |    (1,)                |            |
+|    mixers.1.dw                                    |    1.728K              |    0.249M  |
+|    mixers.1.pw                                    |    36.864K             |    5.308M  |
+|   mixers.2                                        |   38.593K              |   5.557M   |
+|    mixers.2.gamma                                 |    (1,)                |            |
+|    mixers.2.dw                                    |    1.728K              |    0.249M  |
+|    mixers.2.pw                                    |    36.864K             |    5.308M  |
+|   mixers.3                                        |   38.593K              |   5.557M   |
+|    mixers.3.gamma                                 |    (1,)                |            |
+|    mixers.3.dw                                    |    1.728K              |    0.249M  |
+|    mixers.3.pw                                    |    36.864K             |    5.308M  |
+|   mixers.4                                        |   38.593K              |   5.557M   |
+|    mixers.4.gamma                                 |    (1,)                |            |
+|    mixers.4.dw                                    |    1.728K              |    0.249M  |
+|    mixers.4.pw                                    |    36.864K             |    5.308M  |
+|   mixers.5                                        |   38.593K              |   5.557M   |
+|    mixers.5.gamma                                 |    (1,)                |            |
+|    mixers.5.dw                                    |    1.728K              |    0.249M  |
+|    mixers.5.pw                                    |    36.864K             |    5.308M  |
+Total (fvcore 'flops' ~= MACs): 1,693,926,528
+Total (G): 1.694
+Unsupported ops (not counted): Counter({'aten::mul': 442, 'aten::add': 249, 'aten::mul_': 97, 'aten::silu': 48, 'aten::sub': 48, 'aten::exp': 48, 'aten::div': 48, 'aten::tril': 24, 'aten::log_sigmoid': 24, 'aten::cumsum': 24, 'aten::repeat': 24, 'aten::where': 24, 'aten::sum': 24, 'aten::abs': 24, 'aten::neg': 24, 'aten::maximum': 24, 'aten::flip': 24, 'aten::silu_': 2, 'aten::avg_pool2d': 1})

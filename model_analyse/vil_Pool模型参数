@@ -1,0 +1,41 @@
+
+[Auto] Checkpoint 通道与当前 FEAT_CH 不一致，按 checkpoint 推断 FEAT_CH=32,64,64 并重试。
+
+================ Build Info ================
+builder: build_model_from_env
+MODEL_KIND: vil
+ABLATION:   W3_POOL_ONLY
+BASELINE_ABLATION: 
+DWT_FUSE:   none
+FEAT_CH:    32,64,64
+TRAIN_SCRIPT: lstm5_stage1_pretrain_192_sample_ablation_paper.py
+
+================ Model Config (effective kwargs) ================
+ablation_id: W3_POOL_ONLY
+img_size: 192
+model_kind: vil
+num_classes: 1000
+
+================ Checkpoint ================
+ckpt_path: outputs_pswf_paper/in1k192_vil_W3_poolonly_ch32_reg/ema_best.pth
+state_dict_source: (root)
+state_dict_tensor_params: 7,402,371  (7.402 M)
+
+================ Load Report ================
+strict: False
+Missing keys: 0
+Unexpected keys: 0
+
+================ Parameter Count (model instance) ================
+Total parameters:     7,401,847
+Trainable parameters: 7,401,847
+Total (Millions):     7.402 M
+
+================ Parameter Breakdown (top-level) ================
+       feature_extractor: 141,769  (0.142 M)
+             patch_embed: 786,624  (0.787 M)
+               pos_embed: 27,648  (0.028 M)
+                  blocks: 5,824,704  (5.825 M)
+                  mixers: 231,558  (0.232 M)
+                    norm: 384  (0.000 M)
+                    head: 385,000  (0.385 M)

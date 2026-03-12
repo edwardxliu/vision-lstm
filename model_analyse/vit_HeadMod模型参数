@@ -1,0 +1,38 @@
+
+================ Build Info ================
+builder: build_model_from_env
+MODEL_KIND: vit_tiny
+ABLATION:   W3_RESIDUAL
+BASELINE_ABLATION: 
+DWT_FUSE:   add
+FEAT_CH:    32
+TRAIN_SCRIPT: lstm5_stage1_pretrain_192_sample_ablation_paper.py
+
+================ Model Config (effective kwargs) ================
+ablation_id: W3_RESIDUAL
+img_size: 192
+model_kind: vit_tiny
+num_classes: 1000
+
+================ Checkpoint ================
+ckpt_path: outputs_pswf_paper/in1k192_vit_W3_residual_ch32/ema_best.pth
+state_dict_source: (root)
+state_dict_tensor_params: 5,971,200  (5.971 M)
+
+================ Load Report ================
+strict: False
+Missing keys: 2
+Unexpected keys: 0
+  [missing] _wavelet_step
+  _current_global_step 
+
+================ Parameter Count (model instance) ================
+Total parameters:     5,970,616
+Trainable parameters: 5,970,616
+Total (Millions):     5.971 M
+
+================ Parameter Breakdown (top-level) ================
+             patch_embed: 393,408  (0.393 M)
+                  blocks: 5,338,368  (5.338 M)
+                    norm: 384  (0.000 M)
+                    head: 193,000  (0.193 M)
