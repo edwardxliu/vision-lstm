@@ -1,0 +1,36 @@
+
+================ Build Info ================
+builder: build_model_from_env
+MODEL_KIND: vit_tiny
+ABLATION:   W3_IMPROVED_WARMUP
+BASELINE_ABLATION: 
+DWT_FUSE:   add
+FEAT_CH:    32
+TRAIN_SCRIPT: lstm5_stage1_pretrain_192_sample_ablation_paper.py
+
+================ Model Config (effective kwargs) ================
+ablation_id: W3_IMPROVED_WARMUP
+img_size: 192
+model_kind: vit_tiny
+num_classes: 1000
+
+================ Checkpoint ================
+ckpt_path: outputs_pswf_paper/in1k192_vit_W3_improved_warmup_ch32_fuse_multiply/ema_best.pth
+state_dict_source: (root)
+state_dict_tensor_params: 5,972,226  (5.972 M)
+
+================ Load Report ================
+strict: False
+Missing keys: 0
+Unexpected keys: 0
+
+================ Parameter Count (model instance) ================
+Total parameters:     5,971,640
+Trainable parameters: 5,971,640
+Total (Millions):     5.972 M
+
+================ Parameter Breakdown (top-level) ================
+             patch_embed: 393,408  (0.393 M)
+                  blocks: 5,338,368  (5.338 M)
+                    norm: 384  (0.000 M)
+                    head: 193,000  (0.193 M)

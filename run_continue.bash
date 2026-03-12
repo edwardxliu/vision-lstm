@@ -113,10 +113,11 @@ export MODEL_KIND=vit_tiny
 export ABLATION=A3
 export DWT_FUSE=add
 export FEAT_CH=32
-export RUN_TAG=in1k192_vit_A3_ch32
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_A3_ch32/ema_best.pth
+export RUN_TAG=in1k192_vit_A3_ch32_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_A3_ch32.log 2>&1
+    > /home/omnisky/in1k192_vit_A3_ch32_continue.log 2>&1
 
 
 #=============================================
@@ -125,10 +126,11 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 export ABLATION=W3_POOL_ONLY
 export DWT_FUSE=none
 export FEAT_CH=32
-export RUN_TAG=in1k192_vit_W3_poolonly_ch32
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_W3_poolonly_ch32/ema_best.pth
+export RUN_TAG=in1k192_vit_W3_poolonly_ch32_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_W3_poolonly_ch32.log 2>&1
+    > /home/omnisky/in1k192_vit_W3_poolonly_ch32_continue.log 2>&1
 
 
 #=============================================
@@ -136,10 +138,11 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 export ABLATION=W3
 export DWT_FUSE=add
-export RUN_TAG=in1k192_vit_W3_add_ch32
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_W3_add_ch32/ema_best.pth
+export RUN_TAG=in1k192_vit_W3_add_ch32_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_W3_add_ch32.log 2>&1
+    > /home/omnisky/in1k192_vit_W3_add_ch32_continue.log 2>&1
 
 
 #=============================================
@@ -148,13 +151,14 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 #=============================================
 export ABLATION=W3_IMPROVED_WARMUP
 export DWT_FUSE=add
-export WAVELET_WARMUP_STEPS=40000
+export WAVELET_WARMUP_STEPS=0
 export WAVELET_SCALE_INIT=0.1
 export WAVELET_FUSE_MODE=multiply
-export RUN_TAG=in1k192_vit_W3_improved_warmup_ch32_fuse_multiply
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_W3_improved_warmup_ch32_fuse_multiply/ema_best.pth
+export RUN_TAG=in1k192_vit_W3_improved_warmup_ch32_fuse_multiply_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_W3_improved_warmup_ch32_fuse_multiply.log 2>&1
+    > /home/omnisky/in1k192_vit_W3_improved_warmup_ch32_fuse_multiply_continue.log 2>&1
 
 # 清理 wavelet 相关环境变量，避免影响后续 TOKENONLY / RESIDUAL
 unset WAVELET_WARMUP_STEPS
@@ -168,10 +172,11 @@ unset WAVELET_SCALE_INIT
 export ABLATION=W3_TOKENONLY
 export DWT_FUSE=add
 export FEAT_CH=32
-export RUN_TAG=in1k192_vit_W3_tokenonly_ch32
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_W3_tokenonly_ch32/ema_best.pth
+export RUN_TAG=in1k192_vit_W3_tokenonly_ch32_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_W3_tokenonly_ch32.log 2>&1
+    > /home/omnisky/in1k192_vit_W3_tokenonly_ch32_continue.log 2>&1
 
 
 #=============================================
@@ -180,9 +185,10 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
 export ABLATION=W3_RESIDUAL
 export DWT_FUSE=add
 export FEAT_CH=32
-export RUN_TAG=in1k192_vit_W3_residual_ch32
+export RESUME_CKPT=outputs_pswf_paper/in1k192_vit_W3_residual_ch32/ema_best.pth
+export RUN_TAG=in1k192_vit_W3_residual_ch32_continue
 
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
-    > /home/omnisky/in1k192_vit_W3_residual_ch32.log 2>&1
+    > /home/omnisky/in1k192_vit_W3_residual_ch32_continue.log 2>&1
 
 '"
