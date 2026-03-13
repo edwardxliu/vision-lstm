@@ -1,166 +1,272 @@
-# Vision-LSTM (ViL)
+# VisionLSTM / ViT Ablation Training
 
-[[`Project Page`](https://nx-ai.github.io/vision-lstm)] 
-[[`Paper`](https://arxiv.org/abs/2406.04303)] 
-[[`Models`](https://github.com/nx-ai/vision-lstm#pre-trained-models)] 
-[[`Codebase Demo Video`](https://youtu.be/80kc3hscTTg)]
-[[`BibTeX`](https://github.com/nx-ai/vision-lstm#citation)]
+This repository provides a unified training and evaluation harness for VisionLSTM (ViL) and ViT on ImageNet-1K, Tiny-ImageNet, and Tiny-ImageNet-C, including:
 
-Pytorch implementation and pre-trained models of Vision-LSTM (ViL), an adaption of xLSTM to computer vision.
+- A single DDP-capable training script
+- ViL and ViT backbones with PSWF / wavelet components
+- A set of ablations (A0/A1/A2/A3, W3, W3_POOL_ONLY, W3_TOKENONLY, W3_RESIDUALONLY, W3_IMPROVED_WARMUP, etc.)
+- Robustness evaluation on Tiny-ImageNet-C / ImageNet-C
 
-<p align="center">
-<img width="100%" alt="vision_lstm_schematic" src="https://raw.githubusercontent.com/nx-ai/vision-lstm/main/docs/imgs/schematic.svg">
-</p>
+---
 
-## License
+## 1. Installation
 
-This project is licensed under the [MIT](https://github.com/NX-AI/vision-lstm?tab=MIT-2-ov-file) License, except the following folders/files, 
-which are licensed under the [Apache-2.0](https://github.com/NX-AI/vision-lstm?tab=Apache-2.0-1-ov-file) license:
-- src/vislstm/modules/xlstm
-- vision_lstm/vision_lstm.py
-- vision_lstm/vision_lstm2.py
-
-# Get started
-
-This code-base supports simple usage of Vision-LSTM with an "architecture-only" implementation and
-also a full training pipeline.
-
-## Architecture only
-The package [vision_lstm](https://github.com/NX-AI/vision-lstm/tree/main/vision_lstm) provides a standalone
-implementation in the style of [timm](https://github.com/huggingface/pytorch-image-models).
-
-An example how to train ViL on CIFAR10 using the [vision_lstm](https://github.com/NX-AI/vision-lstm/tree/main/vision_lstm) 
-package is provided [here](https://github.com/NX-AI/vision-lstm/tree/main/tutorials/cifar10.ipynb).
-
-If you only need the model architecture, you can load it in a single line via torchhub or copy the
-[vision_lstm](https://github.com/NX-AI/vision-lstm/tree/main/vision_lstm) folder into your own code-base.
-Note that for `VisionLSTM2` we consider a single block to consist of two subblocks (the first one going from top-right 
-to bottom-left and the second one going from bottom-right to top-left) to ease implementations of 
-layerwise learning rate decay.
-```
-# load ViL-T
-model = torch.hub.load("nx-ai/vision-lstm", "VisionLSTM2")
-# load your own model
-model = torch.hub.load(
-    "nx-ai/vision-lstm", 
-    "VisionLSTM2",  # VisionLSTM2 is an improved version over VisionLSTM
-    dim=192,  # latent dimension (192 for ViL-T)
-    depth=12,  # how many ViL blocks (1 block consists 2 subblocks of a forward and backward block)
-    patch_size=16,  # patch_size (results in 196 patches for 224x224 images)
-    input_shape=(3, 224, 224),  # RGB images with resolution 224x224
-    output_shape=(1000,),  # classifier with 1000 classes
-    drop_path_rate=0.05,  # stochastic depth parameter
-)
+```bash
+pip install -r requirements.txt
 ```
 
-See [below](https://github.com/NX-AI/vision-lstm?tab=readme-ov-file#version1-pre-trained-models) or 
-[Appendix A](https://arxiv.org/abs/2406.04303) for a list of changes between `VisionLSTM` and `VisionLSTM2`. 
-We recommend to use `VisionLSTM2` as we found it to perform better but keep `VisionLSTM` for backward compatibility.
+Install PyTorch + CUDA from the official website according to your hardware. The `requirements.txt` only pins minimal versions for Python-side libraries.
 
-## Full training/eval pipeline (architecture, datasets, hyperparameters, classification, segmentation, ...)
+---
 
-If you want to train models with our code-base, follow the setup instructions from 
-[SETUP.md](https://github.com/NX-AI/vision-lstm/tree/main/src/SETUP.md).
-To start runs, follow the instructions from [RUN.md](https://github.com/NX-AI/vision-lstm/tree/main/src/RUN.md).
+## 2. Code structure
 
-All configurations/hyperparameters for all training/evaluation runs can be found [here](https://github.com/NX-AI/vision-lstm/tree/main/src/vislstm/yamls).
+- `model_vil.py`  
+  VisionLSTM backbone (`VisionLSTM2`) and related components:
+  - `ViLBlock`, `ViLBlockPair`, `MatrixLSTMCell`, `FeatureExtractor`
+  - Wavelet / Haar DWT modules, wavelet residual gate
+  - Patch embedding and positional embedding helpers
 
-VTAB-1K evaluations were conducted with [this](https://github.com/BenediktAlkin/vtab1k-pytorch) codebase. 
+- `model_builder.py`  
+  - `get_ablation_cfg(ablation_id)` – maps ablation IDs (A0/A1/A2/A3/W3/...) to model config toggles.
+  - `build_model_from_env(num_classes, img_size)` – constructs a ViL or ViT model according to environment variables (e.g. `MODEL_KIND`, `ABLATION`, `DIM`, `DEPTH`).
 
-# Pre-trained models
+- `env_ddp.py`  
+  - Env helpers: `env_int`, `env_float`, `env_str`, `env_bool`, `env_list_int`
+  - DDP utilities: `is_dist`, `get_rank`, `get_world_size`, `is_main_process`, `ddp_print`
+  - Reproducibility: `set_global_seed`
+  - YAML config loader: `load_yaml_config_if_present()`  
+    Reads `CONFIG` or `CFG` (YAML file) and populates `os.environ` with defaults (without overriding explicitly set env vars).
 
-Pre-trained models on ImageNet-1K can be loaded via torchhub or directly downloaded from [here](https://ml.jku.at/research/vision_lstm/download/).
+- `data_loader.py`  
+  - Datasets:
+    - `TinyImageNetCDataset` – Tiny-ImageNet-C layout
+    - `PathLabelDataset` – minimal (path, label) dataset
+    - `load_tiny_imagenet(root, split, transform)`
+  - Class subset / per-class caps:
+    - `select_subset_classes`
+    - `filter_samples`
+  - High-level builder:
+    - `build_datasets_and_loaders(dataset_name, data_root, img_size, per_gpu_batch, num_workers, data_seed, device)`  
+      Returns `(train_loader, val_loader, train_sampler, num_classes, info_dict)`.
 
+- `train_helpers.py`  
+  - Mixup / CutMix:
+    - `mixup_cutmix`
+  - Soft label loss:
+    - `soft_cross_entropy`
+  - EMA:
+    - `create_ema_model`, `update_ema`
+  - Branch alpha schedule:
+    - `get_branch_alpha`, `try_set_head_alpha`
+
+- `eval_helpers.py`  
+  - Standard validation: `evaluate(model, loader, device, amp_dtype)`
+  - Corruption eval: `evaluate_imagenet_c(model, imagenetc_root, img_size, device, amp_dtype, batch_size, num_workers, dataset_name, data_root)`
+
+- `logging_helpers.py`  
+  - JSON / JSONL: `save_json`, `append_jsonl`
+  - Curves: `plot_metrics(metrics_jsonl, out_dir)`
+
+- `train_ablation_ddp.py`  
+  Main entry point for training and evaluation. It:
+  - Loads defaults from YAML via `CONFIG` / `CFG` (using `env_ddp.load_yaml_config_if_present`)
+  - Reads training and model hyperparameters from env
+  - Builds datasets and loaders via `build_datasets_and_loaders`
+  - Builds ViL or ViT via `build_model_from_env`
+  - Supports:
+    - `MODE=train` – training with EMA, mixup, JSONL logging, and learning-rate scheduling
+    - `MODE=eval` – single validation pass on the validation set
+    - `MODE=eval_imagenetc` – evaluation on ImageNet-C / Tiny-ImageNet-C
+
+- `configs/` (YAML hyperparameter presets)
+  - Tiny-ImageNet (regularized):
+    - `tiny_reg_vil.yaml` – ViL
+    - `tiny_reg_vit.yaml` – ViT
+  - Tiny-ImageNet (no regularization):
+    - `tiny_noreg_vil.yaml` – ViL
+    - `tiny_noreg_vit.yaml` – ViT
+  - ImageNet-1K, 50 epochs:
+    - `in1k_vil_50ep.yaml` – ViL
+    - `in1k_vit_50ep.yaml` – ViT
+  - Tiny-ImageNet-C evaluation:
+    - `tinyc_vil_eval.yaml` – ViL
+    - `tinyc_vit_eval.yaml` – ViT
+
+  **Important:**  
+  All YAML files use placeholder paths:
+  ```yaml
+  DATA_ROOT: /path/to/tiny-imagenet-200
+  IMAGENETC_ROOT: /path/to/Tiny-ImageNet-C
+  ```
+  You must replace these with your actual dataset paths.
+
+- `scripts/`
+  - `train_tiny_reg.sh`  
+    Tiny-ImageNet, regularized training for ViL and ViT across all specified ablations.
+  - `train_tiny_noreg.sh`  
+    Tiny-ImageNet, no-regularization training for ViL and ViT.
+  - `train_in1k_50ep.sh`  
+    ImageNet-1K, 50-epoch training for ViL and ViT ablations.
+  - `eval_tinyc.sh`  
+    Tiny-ImageNet-C evaluation (ViL + ViT) using the `tinyc_*_eval.yaml` configs.
+  - `resume_in1k_50_more.sh`  
+    Resume ImageNet-1K training from an existing checkpoint for additional epochs.
+
+---
+
+## 3. Basic usage
+
+### 3.1 Tiny-ImageNet training (regularized)
+
+1. Edit dataset path in the config:
+
+```yaml
+# configs/tiny_reg_vil.yaml
+DATA_ROOT: /absolute/path/to/tiny-imagenet-200
 ```
-# ImageNet-1K pre-trained models
-model = torch.hub.load("nx-ai/vision-lstm", "vil2-tiny")               # 78.3%
-model = torch.hub.load("nx-ai/vision-lstm", "vil2-small")              # 81.5%
-model = torch.hub.load("nx-ai/vision-lstm", "vil2-base")               # 82.4%
 
-# ViL-T trained for only 400 epochs (Appendix B.2)
-model = torch.hub.load("nx-ai/vision-lstm", "vil2-tiny-e400")          # 77.2%
-``` 
+2. Run all Tiny-ImageNet regularized experiments (ViL + ViT):
 
-Pre-training logs of these models can be found [here](https://github.com/NX-AI/vision-lstm/tree/main/logs/pretrain).
-
-An example of how to use these models can be found in [eval.py](https://github.com/NX-AI/vision-lstm/tree/main/eval.py)
-which evaluates the models on the ImageNet-1K validation set.
-
-
-## DeiT-III-T reimplementation models
-Checkpoints for our reimplementation of DeiT-III-T are provided as raw checkpoint 
-[here](https://ml.jku.at/research/vision_lstm/download/) and can be loaded from torchhub 
-(the vision transformer implementation is based on [KappaModules](https://github.com/BenediktAlkin/KappaModules) so 
-you need to install it before loading a ViT checkpoint via torchhub by running `pip install kappamodules==0.1.76`).
-
-```
-model = torch.hub.load("nx-ai/vision-lstm", "deit3-tiny-e400")  # 75.6%
-model = torch.hub.load("nx-ai/vision-lstm", "deit3-tiny")       # 76.2%
+```bash
+bash scripts/train_tiny_reg.sh
 ```
 
-# Version1 pre-trained models
+This script:
+- Uses `configs/tiny_reg_vil.yaml` for ViL experiments.
+- Uses `configs/tiny_reg_vit.yaml` for ViT experiments.
+- Sets `MODEL_KIND`, `ABLATION`, `DWT_FUSE`, and `RUN_TAG` per run.
+- Calls `train_ablation_ddp.py` via `torch.distributed.run`.
 
-In the first iteration of ViL, models were trained with (i) bilateral_avg pooling instead of bilateral_concat 
-(ii) causal conv1d instead of conv2d before q and k (iii) no biases in projection and layernorms (iv) 224 resolution
-for the whole training process instead of pre-training at 192 resolution followed by a short fine-tuning on 224 
-resolution. These changes improve ImageNet-1K accuracy of a ViL-T from 77.3% to 78.3%. See Appendix A in the paper
-for more details. We recommend to use VisionLSTM2 instead of VisionLSTM but keep support for the initial version as-is.
-Pre-trained models of the first iteration can be loaded as follows:
+If you want to run only a single experiment (e.g. ViL A1 baseline):
 
-```
-# ImageNet-1K pre-trained models
-model = torch.hub.load("nx-ai/vision-lstm", "vil-tiny")               # 77.3%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-tinyplus")           # 78.1%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-small")              # 80.7%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-smallplus")          # 80.9%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-base")               # 81.6%
+```bash
+export CONFIG=configs/tiny_reg_vil.yaml
+export MODEL_KIND=vil
+export ABLATION=A1
+export DWT_FUSE=none
+export RUN_TAG=tiny_vil_A1_ch32_patch8_reg
 
-# long-sequence fine-tuned models
-model = torch.hub.load("nx-ai/vision-lstm", "vil-tinyplus-stride8")   # 80.0%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-smallplus-stride8")  # 82.2%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-base-stride8")       # 82.7%
-
-# tiny models trained for only 400 epochs
-model = torch.hub.load("nx-ai/vision-lstm", "vil-tiny-e400")          # 76.1%
-model = torch.hub.load("nx-ai/vision-lstm", "vil-tinyplus-e400")      # 77.2%
-``` 
-
-Initializing with random weights can be done as follows:
-
-```
-# load ViL-T
-model = torch.hub.load("nx-ai/vision-lstm", "VisionLSTM")
-# load your own model
-model = torch.hub.load(
-    "nx-ai/vision-lstm", 
-    "VisionLSTM",
-    dim=192,  # latent dimension (192 for ViL-T)
-    depth=24,  # how many ViL blocks
-    patch_size=16,  # patch_size (results in 196 patches for 224x224 images)
-    input_shape=(3, 224, 224),  # RGB images with resolution 224x224
-    output_shape=(1000,),  # classifier with 1000 classes
-    drop_path_rate=0.05,  # stochastic depth parameter
-    stride=None,  # set to 8 for long-sequence fine-tuning
-)
+python -m torch.distributed.run --nproc_per_node=8 train_ablation_ddp.py
 ```
 
-# Other
+### 3.2 Tiny-ImageNet training (no regularization)
 
-This code-base is an improved version of the one used for [MIM-Refiner](https://github.com/ml-jku/MIM-Refiner)
-for which there exists a [demo video](https://youtu.be/80kc3hscTTg) to explain various things.
+1. Edit:
 
-
-VTAB-1K evaluations were conducted with [this](https://github.com/BenediktAlkin/vtab1k-pytorch) codebase. 
-
-# Citation
-
-If you like our work, please consider giving it a star :star: and cite us
-
+```yaml
+# configs/tiny_noreg_vil.yaml / configs/tiny_noreg_vit.yaml
+DATA_ROOT: /absolute/path/to/tiny-imagenet-200
 ```
-@article{alkin2024visionlstm,
-  title={{Vision-LSTM}: {xLSTM} as Generic Vision Backbone},
-  author={Benedikt Alkin and Maximilian Beck and Korbinian P{\"o}ppel and Sepp Hochreiter and Johannes Brandstetter},
-  journal={arXiv preprint arXiv:2406.04303},
-  year={2024}
-}
+
+2. Run:
+
+```bash
+bash scripts/train_tiny_noreg.sh
 ```
+
+The script mirrors `train_tiny_reg.sh` but with `LABEL_SMOOTH=0`, `MIXUP_* = 0`, etc.
+
+### 3.3 ImageNet-1K training (50 epochs)
+
+1. Edit:
+
+```yaml
+# configs/in1k_vil_50ep.yaml / configs/in1k_vit_50ep.yaml
+DATA_ROOT: /absolute/path/to/imagenet
+```
+
+2. Run all ImageNet-1K ViL/ViT experiments:
+
+```bash
+bash scripts/train_in1k_50ep.sh
+```
+
+---
+
+## 4. Tiny-ImageNet-C evaluation
+
+1. Edit Tiny-ImageNet-C eval configs:
+
+```yaml
+# configs/tinyc_vil_eval.yaml
+DATA_ROOT: /absolute/path/to/tiny-imagenet-200
+IMAGENETC_ROOT: /absolute/path/to/Tiny-ImageNet-C
+
+# configs/tinyc_vit_eval.yaml
+DATA_ROOT: /absolute/path/to/tiny-imagenet-200
+IMAGENETC_ROOT: /absolute/path/to/Tiny-ImageNet-C
+```
+
+2. Optionally set number of processes (for eval, 1 GPU is usually enough):
+
+```bash
+export NPROC=1   # or more if desired
+```
+
+3. Run the evaluation script:
+
+```bash
+bash scripts/eval_tinyc.sh
+```
+
+The script:
+- For ViL runs, sets `CONFIG=configs/tinyc_vil_eval.yaml` (unless `CONFIG` is already set).
+- For ViT runs, sets `CONFIG=configs/tinyc_vit_eval.yaml`.
+- Sets `MODE=eval_imagenetc` and appropriate `MODEL_KIND`, `ABLATION`, `DWT_FUSE`, `CKPT`, and `RUN_TAG`.
+- Invokes `train_ablation_ddp.py` to load the checkpoint and call `evaluate_imagenet_c`.
+
+---
+
+## 5. Resuming ImageNet-1K training from a checkpoint
+
+To continue training an existing ImageNet-1K model for more epochs:
+
+```bash
+export RESUME_CKPT=/absolute/path/to/ema_best.pth
+export EXTRA_EPOCHS=50         # total epochs you want to run from this point
+export MODEL_KIND=vil          # or vit_tiny
+
+bash scripts/resume_in1k_50_more.sh
+```
+
+This script:
+- Uses `in1k_vil_50ep.yaml` or `in1k_vit_50ep.yaml` as base config.
+- Sets `EPOCHS=EXTRA_EPOCHS`.
+- Uses `RESUME_CKPT` as the initial weights.
+
+---
+
+## 6. Key environment variables
+
+- **Data & mode**
+  - `DATASET`: `imagenet` or `tiny_imagenet`
+  - `DATA_ROOT`: dataset root directory
+  - `IMAGENETC_ROOT`: root directory for ImageNet-C / Tiny-ImageNet-C
+  - `OUT_DIR`: output directory (default `./outputs_pswf_paper`)
+  - `MODE`: `train`, `eval`, or `eval_imagenetc`
+
+- **Model**
+  - `MODEL_KIND`: `vil`, `vit_tiny`, or `mambavision` (stub)
+  - `ABLATION`: e.g. `A1`, `A3`, `W3`, `W3_POOL_ONLY`, `W3_TOKENONLY`, `W3_RESIDUALONLY`, `W3_IMPROVED_WARMUP`
+  - `DWT_FUSE`: `add`, `gated`, `LL`, `concat`, `none`
+  - `DIM`, `DEPTH`, `FEAT_CH`, `PATCH_SIZE`, `STRIDE`, `AUTO_PATCH_DWT`
+
+- **Training hyperparameters**
+  - `IMG_SIZE`, `EPOCHS`, `PER_GPU_BATCH`, `ACCUM_STEPS`
+  - `BASE_LR`, `WARMUP_EPOCHS`, `WEIGHT_DECAY`, `EMA_DECAY`
+  - `LABEL_SMOOTH`, `MIXUP_PROB`, `MIXUP_ALPHA`, `CUTMIX_ALPHA`, `SWITCH_PROB`
+  - `AMP_DTYPE`: `bf16` or `fp16`
+
+---
+
+## 7. Notes
+
+- No machine-specific absolute paths are hard-coded in the source code; dataset locations are always provided via YAML (`DATA_ROOT`, `IMAGENETC_ROOT`) and/or environment variables.
+- For DDP training and evaluation, use:
+  ```bash
+  python -m torch.distributed.run --nproc_per_node=N train_ablation_ddp.py
+  ```
+  where `N` is the number of GPUs per node.
+- For simple experiments or evaluation, running with `N=1` is often sufficient and easier to debug.
+

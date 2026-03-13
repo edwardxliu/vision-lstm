@@ -210,13 +210,6 @@ class DropPath(nn.Sequential):
         # allow some level of tolerance
         actual_keep_prob = keep_count / bs
         drop_path_delta = self.keep_prob - actual_keep_prob
-        # if drop_path_delta > self.drop_prob_tolerance:
-        #     warnings.warn(
-        #         f"efficient stochastic depth (DropPath) would change drop_path_rate by {drop_path_delta:.4f} "
-        #         f"because the batchsize is too small to accurately drop {bs - keep_count} samples per forward pass"
-        #         f" -> forcing stochastic_drop_prob=True drop_path_rate={self.drop_prob}"
-        #     )
-
         # inefficient drop_path
         if self.stochastic_drop_prob or drop_path_delta > self.drop_prob_tolerance:
             shape = (x.shape[0],) + (1,) * (x.ndim - 1)
