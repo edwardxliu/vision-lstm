@@ -1,28 +1,44 @@
-# lstm5_stage1_pretrain_192_sample_ablation_paper.py
-# PSWF / VisionLSTM5 - paper-grade training harness (DDP)
+# stage2_finetune_224_paper.py
+# PSWF / VisionLSTM5 - stage-2 finetuning harness for ImageNet-1K @224
 #
-# What this script adds vs your original:
-# - unified DATASET: ImageNet-1K / Tiny-ImageNet
-# - optional ImageNet-C evaluation (eval-only or post-train)
-# - per-epoch wall-clock + throughput logging (images/s), JSONL metrics dump
-# - auto plots (acc vs epoch/step/time) on rank0
-# - ablation IDs extended: W3, W3_POOL_ONLY, etc.
-# - optional MODEL_KIND: vil (VisionLSTM2) / vit_tiny (minimal ViT-T), plus a stub hook for mambavision
+# Design goals:
+# - keep the exact same model builder / ablation semantics as the stage-1 paper harness
+# - warm-start from a stage-1 checkpoint via RESUME_CKPT
+# - use a cleaner, weaker finetune recipe by default (no KD, no heavy 3-Augment, no mixup/cutmix)
+# - preserve EMA / JSONL logging / plots / rank0 full-val evaluation
 #
-# Usage (example, ImageNet-1K stage1 @192):
-#   export DATASET=imagenet DATA_ROOT=/path/to/imagenet
-#   export ABLATION=W3 DWT_FUSE=add DISABLE_BRANCH=1
-#   export IMG_SIZE=192 EPOCHS=200 PER_GPU_BATCH=32 ACCUM_STEPS=1 AMP_DTYPE=bf16
-#   torchrun --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py
-#
-# Tiny-ImageNet (train+val):
-#   export DATASET=tiny_imagenet DATA_ROOT=/path/to/tiny-imagenet-200
-#   export IMG_SIZE=64 EPOCHS=300 PER_GPU_BATCH=128
-#
-# ImageNet-C evaluation (eval-only):
-#   export MODE=eval_imagenetc IMAGENETC_ROOT=/path/to/imagenet-c
-#   export CKPT=/path/to/ema_best.pth
-#   torchrun --nproc_per_node=1 lstm5_stage1_pretrain_192_sample_ablation_paper.py
+# Typical usage:
+#   export DATASET=imagenet
+#   export DATA_ROOT=../data/imagenet_dataset
+#   export MODEL_KIND=vil
+#   export IMG_SIZE=224
+#   export EPOCHS=50
+#   export PER_GPU_BATCH=32
+#   export ACCUM_STEPS=1
+#   export AMP_DTYPE=bf16
+#   export DIM=192
+#   export DEPTH=12
+#   export PATCH_SIZE=16
+#   export STRIDE=16
+#   export FEAT_CH=32
+#   export DROP_PATH=0.05
+#   export DROP_PATH_DECAY=1
+#   export BASE_LR=5e-5
+#   export WARMUP_EPOCHS=5
+#   export WEIGHT_DECAY=0.05
+#   export EMA_DECAY=0.9997
+#   export LABEL_SMOOTH=0.1
+#   export MIXUP_PROB=0.0
+#   export CUTMIX_ALPHA=0.0
+#   export MIXUP_ALPHA=0.0
+#   export TRAIN_AUG=weak
+#   export RESUME_CKPT=/path/to/stage1/ema_best.pth
+#   export ABLATION=W3_IMPROVED_WARMUP
+#   export DWT_FUSE=add
+#   export WAVELET_WARMUP_STEPS=40000
+#   export WAVELET_SCALE_INIT=0.1
+#   export WAVELET_FUSE_MODE=multiply
+#   torchrun --nproc_per_node=8 stage2_finetune_224_paper.py
 
 import os
 import math
@@ -948,13 +964,13 @@ def main():
         raise RuntimeError("Set DATA_ROOT (or IMAGENET_ROOT for backward compat).")
 
     # ----- Training hyperparams -----
-    img_size = env_int("IMG_SIZE", 192)
-    num_epochs = env_int("EPOCHS", 200)
+    img_size = env_int("IMG_SIZE", 224)
+    num_epochs = env_int("EPOCHS", 50)
     per_gpu_batch = env_int("PER_GPU_BATCH", 32)
     accum_steps = env_int("ACCUM_STEPS", 1)
     num_workers = env_int("NUM_WORKERS", 8)
 
-    base_lr = env_float("BASE_LR", 2e-4)
+    base_lr = env_float("BASE_LR", 5e-5)
     warmup_epochs = env_int("WARMUP_EPOCHS", 5)
     weight_decay = env_float("WEIGHT_DECAY", 0.05)
     clip_grad = env_float("CLIP_GRAD", 1.0)
@@ -970,11 +986,23 @@ def main():
 
     ema_decay = env_float("EMA_DECAY", 0.9997)
 
-    mixup_alpha = env_float("MIXUP_ALPHA", 0.1)
+    mixup_alpha = env_float("MIXUP_ALPHA", 0.0)
     cutmix_alpha = env_float("CUTMIX_ALPHA", 0.0)
     mixup_prob = env_float("MIXUP_PROB", 0.0)
     switch_prob = env_float("SWITCH_PROB", 0.5)
-    label_smooth = env_float("LABEL_SMOOTH", 0.0)
+    label_smooth = env_float("LABEL_SMOOTH", 0.1)
+
+    # ----- Stage-2 finetune augmentation knobs -----
+    train_aug = env_str("TRAIN_AUG", "weak").lower()  # weak | strong
+    finetune_scale_min = env_float("FINETUNE_SCALE_MIN", 0.9)
+    finetune_scale_max = env_float("FINETUNE_SCALE_MAX", 1.0)
+    finetune_ratio_min = env_float("FINETUNE_RATIO_MIN", 3.0 / 4.0)
+    finetune_ratio_max = env_float("FINETUNE_RATIO_MAX", 4.0 / 3.0)
+    finetune_color_jitter = env_float("FINETUNE_COLOR_JITTER", 0.0)
+    finetune_blur_prob = env_float("FINETUNE_BLUR_PROB", 0.0)
+    finetune_erasing_prob = env_float("FINETUNE_ERASING_PROB", 0.0)
+    val_resize_short = env_int("VAL_RESIZE_SHORT", max(img_size, int(round(img_size * 256 / 224))))
+    require_resume = env_bool("REQUIRE_RESUME", False)
 
     # ----- Model config -----
     model_kind = env_str("MODEL_KIND", "vil").lower()  # vil | vit_tiny | mambavision
@@ -1000,9 +1028,9 @@ def main():
     scaler = GradScaler(enabled=(amp_autocast_dtype == torch.float16))
 
     # ----- Output -----
-    out_dir = env_str("OUT_DIR", "./outputs_pswf_paper")
+    out_dir = env_str("OUT_DIR", "./outputs_stage2_finetune")
     os.makedirs(out_dir, exist_ok=True)
-    tag = env_str("RUN_TAG", f"{dataset_name}_{model_kind}_{ablation_id}_img{img_size}_dim{dim}_d{depth}_ch{'-'.join(map(str,feat_ch))}_{dwt_fuse}")
+    tag = env_str("RUN_TAG", f"stage2_{dataset_name}_{model_kind}_{ablation_id}_img{img_size}_ep{num_epochs}_lr{base_lr:g}_ch{'-'.join(map(str,feat_ch))}_{dwt_fuse}")
     run_dir = os.path.join(out_dir, tag)
     os.makedirs(run_dir, exist_ok=True)
     metrics_path = os.path.join(run_dir, "metrics.jsonl")
@@ -1014,21 +1042,55 @@ def main():
     IMAGENET_STD  = [0.229, 0.224, 0.225]
 
     if dataset_name == "imagenet":
-        # ImageNet train pipeline with 3-Augment (ColorJitter + GaussianBlur)
-        train_tf = transforms.Compose([
-            transforms.RandomResizedCrop(img_size, scale=(0.08, 1.0), ratio=(3/4, 4/3)),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.ColorJitter(
-                brightness=0.3,
-                contrast=0.3,
-                saturation=0.3,
-                hue=0.0,
-            ),
-            transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0)),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-            transforms.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3)),
-        ])
+        if train_aug == "strong":
+            # optional fallback to the stage-1 style stronger augmentation
+            train_ops = [
+                transforms.RandomResizedCrop(img_size, scale=(0.08, 1.0), ratio=(3/4, 4/3)),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.ColorJitter(
+                    brightness=0.3,
+                    contrast=0.3,
+                    saturation=0.3,
+                    hue=0.0,
+                ),
+                transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0)),
+                transforms.ToTensor(),
+                transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+                transforms.RandomErasing(p=max(0.1, finetune_erasing_prob), scale=(0.02, 0.2), ratio=(0.3, 3.3)),
+            ]
+        else:
+            # default stage-2 recipe: weak augmentation, closer to standard finetuning
+            train_ops = [
+                transforms.RandomResizedCrop(
+                    img_size,
+                    scale=(finetune_scale_min, finetune_scale_max),
+                    ratio=(finetune_ratio_min, finetune_ratio_max),
+                ),
+                transforms.RandomHorizontalFlip(p=0.5),
+            ]
+            if finetune_color_jitter > 0:
+                train_ops.append(
+                    transforms.ColorJitter(
+                        brightness=finetune_color_jitter,
+                        contrast=finetune_color_jitter,
+                        saturation=finetune_color_jitter,
+                        hue=0.0,
+                    )
+                )
+            if finetune_blur_prob > 0:
+                train_ops.append(transforms.RandomApply(
+                    [transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))],
+                    p=finetune_blur_prob
+                ))
+            train_ops.extend([
+                transforms.ToTensor(),
+                transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
+            ])
+            if finetune_erasing_prob > 0:
+                train_ops.append(transforms.RandomErasing(
+                    p=finetune_erasing_prob, scale=(0.02, 0.2), ratio=(0.3, 3.3)
+                ))
+        train_tf = transforms.Compose(train_ops)
     else:
         # Tiny-ImageNet style (64x64): keep spatial structure, avoid aggressive random-resize
         train_tf = transforms.Compose([
@@ -1039,7 +1101,7 @@ def main():
         ])
 
     val_tf = transforms.Compose([
-        transforms.Resize(224 if dataset_name == "imagenet" else img_size),
+        transforms.Resize(val_resize_short if dataset_name == "imagenet" else img_size),
         transforms.CenterCrop(img_size),
         transforms.ToTensor(),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
@@ -1249,22 +1311,30 @@ def main():
     # 注意：这里只加载权重到当前 model，不恢复 optimizer / scheduler / epoch 号，
     # 相当于以 RESUME_CKPT 作为新的初始化再跑一套 schedule。
     resume_ckpt = env_str("RESUME_CKPT", "").strip()
-    if mode == "train" and resume_ckpt:
-        if os.path.isfile(resume_ckpt):
-            ddp_print(f"[Resume] Loading weights from RESUME_CKPT={resume_ckpt}")
-            sd = torch.load(resume_ckpt, map_location="cpu")
-            # 兼容纯 state_dict 或 {model: state_dict} 这两种常见格式
-            if isinstance(sd, dict) and not any(torch.is_tensor(v) for v in sd.values()):
-                state = sd
-            elif isinstance(sd, dict) and any(torch.is_tensor(v) for v in sd.values()):
-                # 如果字典里本身就是 tensor map，当作 state_dict 用
-                state = sd
+    if mode == "train":
+        if resume_ckpt:
+            if os.path.isfile(resume_ckpt):
+                ddp_print(f"[Resume] Loading weights from RESUME_CKPT={resume_ckpt}")
+                sd = torch.load(resume_ckpt, map_location="cpu")
+                # 兼容纯 state_dict 或 {model: state_dict} 这两种常见格式
+                if isinstance(sd, dict) and not any(torch.is_tensor(v) for v in sd.values()):
+                    state = sd
+                elif isinstance(sd, dict) and any(torch.is_tensor(v) for v in sd.values()):
+                    state = sd
+                else:
+                    state = sd
+                missing, unexpected = model.load_state_dict(state, strict=False)
+                ddp_print(f"[Resume] loaded with missing={len(missing)} unexpected={len(unexpected)}")
             else:
-                state = sd
-            missing, unexpected = model.load_state_dict(state, strict=False)
-            ddp_print(f"[Resume] loaded with missing={len(missing)} unexpected={len(unexpected)}")
+                msg = f"[Resume] RESUME_CKPT not found: {resume_ckpt}"
+                if require_resume:
+                    raise RuntimeError(msg)
+                ddp_print(msg + " (train from scratch)")
         else:
-            ddp_print(f"[Resume] RESUME_CKPT not found: {resume_ckpt} (train from scratch)")
+            msg = "[Resume] RESUME_CKPT is empty. Stage-2 usually expects a stage-1 checkpoint."
+            if require_resume:
+                raise RuntimeError(msg)
+            ddp_print(msg)
 
     # ----- Load checkpoint for eval modes (no training) -----
     if mode.startswith("eval"):
@@ -1307,7 +1377,7 @@ def main():
         model = DDP(model, device_ids=[device.index], find_unused_parameters=False)
 
     # ----- Optimizer -----
-    # Simple AdamW; if you want branch-specific LR/WD, extend here.
+    # Simple AdamW for clean stage-2 comparison; keep recipe identical across variants.
     optimizer = torch.optim.AdamW(model.parameters(), lr=base_lr, weight_decay=weight_decay)
 
     updates_per_epoch = max(1, math.ceil(len(train_loader) / max(1, accum_steps)))
@@ -1336,6 +1406,10 @@ def main():
             base_lr=base_lr, warmup_epochs=warmup_epochs, weight_decay=weight_decay,
             mixup_alpha=mixup_alpha, cutmix_alpha=cutmix_alpha, mixup_prob=mixup_prob, label_smooth=label_smooth,
             ema_decay=ema_decay,
+            train_aug=train_aug, val_resize_short=val_resize_short,
+            finetune_scale_min=finetune_scale_min, finetune_scale_max=finetune_scale_max,
+            finetune_color_jitter=finetune_color_jitter, finetune_blur_prob=finetune_blur_prob,
+            finetune_erasing_prob=finetune_erasing_prob,
         )
         save_json(config_path, cfg_dump)
 
@@ -1513,6 +1587,10 @@ def main():
                 dataset_name=dataset_name, data_root=data_root)
             save_json(os.path.join(run_dir, "imagenet_c.json"), res)
             ddp_print(f"[ImageNet-C] mean acc={res.get('mean', 0.0):.4f}")
+
+    # Save final EMA weights for convenience
+    if is_main_process():
+        torch.save(ema_model.state_dict(), os.path.join(run_dir, "ema_last.pth"))
 
     # Plots
     if is_main_process() and env_bool("PLOT", True):
