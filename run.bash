@@ -471,8 +471,9 @@ export DATA_ROOT=../data/imagenet_dataset
 export MODEL_KIND=vil
 export NUM_WORKERS=8
 
-export IMG_SIZE=192
-export EPOCHS=50
+export IMG_SIZE=224
+######export IMG_SIZE=192
+export EPOCHS=300
 export PER_GPU_BATCH=32
 export ACCUM_STEPS=1
 export AMP_DTYPE=bf16
@@ -484,6 +485,10 @@ export PATCH_SIZE=16
 export STRIDE=16
 export AUTO_PATCH_DWT=1
 
+export DROP_PATH=0.05
+export DROP_PATH_DECAY=1
+export WARMUP_EPOCHS=20
+
 export BASE_LR=2e-4
 export WARMUP_EPOCHS=5
 export WEIGHT_DECAY=0.05
@@ -493,11 +498,14 @@ export EMA_DECAY=0.9997
 export LABEL_SMOOTH=0.1
 export MIXUP_PROB=1.0
 export CUTMIX_ALPHA=1.0
-export MIXUP_ALPHA=0.0
-export SWITCH_PROB=1.0
+export MIXUP_ALPHA=0.8
+export SWITCH_PROB=0.5
+######export MIXUP_ALPHA=0.0
+######export SWITCH_PROB=1.0
 
 export DISABLE_BRANCH=1
-export OUT_DIR=./outputs_pswf_paper
+export OUT_DIR=./outputs_stage1
+######export OUT_DIR=./outputs_pswf_paper
 
 #=============================================
 # 3.1 VIL Baseline(A1)
@@ -548,6 +556,10 @@ python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sam
     > /home/omnisky/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_add.log 2>&1
 
 # 乘性融合
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export WAVELET_WARMUP_STEPS=40000
+export WAVELET_SCALE_INIT=0.1
 export WAVELET_FUSE_MODE=multiply
 export RUN_TAG=in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
@@ -878,4 +890,262 @@ export CKPT=outputs_pswf_paper/tiny_vit_W3_residual_ch32_patch8_reg/ema_best.pth
 python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
     > /home/omnisky/eval_tinyc_vit_W3_residual_ch32_patch8_reg.log 2>&1
 
+'"
+
+
+
+
+#==============================================
+# ch32,64,64测试
+#==============================================
+tmux new -s v5ab -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+echo ENV=$CONDA_DEFAULT_ENV
+which python
+python -c \"import torch; print(torch.__version__, torch.__file__) \"
+which torchrun || true
+torchrun --version || true
+
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vil
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+export ABLATION=A1
+export DWT_FUSE=none
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vil_A1_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_A1_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# (3) 关键消融: W3_POOL_ONLY(证明 wavelet 分支是否真的贡献)
+#==============================================
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+export RUN_TAG=tiny_vil_W3_poolonly_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vil_W3_poolonly_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# Plug-and-Play: ViT-Tiny(Tiny 上先跑两条就够)
+# ViT baseline
+#==============================================
+export DATASET=tiny_imagenet
+export DATA_ROOT=../data/tiny-imagenet-200
+export MODEL_KIND=vit_tiny
+export IMG_SIZE=64
+export EPOCHS=300
+export PER_GPU_BATCH=128
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export DIM=192
+export DEPTH=12
+export FEAT_CH=32,64,64
+export PATCH_SIZE=8
+export STRIDE=8
+export AUTO_PATCH_DWT=1
+
+export ABLATION=A3
+export DWT_FUSE=add
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_A3_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_A3_ch326464_patch8.log 2>&1
+
+#==============================================
+# ViT + PSWF(只要把 ABLATION 改成 W3 即可启用 PSWF tokenizer)
+#==============================================
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+export PATCH_SIZE=8
+export STRIDE=8
+
+export FEAT_CH=32,64,64
+export ABLATION=W3
+export DWT_FUSE=add
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_pswf_W3_add_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_pswf_W3_add_ch326464_patch8.log 2>&1
+
+
+#==============================================
+# ViT + Pool Only
+#==============================================
+export AUTO_PATCH_DWT=1
+export DISABLE_BRANCH=1
+export PATCH_SIZE=8
+export STRIDE=8
+
+export FEAT_CH=32,64,64
+export ABLATION=W3_POOL_ONLY
+export DWT_FUSE=none
+
+export OUT_DIR=./outputs_pswf_paper
+export RUN_TAG=tiny_vit_W3_poolonly_ch326464_patch8
+
+python -m torch.distributed.run --nproc_per_node=8 lstm5_stage1_pretrain_192_sample_ablation_paper.py \
+    > /home/omnisky/tiny_vit_W3_poolonly_ch326464_patch8.log 2>&1
+'"
+
+
+
+
+tmux new -s s2_mul -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+
+export DATA_SEED=5
+export DATASET=imagenet
+export DATA_ROOT=../data/imagenet_dataset
+export MODEL_KIND=vil
+export NUM_WORKERS=8
+
+export IMG_SIZE=256
+export EPOCHS=5
+export PER_GPU_BATCH=32
+export ACCUM_STEPS=1
+export AMP_DTYPE=bf16
+
+export FEAT_CH=32
+export DIM=192
+export DEPTH=12
+export PATCH_SIZE=16
+export STRIDE=16
+export AUTO_PATCH_DWT=1
+
+export DROP_PATH=0.05
+export DROP_PATH_DECAY=1
+
+# export BASE_LR=1e-5
+# export WARMUP_EPOCHS=1
+export LR_SCHED=constant
+export WARMUP_EPOCHS=0
+export BASE_LR=1e-5
+
+export WEIGHT_DECAY=0.05
+export CLIP_GRAD=1.0
+export EMA_DECAY=0.9997
+
+export LABEL_SMOOTH=0.0
+
+export MIXUP_PROB=1.0
+export MIXUP_ALPHA=0.0
+export CUTMIX_ALPHA=1.0
+export SWITCH_PROB=1.0
+
+export TRAIN_AUG=weak
+export FINETUNE_SCALE_MIN=0.9
+export FINETUNE_SCALE_MAX=1.0
+export FINETUNE_COLOR_JITTER=0.1
+export FINETUNE_BLUR_PROB=0.0
+export FINETUNE_ERASING_PROB=0.0
+
+export VAL_RESIZE_SHORT=293
+
+export REQUIRE_RESUME=1
+export RESUME_CKPT=outputs_stage1/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply/ema_best.pth
+
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export DISABLE_BRANCH=1
+export WAVELET_WARMUP_STEPS=0
+export WAVELET_SCALE_INIT=0.1
+export WAVELET_FUSE_MODE=multiply
+
+export OUT_DIR=./outputs_stage2_finetune
+export RUN_TAG=in1k224_stage2_vil_W3_improved_warmup_ch32_ft50_fuse_multiply
+
+python -m torch.distributed.run --nproc_per_node=8 stage2_finetune_224_paper.py \
+  > /home/omnisky/in1k224_stage2_vil_W3_improved_warmup_ch32_ft50_fuse_multiply.log 2>&1
+
+export REQUIRE_RESUME=1
+export RESUME_CKPT=outputs_stage1/in1k192_vil_W3_residualonly_ch32_reg/ema_best.pth
+
+export ABLATION=W3_RESIDUALONLY
+export DWT_FUSE=none
+unset WAVELET_WARMUP_STEPS
+unset WAVELET_SCALE_INIT
+unset WAVELET_FUSE_MODE
+
+export DISABLE_BRANCH=1
+
+export OUT_DIR=./outputs_stage2_finetune
+export RUN_TAG=in1k224_stage2_vil_W3_residualonly_ch32_ft50
+
+python -m torch.distributed.run --nproc_per_node=8 stage2_finetune_224_paper.py \
+  > /home/omnisky/in1k224_stage2_vil_W3_residualonly_ch32_ft50.log 2>&1
+
+'"
+
+
+
+
+tmux new -s eval256_mul -d "bash -lc '
+set -e
+source /home/omnisky/anaconda3/etc/profile.d/conda.sh
+conda activate d2l
+
+export MODE=eval
+export DATASET=imagenet
+export DATA_ROOT=../data/imagenet_dataset
+export MODEL_KIND=vil
+export NUM_WORKERS=8
+
+export IMG_SIZE=256
+export VAL_RESIZE_SHORT=293
+export PER_GPU_BATCH=32
+export AMP_DTYPE=bf16
+
+export FEAT_CH=32
+export DIM=192
+export DEPTH=12
+export PATCH_SIZE=16
+export STRIDE=16
+export AUTO_PATCH_DWT=1
+
+export ABLATION=W3_IMPROVED_WARMUP
+export DWT_FUSE=add
+export DISABLE_BRANCH=1
+export WAVELET_WARMUP_STEPS=0
+export WAVELET_SCALE_INIT=0.1
+export WAVELET_FUSE_MODE=multiply
+
+export CKPT=outputs_stage1/in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply/ema_best.pth
+export OUT_DIR=./outputs_eval_only
+export RUN_TAG=eval_only_stage1_multiply_at256
+
+python -m torch.distributed.run --nproc_per_node=8 stage2_finetune_224_paper.py \
+  > /home/omnisky/eval_only_stage1_multiply_at256.log 2>&1
 '"
