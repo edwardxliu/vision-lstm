@@ -1382,12 +1382,29 @@ def main():
 
     updates_per_epoch = max(1, math.ceil(len(train_loader) / max(1, accum_steps)))
     num_training_steps = num_epochs * updates_per_epoch
+    # warmup_steps = warmup_epochs * updates_per_epoch
+
+    # from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
+    # sch1 = LinearLR(optimizer, start_factor=0.1, total_iters=max(1, warmup_steps))
+    # sch2 = CosineAnnealingLR(optimizer, T_max=max(1, num_training_steps - warmup_steps), eta_min=base_lr * 3e-2)
+    # scheduler = SequentialLR(optimizer, schedulers=[sch1, sch2], milestones=[warmup_steps])
+
     warmup_steps = warmup_epochs * updates_per_epoch
 
-    from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
-    sch1 = LinearLR(optimizer, start_factor=0.1, total_iters=max(1, warmup_steps))
-    sch2 = CosineAnnealingLR(optimizer, T_max=max(1, num_training_steps - warmup_steps), eta_min=base_lr * 3e-2)
-    scheduler = SequentialLR(optimizer, schedulers=[sch1, sch2], milestones=[warmup_steps])
+    from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR, LambdaLR
+
+    lr_sched = os.environ.get("LR_SCHED", "cosine").lower()
+
+    if lr_sched == "constant":
+        scheduler = LambdaLR(optimizer, lr_lambda=lambda step: 1.0)
+    else:
+        sch1 = LinearLR(optimizer, start_factor=0.1, total_iters=max(1, warmup_steps))
+        sch2 = CosineAnnealingLR(
+        optimizer,
+        T_max=max(1, num_training_steps - warmup_steps),
+        eta_min=base_lr * 3e-2,
+        )
+        scheduler = SequentialLR(optimizer, schedulers=[sch1, sch2], milestones=[warmup_steps])
 
     # EMA (keep a non-DDP copy)
     if model_kind == "vil" and is_dist():
