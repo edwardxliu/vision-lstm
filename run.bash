@@ -1033,7 +1033,7 @@ export MODEL_KIND=vil
 export NUM_WORKERS=8
 
 export IMG_SIZE=256
-export EPOCHS=5
+export EPOCHS=15
 export PER_GPU_BATCH=32
 export ACCUM_STEPS=1
 export AMP_DTYPE=bf16
@@ -1048,11 +1048,10 @@ export AUTO_PATCH_DWT=1
 export DROP_PATH=0.05
 export DROP_PATH_DECAY=1
 
-# export BASE_LR=1e-5
-# export WARMUP_EPOCHS=1
-export LR_SCHED=constant
-export WARMUP_EPOCHS=0
 export BASE_LR=1e-5
+#export LR_SCHED=constant
+export LR_SCHED=cosine
+export WARMUP_EPOCHS=1
 
 export WEIGHT_DECAY=0.05
 export CLIP_GRAD=1.0
@@ -1062,13 +1061,13 @@ export LABEL_SMOOTH=0.0
 
 export MIXUP_PROB=1.0
 export MIXUP_ALPHA=0.0
-export CUTMIX_ALPHA=1.0
+export CUTMIX_ALPHA=0.8
 export SWITCH_PROB=1.0
 
 export TRAIN_AUG=weak
 export FINETUNE_SCALE_MIN=0.9
 export FINETUNE_SCALE_MAX=1.0
-export FINETUNE_COLOR_JITTER=0.1
+export FINETUNE_COLOR_JITTER=0.0
 export FINETUNE_BLUR_PROB=0.0
 export FINETUNE_ERASING_PROB=0.0
 
