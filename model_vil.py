@@ -88,6 +88,16 @@ def wang_init_(param: torch.Tensor, dim: int, num_blocks: int):
     return param
 
 
+def _abs_mean(x: torch.Tensor) -> float:
+    if x is None or x.numel() == 0:
+        return 0.0
+    return float(x.detach().abs().mean().item())
+
+
+def _safe_ratio(num: float, den: float, eps: float = 1e-8) -> float:
+    return float(num / max(float(den), eps))
+
+
 def parallel_stabilized_simple(
         queries: torch.Tensor,
         keys: torch.Tensor,
@@ -883,7 +893,8 @@ class StemWithWaveletResidual(nn.Module):
     def forward(self, x: torch.Tensor):
         feat = self.stem(x)
         main_feat = self.post_pool_only(feat)
-        wav_feat = self.dwt_module(feat)
+        residual_forward = getattr(self.dwt_module, "forward_residual", None)
+        wav_feat = residual_forward(feat) if callable(residual_forward) else self.dwt_module(feat)
         return (main_feat, wav_feat)
 
 
@@ -1081,16 +1092,34 @@ class DWTPreprocessor(nn.Module):
 
     Output resolution is halved (H/2, W/2).
     """
-    def __init__(self, channels: int, dwt_fuse: str = "LL"):
+    def __init__(
+        self,
+        channels: int,
+        dwt_fuse: str = "LL",
+        token_wavelet_scale_init: float = 0.1,
+        token_wavelet_shrink: float = 0.02,
+        token_wavelet_hf_only: bool = True,
+        token_wavelet_per_channel: bool = True,
+        token_wavelet_warmup_steps: int = 0,
+    ):
         super().__init__()
         self.channels = int(channels)
         self.dwt_fuse = str(dwt_fuse)
         C = self.channels
         self.dwt = None if (self.dwt_fuse == "none") else HaarDWT2d(C)
+        self._wavelet_monitor_stats = {}
+
+        self.token_wavelet_hf_only = bool(token_wavelet_hf_only)
+        self.token_wavelet_shrink = float(token_wavelet_shrink)
+        self.token_wavelet_per_channel = bool(token_wavelet_per_channel)
+        self.token_wavelet_warmup_steps = int(token_wavelet_warmup_steps) if token_wavelet_warmup_steps > 0 else 0
+        self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+        self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
 
         self.reduce = None
         self.hf_reduce = None
         self.hf_gate = None
+        self.hf_scale = None
 
         if self.dwt_fuse == "none":
             # Pool-only ablation / no wavelet branch.
@@ -1104,10 +1133,21 @@ class DWTPreprocessor(nn.Module):
             raise ValueError("dwt_fuse must be one of {'none','LL','concat','add','gated'}")
 
         if self.dwt_fuse == "add":
-            self.reduce = nn.Conv2d(4 * C, C, kernel_size=1, bias=True)
-            # safe init: start from identity (out = LL)
-            nn.init.zeros_(self.reduce.weight)
-            nn.init.zeros_(self.reduce.bias)
+            if self.token_wavelet_hf_only:
+                self.hf_reduce = nn.Conv2d(3 * C, C, kernel_size=1, bias=True)
+                nn.init.trunc_normal_(self.hf_reduce.weight, std=1e-2)
+                nn.init.zeros_(self.hf_reduce.bias)
+
+                if self.token_wavelet_per_channel:
+                    self.hf_scale = nn.Parameter(torch.ones(C) * float(token_wavelet_scale_init))
+                else:
+                    self.hf_scale = nn.Parameter(torch.tensor(float(token_wavelet_scale_init)))
+            else:
+                self.reduce = nn.Conv2d(4 * C, C, kernel_size=1, bias=True)
+                # safe init: start from identity (out = LL)
+                nn.init.zeros_(self.reduce.weight)
+                nn.init.zeros_(self.reduce.bias)
+
         elif self.dwt_fuse == "gated":
             self.hf_reduce = nn.Conv2d(3 * C, C, kernel_size=1, bias=True)
             self.hf_gate = nn.Sequential(
@@ -1121,24 +1161,133 @@ class DWTPreprocessor(nn.Module):
             nn.init.zeros_(gate_conv.weight)
             nn.init.constant_(gate_conv.bias, -2.0)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def get_wavelet_monitor_stats(self):
+        return dict(self._wavelet_monitor_stats)
+
+    def set_wavelet_global_step(self, global_step: int):
+        if self.token_wavelet_warmup_steps > 0:
+            self._current_global_step.fill_(int(global_step))
+
+    def _get_token_warmup_factor(self) -> float:
+        if self.token_wavelet_warmup_steps <= 0 or not self.training:
+            return 1.0
+        if self._current_global_step.item() >= 0:
+            global_step = int(self._current_global_step.item())
+        else:
+            global_step = int(self._wavelet_step.item())
+            self._wavelet_step += 1
+        return min(1.0, max(0.0, float(global_step) / float(self.token_wavelet_warmup_steps)))
+
+    def _record_wavelet_stats(self, base_abs: float, delta_abs: float, out_abs: float, extra=None):
+        stats = {
+            "base_abs_mean": base_abs,
+            "delta_abs_mean": delta_abs,
+            "delta_over_base": _safe_ratio(delta_abs, base_abs),
+            "out_abs_mean": out_abs,
+        }
+        if extra:
+            stats.update(extra)
+        self._wavelet_monitor_stats = stats
+
+    def _forward_impl(self, x: torch.Tensor, residual_only: bool = False) -> torch.Tensor:
         if self.dwt_fuse == "none":
             # Return an empty tensor with downsampled spatial size (H/2, W/2).
             B, _, H, W = x.shape
-            return x.new_zeros((B, 0, H // 2, W // 2))
+            out = x.new_zeros((B, 0, H // 2, W // 2))
+            self._record_wavelet_stats(
+                base_abs=0.0,
+                delta_abs=0.0,
+                out_abs=0.0,
+                extra={"token_warmup_factor": 1.0, "residual_only": float(residual_only)},
+            )
+            return out
         ll, lh, hl, hh = self.dwt(x)
+        warmup_factor = self._get_token_warmup_factor()
         if self.dwt_fuse == "LL":
-            return ll
+            base_abs = _abs_mean(ll)
+            out = torch.zeros_like(ll) if residual_only else ll
+            self._record_wavelet_stats(
+                base_abs=base_abs,
+                delta_abs=0.0,
+                out_abs=_abs_mean(out),
+                extra={"token_warmup_factor": 1.0, "residual_only": float(residual_only)},
+            )
+            return out
         if self.dwt_fuse == "concat":
-            return torch.cat([ll, lh, hl, hh], dim=1)
+            hf = torch.cat([lh, hl, hh], dim=1) * warmup_factor
+            ll_part = torch.zeros_like(ll) if residual_only else ll
+            out = torch.cat([ll_part, hf], dim=1)
+            base_abs = _abs_mean(ll)
+            delta_abs = _abs_mean(hf)
+            self._record_wavelet_stats(
+                base_abs=base_abs,
+                delta_abs=delta_abs,
+                out_abs=_abs_mean(out),
+                extra={"token_warmup_factor": warmup_factor, "residual_only": float(residual_only)},
+            )
+            return out
         if self.dwt_fuse == "add":
-            all4 = torch.cat([ll, lh, hl, hh], dim=1)
-            return ll + self.reduce(all4)
+            if self.token_wavelet_hf_only:
+                hf = torch.cat([lh, hl, hh], dim=1)
+                if self.token_wavelet_shrink > 0:
+                    hf = F.softshrink(hf, lambd=self.token_wavelet_shrink)
+                hf3 = self.hf_reduce(hf)
+
+                if self.token_wavelet_per_channel:
+                    scale = self.hf_scale.view(1, -1, 1, 1)
+                else:
+                    scale = self.hf_scale
+                effective_scale = scale * warmup_factor
+                delta = effective_scale * hf3
+                out = delta if residual_only else (ll + delta)
+                base_abs = _abs_mean(ll)
+                delta_abs = _abs_mean(delta)
+                self._record_wavelet_stats(
+                    base_abs=base_abs,
+                    delta_abs=delta_abs,
+                    out_abs=_abs_mean(out),
+                    extra={
+                        "token_warmup_factor": warmup_factor,
+                        "token_effective_scale_mean": float(effective_scale.detach().abs().mean().item()),
+                        "residual_only": float(residual_only),
+                    },
+                )
+                return out
+
+            ll_for_reduce = torch.zeros_like(ll) if residual_only else ll
+            all4 = torch.cat([ll_for_reduce, lh, hl, hh], dim=1)
+            delta = warmup_factor * self.reduce(all4)
+            out = delta if residual_only else (ll + delta)
+            base_abs = _abs_mean(ll)
+            delta_abs = _abs_mean(delta)
+            self._record_wavelet_stats(
+                base_abs=base_abs,
+                delta_abs=delta_abs,
+                out_abs=_abs_mean(out),
+                extra={"token_warmup_factor": warmup_factor, "residual_only": float(residual_only)},
+            )
+            return out
         # gated
         hf = torch.cat([lh, hl, hh], dim=1)
         hf3 = self.hf_reduce(hf)
         gate = self.hf_gate(torch.cat([ll, hf3], dim=1))
-        return ll + gate * hf3
+        delta = warmup_factor * (gate * hf3)
+        out = delta if residual_only else (ll + delta)
+        base_abs = _abs_mean(ll)
+        delta_abs = _abs_mean(delta)
+        self._record_wavelet_stats(
+            base_abs=base_abs,
+            delta_abs=delta_abs,
+            out_abs=_abs_mean(out),
+            extra={"token_warmup_factor": warmup_factor, "residual_only": float(residual_only)},
+        )
+        return out
+
+    def forward_residual(self, x: torch.Tensor) -> torch.Tensor:
+        return self._forward_impl(x, residual_only=True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self._forward_impl(x, residual_only=False)
 
 
 
@@ -1149,41 +1298,152 @@ class PostStemWaveletMerge(nn.Module):
     merge="replace": just return DWTPreprocessor(x)  (handled outside)
     merge="concat":  y = AvgPool2d(x) || DWT(x) -> 1x1 -> C  (safe init copies AvgPool2d path)
     """
-    def __init__(self, channels: int, dwt_fuse: str = "add", merge: str = "concat"):
+    def __init__(
+        self,
+        channels: int,
+        dwt_fuse: str = "add",
+        merge: str = "concat",
+        token_wavelet_scale_init: float = 0.1,
+        token_wavelet_shrink: float = 0.02,
+        token_wavelet_hf_only: bool = True,
+        token_wavelet_per_channel: bool = True,
+        token_wavelet_warmup_steps: int = 0,
+    ):
         super().__init__()
         self.channels = int(channels)
         self.merge = str(merge)
-        self.dwt = DWTPreprocessor(channels=self.channels, dwt_fuse=dwt_fuse)
+        self.dwt_fuse = str(dwt_fuse)
+        self._wavelet_monitor_stats = {}
+        self.token_wavelet_warmup_steps = int(token_wavelet_warmup_steps) if token_wavelet_warmup_steps > 0 else 0
+        self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
+        self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
+
+        self.dwt = DWTPreprocessor(
+            channels=self.channels,
+            dwt_fuse=dwt_fuse,
+            token_wavelet_scale_init=token_wavelet_scale_init,
+            token_wavelet_shrink=token_wavelet_shrink,
+            token_wavelet_hf_only=token_wavelet_hf_only,
+            token_wavelet_per_channel=token_wavelet_per_channel,
+            token_wavelet_warmup_steps=0,
+        )
         self.pool = nn.AvgPool2d(kernel_size=2, stride=2)
 
         if self.merge != "concat":
             raise ValueError("PostStemWaveletMerge currently supports merge='concat' only.")
 
-        in_ch = self.channels + int(self.dwt.out_channels)
-        self.mix = nn.Conv2d(in_ch, self.channels, kernel_size=1, bias=True)
-
-        # Safe init: start from pure pooled conv features (ignore wavelet branch at init)
-        nn.init.zeros_(self.mix.weight)
-        nn.init.zeros_(self.mix.bias)
-        with torch.no_grad():
-            # copy the first C channels (pooled conv) to output
-            for i in range(self.channels):
-                self.mix.weight[i, i, 0, 0] = 1.0
+        if self.dwt.out_channels > 0:
+            self.wave_proj = nn.Conv2d(int(self.dwt.out_channels), self.channels, kernel_size=1, bias=True)
+            nn.init.trunc_normal_(self.wave_proj.weight, std=1e-2)
+            nn.init.zeros_(self.wave_proj.bias)
+            self.wave_scale = nn.Parameter(torch.ones(self.channels) * float(token_wavelet_scale_init))
+        else:
+            self.wave_proj = None
+            self.wave_scale = None
 
     @property
     def out_channels(self):
         return self.channels
 
+    def get_wavelet_monitor_stats(self):
+        stats = dict(self._wavelet_monitor_stats)
+        if hasattr(self.dwt, "get_wavelet_monitor_stats"):
+            child_stats = self.dwt.get_wavelet_monitor_stats()
+            for key, value in child_stats.items():
+                stats[f"inner_{key}"] = value
+        return stats
+
+    def set_wavelet_global_step(self, global_step: int):
+        if self.token_wavelet_warmup_steps > 0:
+            self._current_global_step.fill_(int(global_step))
+        if hasattr(self.dwt, "set_wavelet_global_step"):
+            self.dwt.set_wavelet_global_step(global_step)
+
+    def _get_token_warmup_factor(self) -> float:
+        if self.token_wavelet_warmup_steps <= 0 or not self.training:
+            return 1.0
+        if self._current_global_step.item() >= 0:
+            global_step = int(self._current_global_step.item())
+        else:
+            global_step = int(self._wavelet_step.item())
+            self._wavelet_step += 1
+        return min(1.0, max(0.0, float(global_step) / float(self.token_wavelet_warmup_steps)))
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x_ds = self.pool(x)
-        w = self.dwt(x)
-        return self.mix(torch.cat([x_ds, w], dim=1))
+        pool_abs = _abs_mean(x_ds)
+        if self.dwt.out_channels == 0:
+            self._wavelet_monitor_stats = {
+                "pool_abs_mean": pool_abs,
+                "wave_abs_mean": 0.0,
+                "token_delta_abs_mean": 0.0,
+                "token_delta_over_pool": 0.0,
+                "out_abs_mean": pool_abs,
+                "token_warmup_factor": 1.0,
+            }
+            return x_ds
+        residual_forward = getattr(self.dwt, "forward_residual", None)
+        w = residual_forward(x) if callable(residual_forward) else self.dwt(x)
+        w = self.wave_proj(w)
+        warmup_factor = self._get_token_warmup_factor()
+        effective_scale = self.wave_scale.view(1, -1, 1, 1) * warmup_factor
+        delta = effective_scale * w
+        out = x_ds + delta
+        delta_abs = _abs_mean(delta)
+        self._wavelet_monitor_stats = {
+            "pool_abs_mean": pool_abs,
+            "wave_abs_mean": _abs_mean(w),
+            "token_delta_abs_mean": delta_abs,
+            "token_delta_over_pool": _safe_ratio(delta_abs, pool_abs),
+            "out_abs_mean": _abs_mean(out),
+            "token_warmup_factor": warmup_factor,
+            "token_effective_scale_mean": float(effective_scale.detach().abs().mean().item()),
+        }
+        return out
 
 
 class VisionLSTM2(nn.Module):
-    def __init__(self, dim, input_shape, patch_size, depth, output_shape, mode, pooling,
-                 drop_path_rate, drop_path_decay, stride, legacy_norm, conv_kind,
-                 conv_kernel_size, proj_bias, norm_bias, feature_extractor_channels, use_dwt=False, dwt_fuse="gated", auto_patch_dwt=True, use_conv_stem=True, pre_patch_dwt=False, disable_branch=False, head_inject_gated=True, head_gate_hidden_ratio=0.0, head_gate_init_bias=-2.0, attn_pool_heads=4, post_stem_dwt=False, post_stem_merge="replace", wavelet_warmup_steps=0, wavelet_fuse_mode="multiply", head_wavelet_residual=True, wavelet_scale_init=0.0):
+    def __init__(
+    self,
+    dim,
+    input_shape,
+    patch_size,
+    depth,
+    output_shape,
+    mode,
+    pooling,
+    drop_path_rate,
+    drop_path_decay,
+    stride,
+    legacy_norm,
+    conv_kind,
+    conv_kernel_size,
+    proj_bias,
+    norm_bias,
+    feature_extractor_channels,
+    use_dwt=False,
+    dwt_fuse="gated",
+    auto_patch_dwt=True,
+    use_conv_stem=True,
+    pre_patch_dwt=False,
+    disable_branch=False,
+    head_inject_gated=True,
+    head_gate_hidden_ratio=0.0,
+    head_gate_init_bias=-2.0,
+    attn_pool_heads=4,
+    post_stem_dwt=False,
+    post_stem_merge="replace",
+    wavelet_warmup_steps=0,
+    wavelet_fuse_mode="multiply",
+    head_wavelet_residual=True,
+    wavelet_scale_init=0.0,
+
+    # ----- new token-wavelet args -----
+    token_wavelet_scale_init=0.1,
+    token_wavelet_shrink=0.02,
+    token_wavelet_hf_only=True,
+    token_wavelet_per_channel=True,
+):        
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -1208,6 +1468,12 @@ class VisionLSTM2(nn.Module):
         self.disable_branch = bool(disable_branch)
         self.post_stem_dwt = bool(post_stem_dwt)
         self.post_stem_merge = str(post_stem_merge)
+        
+        self.token_wavelet_scale_init = float(token_wavelet_scale_init)
+        self.token_wavelet_shrink = float(token_wavelet_shrink)
+        self.token_wavelet_hf_only = bool(token_wavelet_hf_only)
+        self.token_wavelet_per_channel = bool(token_wavelet_per_channel)
+        self._wavelet_monitor_stats = {}
 
 
         if self.use_conv_stem and self.pre_patch_dwt:
@@ -1229,7 +1495,15 @@ class VisionLSTM2(nn.Module):
 
         # Optional DWT before patch embedding (only when conv stem is disabled)
         if self.pre_patch_dwt:
-            self.pre_patch = DWTPreprocessor(channels=input_shape[0], dwt_fuse=dwt_fuse)
+            self.pre_patch = DWTPreprocessor(
+                channels=input_shape[0],
+                dwt_fuse=dwt_fuse,
+                token_wavelet_scale_init=self.token_wavelet_scale_init,
+                token_wavelet_shrink=self.token_wavelet_shrink,
+                token_wavelet_hf_only=self.token_wavelet_hf_only,
+                token_wavelet_per_channel=self.token_wavelet_per_channel,
+                token_wavelet_warmup_steps=wavelet_warmup_steps,
+            )
             pre_patch_channels = self.pre_patch.out_channels
         else:
             self.pre_patch = nn.Identity()
@@ -1253,11 +1527,26 @@ class VisionLSTM2(nn.Module):
         stem_out_channels = int(num_channels)
         if self.post_stem_dwt:
             if self.post_stem_merge == "replace":
-                self.post_stem = DWTPreprocessor(channels=num_channels, dwt_fuse=dwt_fuse)
-                num_channels = self.post_stem.out_channels
+                self.post_stem = DWTPreprocessor(
+                    channels=num_channels,
+                    dwt_fuse=dwt_fuse,
+                    token_wavelet_scale_init=self.token_wavelet_scale_init,
+                    token_wavelet_shrink=self.token_wavelet_shrink,
+                    token_wavelet_hf_only=self.token_wavelet_hf_only,
+                    token_wavelet_per_channel=self.token_wavelet_per_channel,
+                    token_wavelet_warmup_steps=wavelet_warmup_steps,
+                )
             elif self.post_stem_merge == "concat":
-                self.post_stem = PostStemWaveletMerge(channels=num_channels, dwt_fuse=dwt_fuse, merge="concat")
-                num_channels = self.post_stem.out_channels
+                self.post_stem = PostStemWaveletMerge(
+                    channels=num_channels,
+                    dwt_fuse=dwt_fuse,
+                    merge="concat",
+                    token_wavelet_scale_init=self.token_wavelet_scale_init,
+                    token_wavelet_shrink=self.token_wavelet_shrink,
+                    token_wavelet_hf_only=self.token_wavelet_hf_only,
+                    token_wavelet_per_channel=self.token_wavelet_per_channel,
+                    token_wavelet_warmup_steps=wavelet_warmup_steps,
+                )
             else:
                 raise ValueError("post_stem_merge must be 'replace' or 'concat'")
         else:
@@ -1407,6 +1696,9 @@ class VisionLSTM2(nn.Module):
     @torch.jit.ignore
     def no_weight_decay(self):
         return {"pos_embed.embed"}
+
+    def get_wavelet_monitor_stats(self):
+        return dict(self._wavelet_monitor_stats)
     
     def set_wavelet_global_step(self, global_step: int):
         """
@@ -1417,6 +1709,10 @@ class VisionLSTM2(nn.Module):
         Args:
             global_step: Current training step (starting from 0).
         """
+        for module in (self.pre_patch, self.post_stem):
+            setter = getattr(module, "set_wavelet_global_step", None)
+            if callable(setter):
+                setter(global_step)
         if self.wavelet_residual is not None and self.wavelet_warmup_steps > 0:
             self._current_global_step.fill_(global_step)
 
@@ -1425,6 +1721,10 @@ class VisionLSTM2(nn.Module):
         x0 = self.pre_patch(x)
         stem_out = self.feature_extractor(x0)
         feature_maps = self.post_stem(stem_out)
+        monitor_stats = {}
+        if hasattr(self.post_stem, "get_wavelet_monitor_stats"):
+            for key, value in self.post_stem.get_wavelet_monitor_stats().items():
+                monitor_stats[f"post_stem_{key}"] = float(value)
         x_main = self.patch_embed(feature_maps)
         x_main = self.pos_embed(x_main)
         x_main = einops.rearrange(x_main, "b ... d -> b (...) d")
@@ -1466,7 +1766,13 @@ class VisionLSTM2(nn.Module):
             raise NotImplementedError(f"pooling '{self.pooling}' is not implemented")
 
         if self.wavelet_residual is not None:
-            w = self.dwt_for_residual(stem_out) if self.dwt_for_residual is not None else self.post_stem.dwt(stem_out)
+            x_main_pre_wavelet = x_main
+            dwt_monitor = self.dwt_for_residual if self.dwt_for_residual is not None else self.post_stem.dwt
+            residual_forward = getattr(dwt_monitor, "forward_residual", None)
+            w = residual_forward(stem_out) if callable(residual_forward) else dwt_monitor(stem_out)
+            if hasattr(dwt_monitor, "get_wavelet_monitor_stats"):
+                for key, value in dwt_monitor.get_wavelet_monitor_stats().items():
+                    monitor_stats[f"head_dwt_{key}"] = float(value)
             vec = self.wavelet_residual(w)
             if self.wavelet_warmup_steps > 0 and self.training:
                 if self._current_global_step.item() >= 0:
@@ -1479,10 +1785,34 @@ class VisionLSTM2(nn.Module):
                 warmup_factor = 1.0
             effective_scale = self.wavelet_scale * warmup_factor
             gate_vec = torch.tanh(vec.to(x_main.dtype))
+            gate_scale = effective_scale * gate_vec
             if self.wavelet_fuse_mode == "multiply":
-                x_main = x_main * (1.0 + effective_scale * gate_vec)
+                delta = x_main_pre_wavelet * gate_scale
+                x_main = x_main_pre_wavelet + delta
             else:  # "add" - kept for backward compatibility
-                x_main = x_main + effective_scale * gate_vec
+                delta = gate_scale
+                x_main = x_main_pre_wavelet + delta
+            head_input_abs = _abs_mean(x_main_pre_wavelet)
+            head_delta_abs = _abs_mean(delta)
+            monitor_stats.update(
+                {
+                    "head_input_abs_mean": head_input_abs,
+                    "head_gate_abs_mean": _abs_mean(gate_vec),
+                    "head_delta_abs_mean": head_delta_abs,
+                    "head_delta_over_input": _safe_ratio(head_delta_abs, head_input_abs),
+                    "head_effective_scale": float(effective_scale.detach().item()),
+                }
+            )
+        else:
+            monitor_stats.update(
+                {
+                    "head_input_abs_mean": _abs_mean(x_main),
+                    "head_gate_abs_mean": 0.0,
+                    "head_delta_abs_mean": 0.0,
+                    "head_delta_over_input": 0.0,
+                    "head_effective_scale": 0.0,
+                }
+            )
     
         # Optional feature branch + residual injection
         if (self.feature_extractor_branch is not None) and (self.head_adapter is not None):
@@ -1490,6 +1820,8 @@ class VisionLSTM2(nn.Module):
             x_main = self.head_adapter(x_main, feature_branch_out)             # (B, head_dim)
 
         if self.head is None:
+            self._wavelet_monitor_stats = monitor_stats
             return x_main
         combined_output = self.head(x_main)
+        self._wavelet_monitor_stats = monitor_stats
         return combined_output

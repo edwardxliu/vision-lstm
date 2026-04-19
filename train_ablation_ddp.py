@@ -76,6 +76,53 @@ torch.set_float32_matmul_precision("high")
 torch.backends.cuda.matmul.allow_tf32 = True
 
 
+def get_wavelet_monitor_stats(model: nn.Module) -> Dict[str, float]:
+    getter = getattr(model, "get_wavelet_monitor_stats", None)
+    if not callable(getter):
+        return {}
+    try:
+        stats = getter() or {}
+    except Exception:
+        return {}
+    out: Dict[str, float] = {}
+    for key, value in stats.items():
+        try:
+            out[str(key)] = float(value)
+        except Exception:
+            continue
+    return out
+
+
+def summarize_wavelet_monitor(stats: Dict[str, float]) -> str:
+    if not stats:
+        return ""
+
+    def _pick_suffix(suffix: str):
+        for key in sorted(stats.keys()):
+            if key.endswith(suffix):
+                return key, stats[key]
+        return None, None
+
+    parts = []
+    token_key, token_val = _pick_suffix("token_delta_over_pool")
+    if token_key is not None:
+        parts.append(f"{token_key}={token_val:.3e}")
+
+    head_key, head_val = _pick_suffix("head_delta_over_input")
+    if head_key is not None:
+        parts.append(f"{head_key}={head_val:.3e}")
+
+    scale_key, scale_val = _pick_suffix("head_effective_scale")
+    if scale_key is not None:
+        parts.append(f"{scale_key}={scale_val:.3e}")
+
+    gate_key, gate_val = _pick_suffix("head_gate_abs_mean")
+    if gate_key is not None:
+        parts.append(f"{gate_key}={gate_val:.3e}")
+
+    return " | ".join(parts)
+
+
 
 
 
@@ -126,6 +173,9 @@ def main():
     mixup_prob = env_float("MIXUP_PROB", 0.0)
     switch_prob = env_float("SWITCH_PROB", 0.5)
     label_smooth = env_float("LABEL_SMOOTH", 0.0)
+    log_every = env_int("LOG_EVERY", 100)
+    wavelet_monitor = env_bool("WAVELET_MONITOR", True)
+    wavelet_monitor_log_every = env_int("WAVELET_MONITOR_LOG_EVERY", log_every)
 
     # ----- Model config -----
     model_kind = env_str("MODEL_KIND", "vil").lower()  # vil | vit_tiny | mambavision
@@ -281,6 +331,13 @@ def main():
             base_lr=base_lr, warmup_epochs=warmup_epochs, weight_decay=weight_decay,
             mixup_alpha=mixup_alpha, cutmix_alpha=cutmix_alpha, mixup_prob=mixup_prob, label_smooth=label_smooth,
             ema_decay=ema_decay,
+            wavelet_monitor=wavelet_monitor, wavelet_monitor_log_every=wavelet_monitor_log_every,
+            wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),
+            wavelet_warmup_steps=env_int("WAVELET_WARMUP_STEPS", 0),
+            token_wavelet_scale_init=env_float("TOKEN_WAVELET_SCALE_INIT", 0.1),
+            token_wavelet_shrink=env_float("TOKEN_WAVELET_SHRINK", 0.02),
+            token_wavelet_hf_only=env_bool("TOKEN_WAVELET_HF_ONLY", True),
+            token_wavelet_per_channel=env_bool("TOKEN_WAVELET_PER_CHANNEL", True),
         )
         save_json(config_path, cfg_dump)
 
@@ -320,6 +377,8 @@ def main():
 
         running_loss = 0.0
         soft_acc_hist = []
+        wavelet_sums: Dict[str, float] = {}
+        wavelet_steps = 0
         it_t0 = time.time()
 
         if is_main_process():
@@ -375,13 +434,18 @@ def main():
                     ema_model.set_wavelet_global_step(global_step)
 
             running_loss += loss.item() * accum_steps
+            if wavelet_monitor and is_main_process():
+                stats = get_wavelet_monitor_stats(base_model)
+                if stats:
+                    wavelet_steps += 1
+                    for key, value in stats.items():
+                        wavelet_sums[key] = wavelet_sums.get(key, 0.0) + float(value)
 
             with torch.no_grad():
                 pred = logits.argmax(1)
                 soft_acc = soft_targets.gather(1, pred.unsqueeze(1)).squeeze(1).mean().item()
                 soft_acc_hist.append(soft_acc)
 
-            log_every = env_int("LOG_EVERY", 100)
             if is_main_process() and (it % log_every == 0):
                 dt = max(1e-6, time.time() - it_t0)
                 it_t0 = time.time()
@@ -391,6 +455,11 @@ def main():
                 imgs_seen = per_gpu_batch * get_world_size() * log_every
                 ips = imgs_seen / dt
                 ddp_print(f"  iter {it:5d}/{len(train_loader)} | loss {loss.item()*accum_steps:.4f} | soft_acc {avg_soft:.3f} | lr {lr0:.2e} | {ips:.0f} img/s")
+                if wavelet_monitor and wavelet_steps > 0 and (it % max(1, wavelet_monitor_log_every) == 0):
+                    wavelet_avg = {k: v / wavelet_steps for k, v in wavelet_sums.items()}
+                    wavelet_msg = summarize_wavelet_monitor(wavelet_avg)
+                    if wavelet_msg:
+                        ddp_print(f"    [Wavelet] {wavelet_msg}")
 
         # Validation on rank0 (EMA), then broadcast
         val_loss_g, val_acc_g = 0.0, 0.0
@@ -407,6 +476,7 @@ def main():
         train_loss_epoch = running_loss / max(1, len(train_loader))
         train_soft_acc = float(sum(soft_acc_hist) / max(1, len(soft_acc_hist)))
         lr0 = scheduler.get_last_lr()[0]
+        wavelet_avg = {k: v / wavelet_steps for k, v in wavelet_sums.items()} if wavelet_steps > 0 else {}
 
         # record
         if is_main_process():
@@ -424,10 +494,15 @@ def main():
                 per_gpu_batch=per_gpu_batch,
                 accum_steps=accum_steps,
             )
+            rec.update(wavelet_avg)
             append_jsonl(metrics_path, rec)
 
             ddp_print(f"[Epoch {epoch}] Train loss={train_loss_epoch:.4f}, soft_acc={train_soft_acc:.4f}")
             ddp_print(f"[Epoch {epoch}] Val   loss={val_loss_g:.4f}, acc={val_acc_g:.4f} | epoch_sec={epoch_sec:.1f} | elapsed={elapsed/3600:.2f}h")
+            if wavelet_avg:
+                wavelet_msg = summarize_wavelet_monitor(wavelet_avg)
+                if wavelet_msg:
+                    ddp_print(f"[Epoch {epoch}] Wavelet {wavelet_msg}")
 
             if val_acc_g > best_acc:
                 best_acc = val_acc_g
