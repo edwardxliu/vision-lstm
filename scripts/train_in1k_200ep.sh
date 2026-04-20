@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "Run this script with bash: bash scripts/train_in1k_200ep.sh" >&2
+  exit 1
+fi
 set -euo pipefail
 
 # ImageNet-1K, 200-epoch training for VIL and ViT-Tiny.
-# Shared defaults are defined in configs/in1k_vil_200ep.yaml and configs/in1k_vit_200ep.yaml.
+# Shared defaults come from the 300-epoch configs, with EPOCHS forced to 200 here.
 
 NPROC="${NPROC:-8}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
+EPOCHS="${EPOCHS:-200}"
 
 echo "[train_in1k_200ep] NPROC=${NPROC}, PYTHON_BIN=${PYTHON_BIN}"
 
@@ -13,7 +18,7 @@ WAVELET_SANITY_ENV='export CUTMIX_ALPHA=0.0; export MIXUP_ALPHA=0.8; export MIXU
 
 reset_experiment_overrides() {
   unset WAVELET_WARMUP_STEPS WAVELET_SCALE_INIT WAVELET_FUSE_MODE
-  unset TOKEN_WAVELET_SCALE_INIT TOKEN_WAVELET_SHRINK TOKEN_WAVELET_HF_ONLY TOKEN_WAVELET_PER_CHANNEL
+  unset TOKEN_WAVELET_SCALE_INIT TOKEN_WAVELET_SHRINK TOKEN_WAVELET_HF_ONLY TOKEN_WAVELET_PER_CHANNEL TOKEN_WAVELET_HIDDEN_CH
   unset WAVELET_MONITOR WAVELET_MONITOR_LOG_EVERY
   unset MIXUP_ALPHA CUTMIX_ALPHA MIXUP_PROB SWITCH_PROB
 }
@@ -27,6 +32,7 @@ run_experiment_vil() {
   reset_experiment_overrides
   export MODEL_KIND="vil"
   export CONFIG="configs/in1k_vil_200ep.yaml"
+  export EPOCHS="${EPOCHS}"
   export ABLATION="${ablation}"
   export DWT_FUSE="${dwt_fuse}"
   export RUN_TAG="${run_tag}"
@@ -47,7 +53,8 @@ run_experiment_vit() {
 
   reset_experiment_overrides
   export MODEL_KIND="vit_tiny"
-  export CONFIG="configs/in1k_vit_200ep.yaml"
+  export CONFIG="configs/in1k_vit_300ep.yaml"
+  export EPOCHS="${EPOCHS}"
   export ABLATION="${ablation}"
   export DWT_FUSE="${dwt_fuse}"
   export RUN_TAG="${run_tag}"
@@ -76,9 +83,10 @@ run_experiment_vit() {
 run_experiment_vil "W3_TOKENONLY" "gated" "in1k192_vil_W3_tokenonly_ch32_reg_hfalpha01_shrink002_mixuponly_dbg" \
   "${WAVELET_SANITY_ENV}; export WAVELET_WARMUP_STEPS=40000; unset WAVELET_FUSE_MODE WAVELET_SCALE_INIT; \
    export TOKEN_WAVELET_SCALE_INIT=2.0; \
-   export TOKEN_WAVELET_SHRINK=0.00; \
+   export TOKEN_WAVELET_SHRINK=0.02; \
    export TOKEN_WAVELET_HF_ONLY=1; \
-   export TOKEN_WAVELET_PER_CHANNEL=0"
+   export TOKEN_WAVELET_PER_CHANNEL=0; \
+   export TOKEN_WAVELET_HIDDEN_CH=64"
 
 # run_experiment_vil "W3_RESIDUALONLY" "none" "in1k192_vil_W3_residualonly_ch32_reg_mixuponly_dbg" \
 #   "${WAVELET_SANITY_ENV}; export WAVELET_SCALE_INIT=0.1; unset WAVELET_WARMUP_STEPS WAVELET_FUSE_MODE"

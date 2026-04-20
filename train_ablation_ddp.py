@@ -338,6 +338,7 @@ def main():
             token_wavelet_shrink=env_float("TOKEN_WAVELET_SHRINK", 0.02),
             token_wavelet_hf_only=env_bool("TOKEN_WAVELET_HF_ONLY", True),
             token_wavelet_per_channel=env_bool("TOKEN_WAVELET_PER_CHANNEL", True),
+            token_wavelet_hidden_ch=env_int("TOKEN_WAVELET_HIDDEN_CH", 0),
         )
         save_json(config_path, cfg_dump)
 
