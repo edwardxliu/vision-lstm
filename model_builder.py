@@ -412,10 +412,17 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
     proj_bias = env_bool("PROJ_BIAS", True)
     norm_bias = env_bool("NORM_BIAS", True)
     token_wavelet_scale_init = env_float("TOKEN_WAVELET_SCALE_INIT", 0.1)
+    token_wavelet_inner_scale_init = env_float("TOKEN_WAVELET_INNER_SCALE_INIT", token_wavelet_scale_init)
+    token_wavelet_outer_scale_init = env_float("TOKEN_WAVELET_OUTER_SCALE_INIT", token_wavelet_scale_init)
     token_wavelet_shrink = env_float("TOKEN_WAVELET_SHRINK", 0.02)
     token_wavelet_hf_only = env_bool("TOKEN_WAVELET_HF_ONLY", True)
     token_wavelet_per_channel = env_bool("TOKEN_WAVELET_PER_CHANNEL", True)
     token_wavelet_hidden_ch = max(0, env_int("TOKEN_WAVELET_HIDDEN_CH", 0))
+    token_wavelet_side_ch = max(0, env_int("TOKEN_WAVELET_SIDE_CH", 0))
+    token_wavelet_side_mode = env_str("TOKEN_WAVELET_SIDE_MODE", "concat").strip().lower()
+    token_wavelet_side_beta_init = env_float("TOKEN_WAVELET_SIDE_BETA_INIT", 0.1)
+    token_wavelet_outer_gate = env_bool("TOKEN_WAVELET_OUTER_GATE", False)
+    token_wavelet_split_bands = env_bool("TOKEN_WAVELET_SPLIT_BANDS", False)
 
     #cfg = dict(model_kind=model_kind, ablation_id=ablation_id, img_size=_img_size, num_classes=_num_classes)
 
@@ -425,10 +432,17 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
         img_size=_img_size,
         num_classes=_num_classes,
         token_wavelet_scale_init=token_wavelet_scale_init,
+        token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
+        token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
         token_wavelet_shrink=token_wavelet_shrink,
         token_wavelet_hf_only=token_wavelet_hf_only,
         token_wavelet_per_channel=token_wavelet_per_channel,
         token_wavelet_hidden_ch=token_wavelet_hidden_ch,
+        token_wavelet_side_ch=token_wavelet_side_ch,
+        token_wavelet_side_mode=token_wavelet_side_mode,
+        token_wavelet_side_beta_init=token_wavelet_side_beta_init,
+        token_wavelet_outer_gate=token_wavelet_outer_gate,
+        token_wavelet_split_bands=token_wavelet_split_bands,
     )
 
     if model_kind == "vil":
@@ -472,10 +486,17 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
             wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),
             
             token_wavelet_scale_init = token_wavelet_scale_init,
+            token_wavelet_inner_scale_init = token_wavelet_inner_scale_init,
+            token_wavelet_outer_scale_init = token_wavelet_outer_scale_init,
             token_wavelet_shrink = token_wavelet_shrink,
             token_wavelet_hf_only = token_wavelet_hf_only,
             token_wavelet_per_channel = token_wavelet_per_channel,
             token_wavelet_hidden_channels = token_wavelet_hidden_ch,
+            token_wavelet_side_channels = token_wavelet_side_ch,
+            token_wavelet_side_mode = token_wavelet_side_mode,
+            token_wavelet_side_beta_init = token_wavelet_side_beta_init,
+            token_wavelet_outer_gate = token_wavelet_outer_gate,
+            token_wavelet_split_bands = token_wavelet_split_bands,
         )
         return model, cfg
 
@@ -484,6 +505,10 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
         use_pswf = ab_u.startswith("W3") or ab_u.startswith("W4")
         pool_only = ("POOL_ONLY" in ab_u) or ("POOLONLY" in ab_u)
         if use_pswf:
+            if token_wavelet_side_mode == "patch":
+                raise NotImplementedError(
+                    "TOKEN_WAVELET_SIDE_MODE=patch is only supported for MODEL_KIND=vil."
+                )
             from model_vil import (
                 FeatureExtractor,
                 PostStemWaveletMerge,
@@ -510,17 +535,23 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
                     dwt_fuse="none",
                     merge="concat",
                     token_wavelet_scale_init=token_wavelet_scale_init,
+                    token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
+                    token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
                     token_wavelet_shrink=token_wavelet_shrink,
                     token_wavelet_hf_only=token_wavelet_hf_only,
                     token_wavelet_per_channel=token_wavelet_per_channel,
                     token_wavelet_warmup_steps=vit_wavelet_warmup_steps,
                     token_wavelet_hidden_channels=token_wavelet_hidden_ch,
+                    token_wavelet_side_channels=token_wavelet_side_ch,
+                    token_wavelet_side_mode=token_wavelet_side_mode,
+                    token_wavelet_outer_gate=token_wavelet_outer_gate,
+                    token_wavelet_split_bands=token_wavelet_split_bands,
                 )
 
                 dwt_module = DWTPreprocessor(
                     channels=stem.final_channels,
                     dwt_fuse="add",
-                    token_wavelet_scale_init=token_wavelet_scale_init,
+                    token_wavelet_scale_init=token_wavelet_inner_scale_init,
                     token_wavelet_shrink=token_wavelet_shrink,
                     token_wavelet_hf_only=token_wavelet_hf_only,
                     token_wavelet_per_channel=token_wavelet_per_channel,
@@ -536,11 +567,17 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
                     dwt_fuse=dwt_fuse_eff,
                     merge="concat",
                     token_wavelet_scale_init=token_wavelet_scale_init,
+                    token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
+                    token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
                     token_wavelet_shrink=token_wavelet_shrink,
                     token_wavelet_hf_only=token_wavelet_hf_only,
                     token_wavelet_per_channel=token_wavelet_per_channel,
                     token_wavelet_warmup_steps=vit_wavelet_warmup_steps,
                     token_wavelet_hidden_channels=token_wavelet_hidden_ch,
+                    token_wavelet_side_channels=token_wavelet_side_ch,
+                    token_wavelet_side_mode=token_wavelet_side_mode,
+                    token_wavelet_outer_gate=token_wavelet_outer_gate,
+                    token_wavelet_split_bands=token_wavelet_split_bands,
                 )
                 pswf_embed = nn.Sequential(stem, post)
                 main_ch = post.out_channels

@@ -127,6 +127,53 @@ def summarize_wavelet_monitor(stats: Dict[str, float]) -> str:
 
 
 
+def _extract_state_dict(obj) -> Dict[str, torch.Tensor]:
+    """Accept plain state_dict or {'model'|'ema'|'state_dict': sd, ...} wrappers."""
+    if isinstance(obj, dict):
+        for key in ("ema", "model", "state_dict"):
+            inner = obj.get(key)
+            if isinstance(inner, dict) and any(torch.is_tensor(v) for v in inner.values()):
+                return inner
+    return obj
+
+
+def build_adamw_with_model_no_weight_decay(
+    model: nn.Module,
+    lr: float,
+    weight_decay: float,
+) -> torch.optim.Optimizer:
+    """
+    Build AdamW using model.no_weight_decay() when available.
+    """
+    nwd_getter = getattr(model, "no_weight_decay", None)
+    no_decay_names = set()
+    if callable(nwd_getter):
+        try:
+            no_decay_names = set(nwd_getter() or [])
+        except Exception:
+            no_decay_names = set()
+
+    decay_params = []
+    no_decay_params = []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if (name in no_decay_names) or any(name.endswith(f".{n}") for n in no_decay_names):
+            no_decay_params.append(param)
+        else:
+            decay_params.append(param)
+
+    param_groups = []
+    if decay_params:
+        param_groups.append({"params": decay_params, "weight_decay": weight_decay})
+    if no_decay_params:
+        param_groups.append({"params": no_decay_params, "weight_decay": 0.0})
+    if not param_groups:
+        raise RuntimeError("No trainable parameters found for optimizer.")
+
+    return torch.optim.AdamW(param_groups, lr=lr)
+
+
 # ----------------- Main -----------------
 def main():
     # Optionally load defaults from a YAML config specified via CONFIG / CFG.
@@ -139,8 +186,10 @@ def main():
     device = torch.device("cuda", int(os.environ.get("LOCAL_RANK", 0))) if torch.cuda.is_available() else torch.device("cpu")
 
     # ----- Global seed (torch / numpy / random). DATA_SEED also used for subset/cap later. -----
+    # Per-rank offset so dropout / mixup lam / cutmix bbox differ across ranks (DistributedSampler
+    # already uses its own epoch-seeded RNG, so per-rank divergence here doesn't affect sharding).
     data_seed = env_int("DATA_SEED", 1234)
-    set_global_seed(data_seed)
+    set_global_seed(data_seed + get_rank())
 
     # ----- Mode -----
     mode = env_str("MODE", "train").lower()
@@ -247,14 +296,7 @@ def main():
     if mode == "train" and resume_ckpt:
         if os.path.isfile(resume_ckpt):
             ddp_print(f"[Resume] Loading weights from RESUME_CKPT={resume_ckpt}")
-            sd = torch.load(resume_ckpt, map_location="cpu")
-            # Accept both plain state_dict and {name: tensor} style checkpoints.
-            if isinstance(sd, dict) and not any(torch.is_tensor(v) for v in sd.values()):
-                state = sd
-            elif isinstance(sd, dict) and any(torch.is_tensor(v) for v in sd.values()):
-                state = sd
-            else:
-                state = sd
+            state = _extract_state_dict(torch.load(resume_ckpt, map_location="cpu"))
             missing, unexpected = model.load_state_dict(state, strict=False)
             ddp_print(f"[Resume] loaded with missing={len(missing)} unexpected={len(unexpected)}")
         else:
@@ -272,25 +314,32 @@ def main():
                     "MODE=eval* requires CKPT=/path/to/checkpoint, "
                     "or a valid ema_best.pth in the current run directory."
                 )
-        sd = torch.load(ckpt, map_location="cpu")
-        model.load_state_dict(sd, strict=False)
+        state = _extract_state_dict(torch.load(ckpt, map_location="cpu"))
+        model.load_state_dict(state, strict=False)
         model.eval()
         if mode == "eval":
-            loss, acc = evaluate(model, val_loader, device, amp_autocast_dtype)
+            # val_loader is non-sharded; only rank0 evaluates, then broadcast.
+            loss, acc = 0.0, 0.0
+            if is_main_process():
+                loss, acc = evaluate(model, val_loader, device, amp_autocast_dtype)
+            if is_dist():
+                metrics = torch.tensor([loss, acc], device=device, dtype=torch.float32)
+                dist.broadcast(metrics, src=0)
+                loss, acc = float(metrics[0].item()), float(metrics[1].item())
             ddp_print(f"[Eval] val_loss={loss:.4f} acc={acc:.4f}")
             if is_main_process():
-                eval_path = os.path.join(run_dir, "eval_val.json")
-                save_json(eval_path, {"val_loss": float(loss), "val_acc": float(acc)})
+                save_json(os.path.join(run_dir, "eval_val.json"),
+                          {"val_loss": float(loss), "val_acc": float(acc)})
         elif mode == "eval_imagenetc":
             imagenetc_root = env_str("IMAGENETC_ROOT", "")
             if not imagenetc_root:
                 raise RuntimeError("Set IMAGENETC_ROOT for ImageNet-C evaluation.")
-            res = evaluate_imagenet_c(
-                model, imagenetc_root, img_size, device, amp_autocast_dtype, 
-                batch_size=per_gpu_batch, num_workers=num_workers, 
-                dataset_name=dataset_name, data_root=data_root)
-            ddp_print(f"[Eval] ImageNet-C mean acc={res.get('mean', 0.0):.4f}")
             if is_main_process():
+                res = evaluate_imagenet_c(
+                    model, imagenetc_root, img_size, device, amp_autocast_dtype,
+                    batch_size=per_gpu_batch, num_workers=num_workers,
+                    dataset_name=dataset_name, data_root=data_root)
+                ddp_print(f"[Eval] ImageNet-C mean acc={res.get('mean', 0.0):.4f}")
                 save_json(os.path.join(run_dir, "imagenet_c.json"), res)
         if is_dist():
             dist.barrier()
@@ -299,13 +348,26 @@ def main():
 
     # ----- DDP wrap -----
     if is_dist():
-        model = DDP(model, device_ids=[device.index], find_unused_parameters=False)
+        # Branch-disabled / pool-only ablations may leave some registered params off the
+        # forward graph; auto-enable find_unused_parameters in those cases unless user overrides.
+        find_unused = env_bool("DDP_FIND_UNUSED_PARAMS", False)
+        if not find_unused and getattr(model, "disable_branch", False):
+            find_unused = True
+        model = DDP(model, device_ids=[device.index], find_unused_parameters=find_unused)
 
     # ----- Optimizer -----
-    # Simple AdamW; if you want branch-specific LR/WD, extend here.
-    optimizer = torch.optim.AdamW(model.parameters(), lr=base_lr, weight_decay=weight_decay)
+    # Respect model.no_weight_decay() (e.g. pos_embed, side_token_beta) when provided.
+    base_model_for_optim = model.module if isinstance(model, DDP) else model
+    optimizer = build_adamw_with_model_no_weight_decay(
+        base_model_for_optim,
+        lr=base_lr,
+        weight_decay=weight_decay,
+    )
 
-    updates_per_epoch = max(1, math.ceil(len(train_loader) / max(1, accum_steps)))
+    # Use floor so scheduler step count matches actual optimizer.step() count
+    # (we only step when it % accum_steps == 0; partial-tail grads are dropped at
+    # the next epoch's zero_grad(), which is standard practice).
+    updates_per_epoch = max(1, len(train_loader) // max(1, accum_steps))
     num_training_steps = num_epochs * updates_per_epoch
     warmup_steps = warmup_epochs * updates_per_epoch
 
@@ -315,30 +377,38 @@ def main():
     scheduler = SequentialLR(optimizer, schedulers=[sch1, sch2], milestones=[warmup_steps])
 
     # EMA (keep a non-DDP copy)
-    if model_kind == "vil" and is_dist():
-        ema_model = create_ema_model(model.module).to(device)
-    else:
-        ema_model = create_ema_model(model.module if isinstance(model, DDP) else model).to(device)
+    base_for_ema = model.module if isinstance(model, DDP) else model
+    ema_model = create_ema_model(base_for_ema).to(device)
 
     # Save config
     if is_main_process():
         cfg_dump = dict(
             mode=mode, dataset=dataset_name, data_root=data_root,
             model_kind=model_kind, ablation=ablation_id, dwt_fuse=dwt_fuse,
+            disable_branch=disable_branch_env,
             img_size=img_size, epochs=num_epochs, per_gpu_batch=per_gpu_batch, accum_steps=accum_steps,
             global_batch=per_gpu_batch * get_world_size() * accum_steps,
             dim=dim, depth=depth, feat_ch=feat_ch, patch_size=patch_size, stride=stride, auto_patch_dwt=auto_patch_dwt,
-            base_lr=base_lr, warmup_epochs=warmup_epochs, weight_decay=weight_decay,
+            drop_path=drop_path, drop_path_decay=drop_path_decay, legacy_norm=legacy_norm,
+            conv_kind=conv_kind, conv_kernel=conv_kernel, proj_bias=proj_bias, norm_bias=norm_bias,
+            base_lr=base_lr, warmup_epochs=warmup_epochs, weight_decay=weight_decay, clip_grad=clip_grad,
             mixup_alpha=mixup_alpha, cutmix_alpha=cutmix_alpha, mixup_prob=mixup_prob, label_smooth=label_smooth,
-            ema_decay=ema_decay,
+            ema_decay=ema_decay, amp_dtype=amp_dtype_name, data_seed=data_seed,
             wavelet_monitor=wavelet_monitor, wavelet_monitor_log_every=wavelet_monitor_log_every,
             wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),
             wavelet_warmup_steps=env_int("WAVELET_WARMUP_STEPS", 0),
             token_wavelet_scale_init=env_float("TOKEN_WAVELET_SCALE_INIT", 0.1),
+            token_wavelet_inner_scale_init=env_float("TOKEN_WAVELET_INNER_SCALE_INIT", env_float("TOKEN_WAVELET_SCALE_INIT", 0.1)),
+            token_wavelet_outer_scale_init=env_float("TOKEN_WAVELET_OUTER_SCALE_INIT", env_float("TOKEN_WAVELET_SCALE_INIT", 0.1)),
             token_wavelet_shrink=env_float("TOKEN_WAVELET_SHRINK", 0.02),
             token_wavelet_hf_only=env_bool("TOKEN_WAVELET_HF_ONLY", True),
             token_wavelet_per_channel=env_bool("TOKEN_WAVELET_PER_CHANNEL", True),
             token_wavelet_hidden_ch=env_int("TOKEN_WAVELET_HIDDEN_CH", 0),
+            token_wavelet_side_ch=env_int("TOKEN_WAVELET_SIDE_CH", 0),
+            token_wavelet_side_mode=env_str("TOKEN_WAVELET_SIDE_MODE", "concat"),
+            token_wavelet_side_beta_init=env_float("TOKEN_WAVELET_SIDE_BETA_INIT", 0.1),
+            token_wavelet_outer_gate=env_bool("TOKEN_WAVELET_OUTER_GATE", False),
+            token_wavelet_split_bands=env_bool("TOKEN_WAVELET_SPLIT_BANDS", False),
         )
         save_json(config_path, cfg_dump)
 

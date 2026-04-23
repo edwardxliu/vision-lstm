@@ -33,9 +33,14 @@ def plot_metrics(metrics_jsonl: str, out_dir: str) -> None:
         return
 
     def _plot(xkey, ykey, title, fname):
-        xs = [r.get(xkey, None) for r in rows]
-        ys = [r.get(ykey, None) for r in rows]
-        xs, ys = zip(*[(x, y) for x, y in zip(xs, ys) if (x is not None and y is not None)])
+        pairs = [
+            (r.get(xkey), r.get(ykey))
+            for r in rows
+            if r.get(xkey) is not None and r.get(ykey) is not None
+        ]
+        if not pairs:
+            return
+        xs, ys = zip(*pairs)
         plt.figure()
         plt.plot(xs, ys)
         plt.xlabel(xkey)

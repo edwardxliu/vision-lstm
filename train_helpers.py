@@ -60,11 +60,12 @@ def mixup_cutmix(
         lam = np.random.beta(cutmix_alpha, cutmix_alpha)
         bbx1, bby1, bbx2, bby2 = rand_bbox(x.size(), lam)
         x2 = x.flip(0)
-        x[:, :, bby1:bby2, bbx1:bbx2] = x2[:, :, bby1:bby2, bbx1:bbx2]
+        x_out = x.clone()
+        x_out[:, :, bby1:bby2, bbx1:bbx2] = x2[:, :, bby1:bby2, bbx1:bbx2]
         lam_adj = 1.0 - ((bbx2 - bbx1) * (bby2 - bby1) / (x.size(-1) * x.size(-2)))
         y1 = smooth_one_hot(one_hot(y, num_classes), label_smoothing)
         y2 = smooth_one_hot(one_hot(y.flip(0), num_classes), label_smoothing)
-        return x, y1 * lam_adj + y2 * (1.0 - lam_adj)
+        return x_out, y1 * lam_adj + y2 * (1.0 - lam_adj)
 
 
     lam = np.random.beta(mixup_alpha, mixup_alpha)
@@ -96,6 +97,8 @@ def create_ema_model(model: nn.Module) -> nn.Module:
 
 @torch.no_grad()
 def update_ema(model: nn.Module, ema: nn.Module, decay: float) -> None:
+    # state_dict() returns references to the live tensors, so in-place updates
+    # on `v` mutate `ema`'s parameters/buffers directly. No load_state_dict needed.
     msd = model.state_dict()
     esd = ema.state_dict()
     for k, v in esd.items():
@@ -112,8 +115,6 @@ def update_ema(model: nn.Module, ema: nn.Module, decay: float) -> None:
 
         # Floating tensors do EMA (align dtype to be bf16/fp16-safe).
         v.mul_(decay).add_(m.to(dtype=v.dtype), alpha=1.0 - decay)
-
-    ema.load_state_dict(esd, strict=False)
 
 
 # ----------------- Branch alpha helpers (backward compat) -----------------
