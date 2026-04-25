@@ -22,6 +22,7 @@ reset_experiment_overrides() {
   unset TOKEN_WAVELET_SCALE_INIT TOKEN_WAVELET_SHRINK TOKEN_WAVELET_HF_ONLY TOKEN_WAVELET_PER_CHANNEL TOKEN_WAVELET_HIDDEN_CH
   unset TOKEN_WAVELET_INNER_SCALE_INIT TOKEN_WAVELET_OUTER_SCALE_INIT
   unset TOKEN_WAVELET_SIDE_CH TOKEN_WAVELET_SIDE_MODE TOKEN_WAVELET_SIDE_BETA_INIT TOKEN_WAVELET_OUTER_GATE TOKEN_WAVELET_SPLIT_BANDS
+  unset WAVELET_INPUT_IMAGE
   unset WAVELET_MONITOR WAVELET_MONITOR_LOG_EVERY
   unset MIXUP_ALPHA CUTMIX_ALPHA MIXUP_PROB SWITCH_PROB
 }
@@ -83,7 +84,7 @@ run_experiment_vit() {
 # run_experiment_vil "W3_IMPROVED_WARMUP" "add" "in1k192_vil_W3_improved_warmup_ch32_reg_fuse_multiply_mixuponly_dbg" \
 #   "${WAVELET_SANITY_ENV}; export WAVELET_WARMUP_STEPS=40000; export WAVELET_SCALE_INIT=0.1; export WAVELET_FUSE_MODE=multiply"
 
-run_experiment_vil "W3_TOKENONLY" "add" "in1k192_vil_W3_tokenonly_ch32_reg_hfalpha01_shrink002_cutmixonly_xgate_relmod_sidepatch16_split_i1_o05_b01_dbg" \
+run_experiment_vil "W3_TOKENONLY" "add" "in1k192_vil_W3_tokenonly_ch32_reg_hfalpha01_shrink002_cutmixonly_xgate_relmod_sidepatch16_split_i1_o05_b01_imgwave_dbg" \
   "${WAVELET_CUTMIX_ENV}; export WAVELET_WARMUP_STEPS=40000; unset WAVELET_FUSE_MODE WAVELET_SCALE_INIT; \
    export TOKEN_WAVELET_INNER_SCALE_INIT=1.0; \
    export TOKEN_WAVELET_OUTER_SCALE_INIT=0.5; \
@@ -95,7 +96,8 @@ run_experiment_vil "W3_TOKENONLY" "add" "in1k192_vil_W3_tokenonly_ch32_reg_hfalp
    export TOKEN_WAVELET_SIDE_MODE=patch; \
    export TOKEN_WAVELET_SIDE_BETA_INIT=0.1; \
    export TOKEN_WAVELET_OUTER_GATE=1; \
-   export TOKEN_WAVELET_SPLIT_BANDS=1"
+   export TOKEN_WAVELET_SPLIT_BANDS=1; \
+   export WAVELET_INPUT_IMAGE=1"
 
 # run_experiment_vil "W3_RESIDUALONLY" "none" "in1k192_vil_W3_residualonly_ch32_reg_mixuponly_dbg" \
 #   "${WAVELET_SANITY_ENV}; export WAVELET_SCALE_INIT=0.1; unset WAVELET_WARMUP_STEPS WAVELET_FUSE_MODE"

@@ -409,6 +409,7 @@ def main():
             token_wavelet_side_beta_init=env_float("TOKEN_WAVELET_SIDE_BETA_INIT", 0.1),
             token_wavelet_outer_gate=env_bool("TOKEN_WAVELET_OUTER_GATE", False),
             token_wavelet_split_bands=env_bool("TOKEN_WAVELET_SPLIT_BANDS", False),
+            wavelet_input_image=env_bool("WAVELET_INPUT_IMAGE", False),
         )
         save_json(config_path, cfg_dump)
 

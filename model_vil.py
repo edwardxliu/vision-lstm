@@ -898,6 +898,21 @@ class StemWithWaveletResidual(nn.Module):
         return (main_feat, wav_feat)
 
 
+class StemWithImageWavelet(nn.Module):
+    """
+    Wrap a conv stem and a PostStemWaveletMerge such that the merge's wavelet branch
+    sees the raw image (RGB), while the main path still goes through the conv stem.
+    """
+    def __init__(self, stem: nn.Module, post: nn.Module):
+        super().__init__()
+        self.stem = stem
+        self.post = post
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        stem_out = self.stem(x)
+        return self.post(stem_out, image=x)
+
+
 class WaveletGlobalGate(nn.Module):
     """
     Extracts a global vector from wavelet feature maps to lightly modulate the main head.
@@ -1402,6 +1417,7 @@ class PostStemWaveletMerge(nn.Module):
         token_wavelet_side_mode: str = "concat",
         token_wavelet_outer_gate: bool = False,
         token_wavelet_split_bands: bool = False,
+        token_wavelet_image_input_channels: int = 0,
     ):
         super().__init__()
         self.channels = int(channels)
@@ -1415,6 +1431,9 @@ class PostStemWaveletMerge(nn.Module):
             raise ValueError("token_wavelet_side_mode must be 'concat' or 'patch'.")
         self.token_wavelet_outer_gate = bool(token_wavelet_outer_gate)
         self.token_wavelet_split_bands = bool(token_wavelet_split_bands)
+        self.token_wavelet_image_input_channels = (
+            int(token_wavelet_image_input_channels) if token_wavelet_image_input_channels > 0 else 0
+        )
         self._wavelet_monitor_stats = {}
         self._last_side_feature = None
         shared_scale_init = float(token_wavelet_scale_init)
@@ -1424,8 +1443,13 @@ class PostStemWaveletMerge(nn.Module):
         self.register_buffer("_wavelet_step", torch.tensor(0, dtype=torch.long))
         self.register_buffer("_current_global_step", torch.tensor(-1, dtype=torch.long))
 
+        # When image_input_channels > 0, the inner DWT runs on the raw RGB image
+        # instead of the conv-stem output. Its single-level Haar halves the image
+        # spatial size; we then adaptively align it to match pool(stem_out) regardless
+        # of whether the conv stem uses stride 1 or 2.
+        dwt_in_channels = self.token_wavelet_image_input_channels if self.token_wavelet_image_input_channels > 0 else self.channels
         self.dwt = DWTPreprocessor(
-            channels=self.channels,
+            channels=dwt_in_channels,
             dwt_fuse=dwt_fuse,
             token_wavelet_scale_init=self.token_wavelet_inner_scale_init,
             token_wavelet_shrink=token_wavelet_shrink,
@@ -1516,7 +1540,7 @@ class PostStemWaveletMerge(nn.Module):
             self._wavelet_step += 1
         return min(1.0, max(0.0, float(global_step) / float(self.token_wavelet_warmup_steps)))
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, image: torch.Tensor = None) -> torch.Tensor:
         self._last_side_feature = None
         x_ds = self.pool(x)
         pool_abs = _abs_mean(x_ds)
@@ -1537,10 +1561,25 @@ class PostStemWaveletMerge(nn.Module):
                 "token_outer_gate_abs_mean": 0.0,
                 "token_outer_gate_enabled": float(self.token_wavelet_outer_gate),
                 "token_split_bands": float(self.token_wavelet_split_bands),
+                "token_image_input": float(self.token_wavelet_image_input_channels),
             }
             return x_ds
+        if self.token_wavelet_image_input_channels > 0:
+            assert image is not None, (
+                "PostStemWaveletMerge built with token_wavelet_image_input_channels>0 "
+                "but forward was called without an image argument."
+            )
+            assert image.shape[1] == self.token_wavelet_image_input_channels, (
+                f"image has {image.shape[1]} channels but DWT expects "
+                f"{self.token_wavelet_image_input_channels}."
+            )
+            dwt_input = image
+        else:
+            dwt_input = x
         residual_forward = getattr(self.dwt, "forward_residual", None)
-        w_res = residual_forward(x) if callable(residual_forward) else self.dwt(x)
+        w_res = residual_forward(dwt_input) if callable(residual_forward) else self.dwt(dwt_input)
+        if self.token_wavelet_image_input_channels > 0 and w_res.shape[-2:] != x_ds.shape[-2:]:
+            w_res = F.adaptive_avg_pool2d(w_res, x_ds.shape[-2:])
         w_main = self.wave_proj(w_res)
         warmup_factor = self._get_token_warmup_factor()
         if self.token_wavelet_per_channel:
@@ -1599,6 +1638,7 @@ class PostStemWaveletMerge(nn.Module):
             "token_outer_gate_abs_mean": _abs_mean(gate_main) if gate_main is not None else 1.0,
             "token_outer_gate_enabled": float(self.outer_gate is not None),
             "token_split_bands": float(self.token_wavelet_split_bands),
+            "token_image_input": float(self.token_wavelet_image_input_channels),
         }
         return out
 
@@ -1652,7 +1692,8 @@ class VisionLSTM2(nn.Module):
     token_wavelet_side_beta_init=0.1,
     token_wavelet_outer_gate=False,
     token_wavelet_split_bands=False,
-):        
+    wavelet_input_image=False,
+):
         super(VisionLSTM2, self).__init__()
 
         self.dim = dim
@@ -1690,6 +1731,7 @@ class VisionLSTM2(nn.Module):
         self.token_wavelet_side_beta_init = float(token_wavelet_side_beta_init)
         self.token_wavelet_outer_gate = bool(token_wavelet_outer_gate)
         self.token_wavelet_split_bands = bool(token_wavelet_split_bands)
+        self.wavelet_input_image = bool(wavelet_input_image)
         self._wavelet_monitor_stats = {}
 
 
@@ -1770,6 +1812,7 @@ class VisionLSTM2(nn.Module):
                     token_wavelet_side_mode=self.token_wavelet_side_mode,
                     token_wavelet_outer_gate=self.token_wavelet_outer_gate,
                     token_wavelet_split_bands=self.token_wavelet_split_bands,
+                    token_wavelet_image_input_channels=int(input_shape[0]) if self.wavelet_input_image else 0,
                 )
             else:
                 raise ValueError("post_stem_merge must be 'replace' or 'concat'")
@@ -1897,9 +1940,14 @@ class VisionLSTM2(nn.Module):
             )
 
         self.dwt_for_residual = None
+        post_stem_dwt_uses_image = bool(getattr(self.post_stem, "token_wavelet_image_input_channels", 0) > 0)
         if bool(head_wavelet_residual) and self.post_stem_dwt and self.post_stem_merge == "concat":
             wav_ch = 0
-            if hasattr(self.post_stem, "dwt") and self.post_stem.dwt is not None:
+            if (
+                hasattr(self.post_stem, "dwt")
+                and self.post_stem.dwt is not None
+                and not post_stem_dwt_uses_image
+            ):
                 wav_ch = int(getattr(self.post_stem.dwt, "residual_out_channels", self.post_stem.dwt.out_channels))
             if wav_ch > 0:
                 self.wavelet_residual = WaveletGlobalGate(in_channels=wav_ch, dim=head_dim)
@@ -1966,9 +2014,13 @@ class VisionLSTM2(nn.Module):
 
     def forward(self, x):
         # Main branch
+        x_raw = x
         x0 = self.pre_patch(x)
         stem_out = self.feature_extractor(x0)
-        feature_maps = self.post_stem(stem_out)
+        if self.wavelet_input_image and isinstance(self.post_stem, PostStemWaveletMerge):
+            feature_maps = self.post_stem(stem_out, image=x_raw)
+        else:
+            feature_maps = self.post_stem(stem_out)
         monitor_stats = {}
         if hasattr(self.post_stem, "get_wavelet_monitor_stats"):
             for key, value in self.post_stem.get_wavelet_monitor_stats().items():

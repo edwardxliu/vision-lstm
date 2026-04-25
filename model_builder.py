@@ -423,6 +423,7 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
     token_wavelet_side_beta_init = env_float("TOKEN_WAVELET_SIDE_BETA_INIT", 0.1)
     token_wavelet_outer_gate = env_bool("TOKEN_WAVELET_OUTER_GATE", False)
     token_wavelet_split_bands = env_bool("TOKEN_WAVELET_SPLIT_BANDS", False)
+    wavelet_input_image = env_bool("WAVELET_INPUT_IMAGE", False)
 
     #cfg = dict(model_kind=model_kind, ablation_id=ablation_id, img_size=_img_size, num_classes=_num_classes)
 
@@ -443,6 +444,7 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
         token_wavelet_side_beta_init=token_wavelet_side_beta_init,
         token_wavelet_outer_gate=token_wavelet_outer_gate,
         token_wavelet_split_bands=token_wavelet_split_bands,
+        wavelet_input_image=wavelet_input_image,
     )
 
     if model_kind == "vil":
@@ -497,6 +499,7 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
             token_wavelet_side_beta_init = token_wavelet_side_beta_init,
             token_wavelet_outer_gate = token_wavelet_outer_gate,
             token_wavelet_split_bands = token_wavelet_split_bands,
+            wavelet_input_image = wavelet_input_image,
         )
         return model, cfg
 
@@ -515,6 +518,7 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
                 VitPatchEmbed,
                 WaveletGlobalGate,
                 StemWithWaveletResidual,
+                StemWithImageWavelet,
                 DWTPreprocessor,
             )
 
@@ -562,6 +566,7 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
                 pswf_gate = None if token_only else WaveletGlobalGate(in_channels=dwt_module.out_channels, dim=dim)
             else:
                 dwt_fuse_eff = "none" if pool_only else dwt_fuse
+                vit_image_input_ch = 3 if (wavelet_input_image and not pool_only) else 0
                 post = PostStemWaveletMerge(
                     channels=stem.final_channels,
                     dwt_fuse=dwt_fuse_eff,
@@ -578,8 +583,12 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
                     token_wavelet_side_mode=token_wavelet_side_mode,
                     token_wavelet_outer_gate=token_wavelet_outer_gate,
                     token_wavelet_split_bands=token_wavelet_split_bands,
+                    token_wavelet_image_input_channels=vit_image_input_ch,
                 )
-                pswf_embed = nn.Sequential(stem, post)
+                if vit_image_input_ch > 0:
+                    pswf_embed = StemWithImageWavelet(stem, post)
+                else:
+                    pswf_embed = nn.Sequential(stem, post)
                 main_ch = post.out_channels
                 pswf_gate = None if (token_only or pool_only) else WaveletGlobalGate(in_channels=main_ch, dim=dim)
                 
