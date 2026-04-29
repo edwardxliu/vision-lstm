@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-
+import random
 
 # ----------------- Mixup / CutMix -----------------
 def one_hot(labels: torch.Tensor, num_classes: int) -> torch.Tensor:
@@ -50,12 +50,14 @@ def mixup_cutmix(
         oh = smooth_one_hot(one_hot(y, num_classes), label_smoothing)
         return x, oh
 
-    r = np.random.rand()
+    #r = np.random.rand()
+    r = random.random()
     if r > prob:
         oh = smooth_one_hot(one_hot(y, num_classes), label_smoothing)
         return x, oh
 
-    use_cutmix = (np.random.rand() < switch_prob) and (cutmix_alpha > 0)
+    #use_cutmix = (np.random.rand() < switch_prob) and (cutmix_alpha > 0)
+    use_cutmix = (random.random() < switch_prob) and (cutmix_alpha > 0)
     if use_cutmix:
         lam = np.random.beta(cutmix_alpha, cutmix_alpha)
         bbx1, bby1, bbx2, bby2 = rand_bbox(x.size(), lam)

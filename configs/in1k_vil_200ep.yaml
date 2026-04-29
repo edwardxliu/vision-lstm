@@ -1,5 +1,5 @@
 DATASET: imagenet
-DATA_ROOT: /home/omnisky/Public/edward/workspace/data/imagenet_dataset
+DATA_ROOT: ../data/imagenet_dataset
 DATA_SEED: 1234
 
 MODEL_KIND: vil
@@ -29,4 +29,4 @@ SWITCH_PROB: 1.0
 
 DISABLE_BRANCH: 1
 NUM_WORKERS: 8
-
+OUT_DIR: ./outputs_stage1
