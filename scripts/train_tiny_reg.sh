@@ -36,54 +36,39 @@ run_experiment() {
   ${PYTHON_BIN} -m torch.distributed.run --nproc_per_node="${NPROC}" train_ablation_ddp.py
 }
 
-######## VIL ########
+######## VIL (v3b = bk20260417 + HF-only reduce ONLY; orthonormal Haar kept) ########
+# Tags use _v3b suffix.
+# Iteration history (Tiny VIL last-50-ep mean vs paper bk20260417):
+#   v3_bugfix : avg-form Haar + HF-only reduce + shrink=0.02 + wave_alpha=0.1
+#               → RESID -0.88%, all others within ±0.3% noise
+#   v3_min    : avg-form Haar + HF-only reduce (no shrink/wave_alpha)
+#               → RESID -0.88%, others within ±0.3% (shrink+wave_alpha was neutral)
+#   v3b       : orthonormal Haar (REVERT) + HF-only reduce (KEEP)
+#               → expected RESID parity with paper, others unchanged
+# Reason for revert: avg-form Haar halves head-residual signal (no learned absorber),
+# costing ~0.88% on RESIDUALONLY. HF-only reduce stays because mix conv handles it.
 
-# A1 baseline (no PSWF)
-run_experiment "vil" "A1" "none" "tiny_vil_A1_ch32_patch8_reg"
-
-# W3_POOL_ONLY
-run_experiment "vil" "W3_POOL_ONLY" "none" "tiny_vil_W3_poolonly_ch32_patch8_reg"
-
-# W3 (PSWF add, scale=0)
-run_experiment "vil" "W3" "add" "tiny_vil_W3_add_ch32_patch8_reg"
-
-# W3_IMPROVED_WARMUP (add vs multiply)
-run_experiment "vil" "W3_IMPROVED_WARMUP" "add" "tiny_vil_W3_improved_warmup_ch32_patch8_reg" \
-  'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=add'
-
-run_experiment "vil" "W3_IMPROVED_WARMUP" "add" "tiny_vil_W3_improved_warmup_ch32_patch8_reg_fuse_multiply" \
-  'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=multiply'
-
-# W3_TOKENONLY
-run_experiment "vil" "W3_TOKENONLY" "add" "tiny_vil_W3_tokenonly_ch32_patch8_reg" \
+# Currently active: W3_TOKENONLY + W3_RESIDUALONLY (first batch).
+run_experiment "vil" "W3_TOKENONLY" "add" "tiny_vil_W3_tokenonly_ch32_patch8_reg_v3b" \
   'unset WAVELET_WARMUP_STEPS WAVELET_FUSE_MODE WAVELET_SCALE_INIT'
 
-# W3_RESIDUALONLY
-run_experiment "vil" "W3_RESIDUALONLY" "none" "tiny_vil_W3_residualonly_ch32_patch8_reg" \
+run_experiment "vil" "W3_RESIDUALONLY" "none" "tiny_vil_W3_residualonly_ch32_patch8_reg_v3b" \
   'unset WAVELET_WARMUP_STEPS WAVELET_SCALE_INIT'
 
-######## ViT-Tiny ########
+# Remaining VIL ablations (uncomment to run):
+# run_experiment "vil" "A1" "none" "tiny_vil_A1_ch32_patch8_reg_v3b"
+# run_experiment "vil" "W3_POOL_ONLY" "none" "tiny_vil_W3_poolonly_ch32_patch8_reg_v3b"
+# run_experiment "vil" "W3" "add" "tiny_vil_W3_add_ch32_patch8_reg_v3b"
+# run_experiment "vil" "W3_IMPROVED_WARMUP" "add" "tiny_vil_W3_improved_warmup_ch32_patch8_reg_v3b" \
+#   'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=add'
 
-# ViT baseline A3
-run_experiment "vit_tiny" "A3" "add" "tiny_vit_A3_ch32_patch8_reg"
+######## ViT-Tiny (uncomment after VIL batch) ########
 
-# ViT + Pool Only
-run_experiment "vit_tiny" "W3_POOL_ONLY" "none" "tiny_vit_W3_poolonly_ch32_patch8_reg"
-
-# ViT + W3 (PSWF add)
-run_experiment "vit_tiny" "W3" "add" "tiny_vit_W3_add_ch32_patch8_reg"
-
-# ViT + W3_IMPROVED_WARMUP (add vs multiply)
-run_experiment "vit_tiny" "W3_IMPROVED_WARMUP" "add" "tiny_vit_W3_improved_warmup_ch32_patch8_reg" \
-  'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=add'
-
-run_experiment "vit_tiny" "W3_IMPROVED_WARMUP" "add" "tiny_vit_W3_improved_warmup_ch32_patch8_reg_fuse_multiply" \
-  'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=multiply'
-
-# ViT + W3_TOKENONLY
-run_experiment "vit_tiny" "W3_TOKENONLY" "add" "tiny_vit_W3_tokenonly_ch32_patch8_reg" \
-  'unset WAVELET_WARMUP_STEPS WAVELET_FUSE_MODE WAVELET_SCALE_INIT'
-
-# ViT + W3_RESIDUAL
-run_experiment "vit_tiny" "W3_RESIDUAL" "add" "tiny_vit_W3_residual_ch32_patch8_reg"
+# run_experiment "vit_tiny" "A3" "add" "tiny_vit_A3_ch32_patch8_reg_v3b"
+# run_experiment "vit_tiny" "W3_POOL_ONLY" "none" "tiny_vit_W3_poolonly_ch32_patch8_reg_v3b"
+# run_experiment "vit_tiny" "W3_TOKENONLY" "add" "tiny_vit_W3_tokenonly_ch32_patch8_reg_v3b" \
+#   'unset WAVELET_WARMUP_STEPS WAVELET_FUSE_MODE WAVELET_SCALE_INIT'
+# run_experiment "vit_tiny" "W3_RESIDUAL" "add" "tiny_vit_W3_residual_ch32_patch8_reg_v3b"
+# run_experiment "vit_tiny" "W3_IMPROVED_WARMUP" "add" "tiny_vit_W3_improved_warmup_ch32_patch8_reg_v3b" \
+#   'export WAVELET_SCALE_INIT=0.1; export WAVELET_WARMUP_STEPS=10000; export WAVELET_FUSE_MODE=add'
 

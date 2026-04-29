@@ -8,16 +8,6 @@ from env_ddp import env_str, env_int, env_bool, env_float, env_list_int
 from vision_lstm_util import interpolate_sincos, to_ntuple, DropPath  # noqa: F401 - re-exported for users
 
 
-def _abs_mean(x: torch.Tensor) -> float:
-    if x is None or x.numel() == 0:
-        return 0.0
-    return float(x.detach().abs().mean().item())
-
-
-def _safe_ratio(num: float, den: float, eps: float = 1e-8) -> float:
-    return float(num / max(float(den), eps))
-
-
 # ----------------- Minimal ViT-T (for plug-and-play demos) -----------------
 class MLP(nn.Module):
     def __init__(self, dim, mlp_ratio=4.0, drop=0.0):
@@ -78,7 +68,6 @@ class ViTTiny(nn.Module):
         self.dim = dim
         self.pswf_embed = pswf_embed
         self.pswf_gate = pswf_gate
-        self._wavelet_monitor_stats = {}
 
         if pswf_gate is not None:
             self.wavelet_scale = nn.Parameter(torch.tensor(float(wavelet_scale_init)))
@@ -120,49 +109,16 @@ class ViTTiny(nn.Module):
         self.norm = nn.LayerNorm(dim)
         self.head = nn.Linear(dim, num_classes)
 
-    def _collect_embed_monitor_stats(self) -> Dict[str, float]:
-        stats = {}
-        if self.pswf_embed is None:
-            return stats
-        seen = set()
-        for name, module in self.pswf_embed.named_modules():
-            if module is self.pswf_embed or id(module) in seen:
-                continue
-            getter = getattr(module, "get_wavelet_monitor_stats", None)
-            if not callable(getter):
-                continue
-            child_stats = getter()
-            if not child_stats:
-                continue
-            seen.add(id(module))
-            prefix = f"embed_{name.replace('.', '_')}" if name else "embed"
-            for key, value in child_stats.items():
-                stats[f"{prefix}_{key}"] = float(value)
-        return stats
-
-    def get_wavelet_monitor_stats(self) -> Dict[str, float]:
-        return dict(self._wavelet_monitor_stats)
-
     def set_wavelet_global_step(self, global_step: int):
         """
         Provide a VIL-compatible interface for controlling wavelet warmup in ViT+PSWF.
         Only effective when pswf_gate is enabled and wavelet_warmup_steps > 0.
         """
-        if self.pswf_embed is not None:
-            seen = set()
-            for _, module in self.pswf_embed.named_modules():
-                if module is self.pswf_embed or id(module) in seen:
-                    continue
-                setter = getattr(module, "set_wavelet_global_step", None)
-                if callable(setter):
-                    setter(global_step)
-                    seen.add(id(module))
         if self.wavelet_scale is not None and self.wavelet_warmup_steps > 0:
             self._current_global_step.fill_(global_step)
 
     def forward(self, x):
         gate_vec = None
-        monitor_stats = {}
         if self.pswf_embed is None:
             x = self.patch_embed(x)  # (B, D, H/p, W/p)
         else:
@@ -176,7 +132,6 @@ class ViTTiny(nn.Module):
                 if self.pswf_gate is not None:
                     gate_vec = self.pswf_gate(feat)
             x = self.patch_embed(feat)
-            monitor_stats.update(self._collect_embed_monitor_stats())
 
         # VitPatchEmbed returns (B, H, W, D); Conv2d returns (B, D, H, W)
         if x.ndim == 4 and x.shape[-1] == self.dim and x.shape[1] != self.dim:
@@ -192,7 +147,6 @@ class ViTTiny(nn.Module):
         cls = x[:, 0]
 
         if gate_vec is not None and self.wavelet_scale is not None:
-            cls_pre_wavelet = cls
             if self.wavelet_warmup_steps > 0 and self.training:
                 if self._current_global_step.item() >= 0:
                     global_step = self._current_global_step.item()
@@ -205,35 +159,10 @@ class ViTTiny(nn.Module):
 
             effective_scale = self.wavelet_scale * warmup_factor
             gate_vec_t = torch.tanh(gate_vec.to(cls.dtype))
-            gate_scale = effective_scale * gate_vec_t
             if self.wavelet_fuse_mode == "multiply":
-                delta = cls_pre_wavelet * gate_scale
-                cls = cls_pre_wavelet + delta
+                cls = cls * (1.0 + effective_scale * gate_vec_t)
             else:
-                delta = gate_scale
-                cls = cls_pre_wavelet + delta
-            cls_abs = _abs_mean(cls_pre_wavelet)
-            delta_abs = _abs_mean(delta)
-            monitor_stats.update(
-                {
-                    "head_input_abs_mean": cls_abs,
-                    "head_gate_abs_mean": _abs_mean(gate_vec_t),
-                    "head_delta_abs_mean": delta_abs,
-                    "head_delta_over_input": _safe_ratio(delta_abs, cls_abs),
-                    "head_effective_scale": float(effective_scale.detach().item()),
-                }
-            )
-        else:
-            monitor_stats.update(
-                {
-                    "head_input_abs_mean": _abs_mean(cls),
-                    "head_gate_abs_mean": 0.0,
-                    "head_delta_abs_mean": 0.0,
-                    "head_delta_over_input": 0.0,
-                    "head_effective_scale": 0.0,
-                }
-            )
-        self._wavelet_monitor_stats = monitor_stats
+                cls = cls + effective_scale * gate_vec_t
         return self.head(cls)
 
 
@@ -244,7 +173,7 @@ def get_ablation_cfg(ablation_id: str, baseline_ablation: str = "A0") -> dict:
     You can treat W3 as your "PSWF" mainline.
 
     - W3_POOL_ONLY: post-stem downsample path only, no wavelet in token path, no head residual.
-    - W3_TOKENONLY: post-stem pooled tokens plus wavelet residual, head wavelet residual off.
+    - W3_TOKENONLY: post-stem concat+1×1 mix (wavelet in tokens), head wavelet residual off.
     - W3_RESIDUALONLY: main path pool-only, head wavelet residual on (DWT only for CLS modulation).
     - W3_BOTH: both token wavelet and head residual (same as W3).
     """
@@ -411,41 +340,8 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
     conv_kernel = env_int("CONV_KERNEL", 3)
     proj_bias = env_bool("PROJ_BIAS", True)
     norm_bias = env_bool("NORM_BIAS", True)
-    token_wavelet_scale_init = env_float("TOKEN_WAVELET_SCALE_INIT", 0.1)
-    token_wavelet_inner_scale_init = env_float("TOKEN_WAVELET_INNER_SCALE_INIT", token_wavelet_scale_init)
-    token_wavelet_outer_scale_init = env_float("TOKEN_WAVELET_OUTER_SCALE_INIT", token_wavelet_scale_init)
-    token_wavelet_shrink = env_float("TOKEN_WAVELET_SHRINK", 0.02)
-    token_wavelet_hf_only = env_bool("TOKEN_WAVELET_HF_ONLY", True)
-    token_wavelet_per_channel = env_bool("TOKEN_WAVELET_PER_CHANNEL", True)
-    token_wavelet_hidden_ch = max(0, env_int("TOKEN_WAVELET_HIDDEN_CH", 0))
-    token_wavelet_side_ch = max(0, env_int("TOKEN_WAVELET_SIDE_CH", 0))
-    token_wavelet_side_mode = env_str("TOKEN_WAVELET_SIDE_MODE", "concat").strip().lower()
-    token_wavelet_side_beta_init = env_float("TOKEN_WAVELET_SIDE_BETA_INIT", 0.1)
-    token_wavelet_outer_gate = env_bool("TOKEN_WAVELET_OUTER_GATE", False)
-    token_wavelet_split_bands = env_bool("TOKEN_WAVELET_SPLIT_BANDS", False)
-    wavelet_input_image = env_bool("WAVELET_INPUT_IMAGE", False)
 
-    #cfg = dict(model_kind=model_kind, ablation_id=ablation_id, img_size=_img_size, num_classes=_num_classes)
-
-    cfg = dict(
-        model_kind=model_kind,
-        ablation_id=ablation_id,
-        img_size=_img_size,
-        num_classes=_num_classes,
-        token_wavelet_scale_init=token_wavelet_scale_init,
-        token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
-        token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
-        token_wavelet_shrink=token_wavelet_shrink,
-        token_wavelet_hf_only=token_wavelet_hf_only,
-        token_wavelet_per_channel=token_wavelet_per_channel,
-        token_wavelet_hidden_ch=token_wavelet_hidden_ch,
-        token_wavelet_side_ch=token_wavelet_side_ch,
-        token_wavelet_side_mode=token_wavelet_side_mode,
-        token_wavelet_side_beta_init=token_wavelet_side_beta_init,
-        token_wavelet_outer_gate=token_wavelet_outer_gate,
-        token_wavelet_split_bands=token_wavelet_split_bands,
-        wavelet_input_image=wavelet_input_image,
-    )
+    cfg = dict(model_kind=model_kind, ablation_id=ablation_id, img_size=_img_size, num_classes=_num_classes)
 
     if model_kind == "vil":
         from model_vil import VisionLSTM2
@@ -486,20 +382,6 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
             wavelet_fuse_mode=os.environ.get("WAVELET_FUSE_MODE") or abl_cfg.get("wavelet_fuse_mode", "multiply"),
             head_wavelet_residual=abl_cfg.get("head_wavelet_residual", True),
             wavelet_scale_init=env_float("WAVELET_SCALE_INIT", 0.0),
-            
-            token_wavelet_scale_init = token_wavelet_scale_init,
-            token_wavelet_inner_scale_init = token_wavelet_inner_scale_init,
-            token_wavelet_outer_scale_init = token_wavelet_outer_scale_init,
-            token_wavelet_shrink = token_wavelet_shrink,
-            token_wavelet_hf_only = token_wavelet_hf_only,
-            token_wavelet_per_channel = token_wavelet_per_channel,
-            token_wavelet_hidden_channels = token_wavelet_hidden_ch,
-            token_wavelet_side_channels = token_wavelet_side_ch,
-            token_wavelet_side_mode = token_wavelet_side_mode,
-            token_wavelet_side_beta_init = token_wavelet_side_beta_init,
-            token_wavelet_outer_gate = token_wavelet_outer_gate,
-            token_wavelet_split_bands = token_wavelet_split_bands,
-            wavelet_input_image = wavelet_input_image,
         )
         return model, cfg
 
@@ -508,17 +390,12 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
         use_pswf = ab_u.startswith("W3") or ab_u.startswith("W4")
         pool_only = ("POOL_ONLY" in ab_u) or ("POOLONLY" in ab_u)
         if use_pswf:
-            if token_wavelet_side_mode == "patch":
-                raise NotImplementedError(
-                    "TOKEN_WAVELET_SIDE_MODE=patch is only supported for MODEL_KIND=vil."
-                )
             from model_vil import (
                 FeatureExtractor,
                 PostStemWaveletMerge,
                 VitPatchEmbed,
                 WaveletGlobalGate,
                 StemWithWaveletResidual,
-                StemWithImageWavelet,
                 DWTPreprocessor,
             )
 
@@ -534,64 +411,17 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
             token_only = "TOKENONLY" in ab_u or ab_u == "W3_TOKENONLY"
             use_residual = ("RESIDUAL" in ab_u) or (ab_u == "W3_RESIDUAL")
             if use_residual:
-                post_pool_only = PostStemWaveletMerge(
-                    channels=stem.final_channels,
-                    dwt_fuse="none",
-                    merge="concat",
-                    token_wavelet_scale_init=token_wavelet_scale_init,
-                    token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
-                    token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
-                    token_wavelet_shrink=token_wavelet_shrink,
-                    token_wavelet_hf_only=token_wavelet_hf_only,
-                    token_wavelet_per_channel=token_wavelet_per_channel,
-                    token_wavelet_warmup_steps=vit_wavelet_warmup_steps,
-                    token_wavelet_hidden_channels=token_wavelet_hidden_ch,
-                    token_wavelet_side_channels=token_wavelet_side_ch,
-                    token_wavelet_side_mode=token_wavelet_side_mode,
-                    token_wavelet_outer_gate=token_wavelet_outer_gate,
-                    token_wavelet_split_bands=token_wavelet_split_bands,
-                )
-
-                dwt_module = DWTPreprocessor(
-                    channels=stem.final_channels,
-                    dwt_fuse="add",
-                    token_wavelet_scale_init=token_wavelet_inner_scale_init,
-                    token_wavelet_shrink=token_wavelet_shrink,
-                    token_wavelet_hf_only=token_wavelet_hf_only,
-                    token_wavelet_per_channel=token_wavelet_per_channel,
-                )
-
+                post_pool_only = PostStemWaveletMerge(channels=stem.final_channels, dwt_fuse="none", merge="concat")
+                dwt_module = DWTPreprocessor(channels=stem.final_channels, dwt_fuse="add")
                 pswf_embed = StemWithWaveletResidual(stem, post_pool_only, dwt_module)
                 main_ch = post_pool_only.out_channels
                 pswf_gate = None if token_only else WaveletGlobalGate(in_channels=dwt_module.out_channels, dim=dim)
             else:
                 dwt_fuse_eff = "none" if pool_only else dwt_fuse
-                vit_image_input_ch = 3 if (wavelet_input_image and not pool_only) else 0
-                post = PostStemWaveletMerge(
-                    channels=stem.final_channels,
-                    dwt_fuse=dwt_fuse_eff,
-                    merge="concat",
-                    token_wavelet_scale_init=token_wavelet_scale_init,
-                    token_wavelet_inner_scale_init=token_wavelet_inner_scale_init,
-                    token_wavelet_outer_scale_init=token_wavelet_outer_scale_init,
-                    token_wavelet_shrink=token_wavelet_shrink,
-                    token_wavelet_hf_only=token_wavelet_hf_only,
-                    token_wavelet_per_channel=token_wavelet_per_channel,
-                    token_wavelet_warmup_steps=vit_wavelet_warmup_steps,
-                    token_wavelet_hidden_channels=token_wavelet_hidden_ch,
-                    token_wavelet_side_channels=token_wavelet_side_ch,
-                    token_wavelet_side_mode=token_wavelet_side_mode,
-                    token_wavelet_outer_gate=token_wavelet_outer_gate,
-                    token_wavelet_split_bands=token_wavelet_split_bands,
-                    token_wavelet_image_input_channels=vit_image_input_ch,
-                )
-                if vit_image_input_ch > 0:
-                    pswf_embed = StemWithImageWavelet(stem, post)
-                else:
-                    pswf_embed = nn.Sequential(stem, post)
+                post = PostStemWaveletMerge(channels=stem.final_channels, dwt_fuse=dwt_fuse_eff, merge="concat")
+                pswf_embed = nn.Sequential(stem, post)
                 main_ch = post.out_channels
                 pswf_gate = None if (token_only or pool_only) else WaveletGlobalGate(in_channels=main_ch, dim=dim)
-                
             pe_res = (_img_size // 2, _img_size // 2)
             if bool(auto_patch_dwt):
                 patch_eff = patch_size // 2
@@ -637,3 +467,4 @@ def build_model_from_env(num_classes: Optional[int] = None, img_size: Optional[i
             "MODEL_KIND=mambavision is a stub. Provide a builder in-code or import your local implementation."
         )
     raise ValueError("MODEL_KIND must be vil | vit_tiny | mambavision")
+

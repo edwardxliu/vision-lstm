@@ -358,11 +358,12 @@ def main():
     # ----- Optimizer -----
     # Respect model.no_weight_decay() (e.g. pos_embed, side_token_beta) when provided.
     base_model_for_optim = model.module if isinstance(model, DDP) else model
-    optimizer = build_adamw_with_model_no_weight_decay(
-        base_model_for_optim,
-        lr=base_lr,
-        weight_decay=weight_decay,
-    )
+    # optimizer = build_adamw_with_model_no_weight_decay(
+    #     base_model_for_optim,
+    #     lr=base_lr,
+    #     weight_decay=weight_decay,
+    # )
+    optimizer = torch.optim.AdamW(base_model_for_optim.parameters(), lr=base_lr, weight_decay=weight_decay)
 
     # Use floor so scheduler step count matches actual optimizer.step() count
     # (we only step when it % accum_steps == 0; partial-tail grads are dropped at
@@ -410,6 +411,9 @@ def main():
             token_wavelet_outer_gate=env_bool("TOKEN_WAVELET_OUTER_GATE", False),
             token_wavelet_split_bands=env_bool("TOKEN_WAVELET_SPLIT_BANDS", False),
             wavelet_input_image=env_bool("WAVELET_INPUT_IMAGE", False),
+            wavelet_fuse_shape=env_str("WAVELET_FUSE_SHAPE", "tanh"),
+            wavelet_side_nonneg=env_bool("WAVELET_SIDE_NONNEG", False),
+            token_wavelet_side_scale_init=os.environ.get("TOKEN_WAVELET_SIDE_SCALE_INIT", ""),
         )
         save_json(config_path, cfg_dump)
 

@@ -1,0 +1,25 @@
+MODE: eval_imagenetc
+
+DATASET: imagenet
+DATA_ROOT: /home/omnisky/Public/edward/workspace/data/imagenet_dataset
+IMAGENETC_ROOT: /home/omnisky/Public/edward/workspace/data/ImageNet-C
+DATA_SEED: 1234
+
+MODEL_KIND: vil
+IMG_SIZE: 192
+PER_GPU_BATCH: 32
+ACCUM_STEPS: 1
+AMP_DTYPE: bf16
+
+# Match your ImageNet-1K ViL run. The current default below assumes the ViL-T-style
+# setup used in your in1k192_vil_*_ch32_reg runs. If your training config differs,
+# only update the corresponding fields here.
+DIM: 192
+DEPTH: 12
+FEAT_CH: 32
+PATCH_SIZE: 16
+STRIDE: 16
+AUTO_PATCH_DWT: 1
+
+DISABLE_BRANCH: 1
+NUM_WORKERS: 8
